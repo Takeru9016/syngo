@@ -1,0 +1,23 @@
+{
+  "cli": { "version": ">= 12.6.0" },
+  "build": {
+    "dev": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "ios": { "simulator": true },
+      "env": { "EXPO_PUBLIC_ENV": "dev" }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": { "EXPO_PUBLIC_ENV": "preview" }
+    },
+    "production": {
+      "autoIncrement": "version",
+      "env": { "EXPO_PUBLIC_ENV": "prod" }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

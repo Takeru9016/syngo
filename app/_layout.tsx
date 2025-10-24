@@ -1,24 +1,21 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+// app/_layout.tsx
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { TamaguiProvider, Theme } from 'tamagui';
+import config from '../tamagui.config';
+import { useColorScheme } from 'react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+const qc = new QueryClient();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
+  const scheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <QueryClientProvider client={qc}>
+      <TamaguiProvider config={config}>
+        <Theme name={scheme === 'dark' ? 'dark' : 'light'}>
+          <Stack screenOptions={{ headerShown: false }} />
+        </Theme>
+      </TamaguiProvider>
+    </QueryClientProvider>
   );
 }
