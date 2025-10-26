@@ -9,7 +9,8 @@ import { usePairingStore } from '@/state/pairing';
 import { useThemeStore } from '@/state/theme';
 import { useAuthStore } from '@/store/auth';
 import { initializeAuthListener } from '@/services/auth/auth.service';
-import { testFirebaseConnection } from '@/utils/testFirebase';
+import { testFirebaseConnection } from '@/utils/test/testFirebase';
+import { testSecurityRules } from '@/utils/test/testSecurityRules';
 
 const qc = new QueryClient();
 
@@ -70,6 +71,7 @@ export default function RootLayout() {
   useEffect(() => {
     // Test Firebase connection
     testFirebaseConnection();
+    testSecurityRules()
     
     // Initialize auth listener
     const unsubscribe = initializeAuthListener();

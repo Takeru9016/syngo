@@ -1,0 +1,195 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+    
+    function isPairMember(pairId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/pairs/$(pairId)) &&
+             request.auth.uid in get(/databases/$(database)/documents/pairs/$(pairId)).data.participants;
+    }
+    
+    function getUserPairId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.pairId;
+    }
+    
+    function isInSamePair(otherUid) {
+      let myPairId = getUserPairId();
+      let otherPairId = get(/databases/$(database)/documents/users/$(otherUid)).data.pairId;
+      return myPairId != null && myPairId == otherPairId;
+    }
+    
+    function isValidPairStatus(status) {
+      return status in ['active', 'inactive'];
+    }
+    
+    function isValidTodoPriority(priority) {
+      return priority in ['low', 'medium', 'high'];
+    }
+    
+    function isValidFavoriteCategory(category) {
+      return category in ['movie', 'food', 'place', 'quote', 'link', 'other'];
+    }
+    
+    function isValidNotificationType(type) {
+      return type in ['sticker', 'todo', 'favorite', 'note'];
+    }
+    
+    // Users collection
+    match /users/{uid} {
+      // Users can read their own profile and their partner's profile
+      allow read: if isOwner(uid) || isInSamePair(uid);
+      
+      // Users can create their own profile
+      allow create: if isOwner(uid) &&
+                       request.resource.data.keys().hasAll(['uid', 'displayName']) &&
+                       request.resource.data.uid == uid;
+      
+      // Users can update their own profile (but not uid)
+      allow update: if isOwner(uid) &&
+                       request.resource.data.uid == resource.data.uid;
+      
+      // Users cannot delete their profile
+      allow delete: if false;
+    }
+    
+    // Pairs collection
+    match /pairs/{pairId} {
+      // Pair members can read their pair
+      allow read: if isPairMember(pairId);
+      
+      // Anyone authenticated can create a pair (during pairing)
+      allow create: if isAuthenticated() &&
+                       request.resource.data.keys().hasAll(['participants', 'status', 'createdAt']) &&
+                       request.resource.data.participants.size() == 2 &&
+                       request.auth.uid in request.resource.data.participants &&
+                       isValidPairStatus(request.resource.data.status);
+      
+      // Pair members can update status
+      allow update: if isPairMember(pairId) &&
+                       request.resource.data.participants == resource.data.participants &&
+                       isValidPairStatus(request.resource.data.status);
+      
+      // Pair members can delete (unpair)
+      allow delete: if isPairMember(pairId);
+    }
+    
+    // Pair codes collection
+    match /pairCodes/{code} {
+      // Anyone authenticated can read codes (for redemption)
+      allow read: if isAuthenticated();
+      
+      // Only code owner can create
+      allow create: if isAuthenticated() &&
+                       request.resource.data.keys().hasAll(['code', 'ownerUid', 'expiresAt', 'createdAt', 'used']) &&
+                       request.resource.data.ownerUid == request.auth.uid &&
+                       request.resource.data.used == false &&
+                       request.resource.data.expiresAt > request.time;
+      
+      // Can update to mark as used or add pairId
+      allow update: if isAuthenticated() &&
+                       (request.resource.data.ownerUid == resource.data.ownerUid) &&
+                       (request.resource.data.code == resource.data.code);
+      
+      // Owner can delete their codes
+      allow delete: if isAuthenticated() && resource.data.ownerUid == request.auth.uid;
+    }
+    
+    // Todos collection (shared between pair members via user's pairId)
+    match /todos/{todoId} {
+      // Users can read todos created by them or their partner
+      allow read: if isAuthenticated() && 
+                     (resource.data.createdBy == request.auth.uid || isInSamePair(resource.data.createdBy));
+      
+      // Users can create todos
+      allow create: if isAuthenticated() &&
+                       request.resource.data.keys().hasAll(['title', 'priority', 'isCompleted', 'createdBy', 'createdAt']) &&
+                       request.resource.data.createdBy == request.auth.uid &&
+                       isValidTodoPriority(request.resource.data.priority);
+      
+      // Users can update their own todos or their partner's todos
+      allow update: if isAuthenticated() &&
+                       (resource.data.createdBy == request.auth.uid || isInSamePair(resource.data.createdBy)) &&
+                       request.resource.data.createdBy == resource.data.createdBy &&
+                       isValidTodoPriority(request.resource.data.priority);
+      
+      // Users can delete their own todos or their partner's todos
+      allow delete: if isAuthenticated() && 
+                       (resource.data.createdBy == request.auth.uid || isInSamePair(resource.data.createdBy));
+    }
+    
+    // Favorites collection
+    match /favorites/{favoriteId} {
+      // Users can read favorites created by them or their partner
+      allow read: if isAuthenticated() && 
+                     (resource.data.createdBy == request.auth.uid || isInSamePair(resource.data.createdBy));
+      
+      // Users can create favorites
+      allow create: if isAuthenticated() &&
+                       request.resource.data.keys().hasAll(['title', 'category', 'description', 'createdBy', 'createdAt']) &&
+                       request.resource.data.createdBy == request.auth.uid &&
+                       isValidFavoriteCategory(request.resource.data.category);
+      
+      // Users can update their own favorites or their partner's favorites
+      allow update: if isAuthenticated() &&
+                       (resource.data.createdBy == request.auth.uid || isInSamePair(resource.data.createdBy)) &&
+                       request.resource.data.createdBy == resource.data.createdBy &&
+                       isValidFavoriteCategory(request.resource.data.category);
+      
+      // Users can delete their own favorites or their partner's favorites
+      allow delete: if isAuthenticated() && 
+                       (resource.data.createdBy == request.auth.uid || isInSamePair(resource.data.createdBy));
+    }
+    
+    // Stickers collection
+    match /stickers/{stickerId} {
+      // Users can read stickers created by them or their partner
+      allow read: if isAuthenticated() && 
+                     (resource.data.createdBy == request.auth.uid || isInSamePair(resource.data.createdBy));
+      
+      // Users can create stickers
+      allow create: if isAuthenticated() &&
+                       request.resource.data.keys().hasAll(['name', 'imageUrl', 'createdBy', 'createdAt']) &&
+                       request.resource.data.createdBy == request.auth.uid;
+      
+      // Users can update their own stickers
+      allow update: if isAuthenticated() &&
+                       resource.data.createdBy == request.auth.uid &&
+                       request.resource.data.createdBy == resource.data.createdBy;
+      
+      // Users can delete their own stickers or their partner's stickers
+      allow delete: if isAuthenticated() && 
+                       (resource.data.createdBy == request.auth.uid || isInSamePair(resource.data.createdBy));
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Users can read notifications created for them (by their partner)
+      allow read: if isAuthenticated() && isInSamePair(resource.data.createdBy);
+      
+      // Users can create notifications for their partner
+      allow create: if isAuthenticated() &&
+                       request.resource.data.keys().hasAll(['type', 'title', 'message', 'createdBy', 'read', 'createdAt']) &&
+                       request.resource.data.createdBy == request.auth.uid &&
+                       isValidNotificationType(request.resource.data.type) &&
+                       request.resource.data.read == false;
+      
+      // Users can update notifications (mark as read)
+      allow update: if isAuthenticated() &&
+                       isInSamePair(resource.data.createdBy) &&
+                       request.resource.data.createdBy == resource.data.createdBy;
+      
+      // Users can delete notifications sent to them
+      allow delete: if isAuthenticated() && isInSamePair(resource.data.createdBy);
+    }
+  }
+}

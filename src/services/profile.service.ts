@@ -11,8 +11,8 @@ import {
 } from "firebase/firestore";
 
 import { db } from "@/config/firebase";
-import { UserProfile } from "@/types";
 import { getCurrentUserId } from "./auth/auth.service";
+import { UserProfile } from "@/types";
 
 /**
  * Get user profile from Firestore
@@ -36,6 +36,7 @@ export async function getProfile(): Promise<UserProfile | null> {
         displayName: data.displayName || "User",
         bio: data.bio || "",
         avatarUrl: data.avatarUrl || "",
+        pairId: data.pairId || undefined,
       };
     } else {
       // Create default profile if doesn't exist
@@ -71,6 +72,7 @@ export async function createProfile(
       displayName: profile.displayName,
       bio: profile.bio || "",
       avatarUrl: profile.avatarUrl || "",
+      pairId: profile.pairId || null,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -104,60 +106,56 @@ export async function updateProfile(
 }
 
 /**
- * Get partner profile (requires pair lookup first)
+ * Get partner profile
+ * Uses the pairId from current user's profile to find partner
  */
-export async function getPartnerProfile(
-  pairId?: string
-): Promise<UserProfile | null> {
+export async function getPartnerProfile(): Promise<UserProfile | null> {
   const uid = getCurrentUserId();
-  if (!uid) return null;
+  if (!uid) {
+    console.log("⚠️ No user authenticated");
+    return null;
+  }
 
   try {
-    // If no pairId provided, find it
-    let partnerUid: string | null = null;
-
-    if (pairId) {
-      // Get pair document to find partner UID
-      const pairDoc = await getDoc(doc(db, "pairs", pairId));
-      if (pairDoc.exists()) {
-        const participants = pairDoc.data().participants as string[];
-        partnerUid = participants.find((id) => id !== uid) || null;
-      }
-    } else {
-      // Find pair where current user is a participant
-      const pairsQuery = query(
-        collection(db, "pairs"),
-        where("participants", "array-contains", uid),
-        where("status", "==", "active")
-      );
-      const pairsSnap = await getDocs(pairsQuery);
-
-      if (!pairsSnap.empty) {
-        const pairData = pairsSnap.docs[0].data();
-        const participants = pairData.participants as string[];
-        partnerUid = participants.find((id) => id !== uid) || null;
-      }
+    // Get current user's profile to find pairId
+    const myProfile = await getProfile();
+    if (!myProfile?.pairId) {
+      console.log("⚠️ User is not paired");
+      return null;
     }
 
+    // Get the pair document
+    const pairDoc = await getDoc(doc(db, "pairs", myProfile.pairId));
+    if (!pairDoc.exists()) {
+      console.log("⚠️ Pair document not found");
+      return null;
+    }
+
+    // Find partner's UID
+    const participants = pairDoc.data().participants as [string, string];
+    const partnerUid = participants.find((id) => id !== uid);
+
     if (!partnerUid) {
-      console.log("⚠️ No partner found");
+      console.log("⚠️ Partner UID not found");
       return null;
     }
 
     // Get partner's profile
     const partnerDoc = await getDoc(doc(db, "users", partnerUid));
-    if (partnerDoc.exists()) {
-      const data = partnerDoc.data();
-      return {
-        id: partnerDoc.id,
-        uid: data.uid || partnerUid,
-        displayName: data.displayName || "Partner",
-        bio: data.bio || "",
-        avatarUrl: data.avatarUrl || "",
-      };
+    if (!partnerDoc.exists()) {
+      console.log("⚠️ Partner profile not found");
+      return null;
     }
 
-    return null;
+    const data = partnerDoc.data();
+    return {
+      id: partnerDoc.id,
+      uid: data.uid || partnerUid,
+      displayName: data.displayName || "Partner",
+      bio: data.bio || "",
+      avatarUrl: data.avatarUrl || "",
+      pairId: data.pairId || undefined,
+    };
   } catch (error: any) {
     console.error("❌ Error getting partner profile:", error.message);
     return null;

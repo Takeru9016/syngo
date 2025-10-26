@@ -8,9 +8,8 @@ import {
 import {
   getFirestore,
   initializeFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager,
   Firestore,
+  memoryLocalCache,
 } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -74,9 +73,7 @@ try {
 let db: Firestore;
 try {
   db = initializeFirestore(app, {
-    localCache: persistentLocalCache({
-      tabManager: persistentMultipleTabManager(),
-    }),
+    localCache: memoryLocalCache(),
   });
 } catch (error) {
   // Firestore already initialized
