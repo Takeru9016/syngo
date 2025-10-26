@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import config from '../tamagui.config';
 import { usePairingStore } from '@/state/pairing';
+import { useThemeStore } from '@/state/theme';
 
 const qc = new QueryClient();
 
@@ -39,11 +40,18 @@ function Gate() {
 }
 
 export default function RootLayout() {
-  const scheme = useColorScheme();
+  const systemScheme = useColorScheme();
+  const { mode } = useThemeStore();
+
+  // Determine active theme based on user preference
+  const activeTheme = mode === 'system' 
+    ? (systemScheme === 'dark' ? 'dark' : 'light')
+    : mode;
+
   return (
     <QueryClientProvider client={qc}>
       <TamaguiProvider config={config}>
-        <Theme name={scheme === 'dark' ? 'dark' : 'light'}>
+        <Theme name={activeTheme}>
           <Gate />
         </Theme>
       </TamaguiProvider>

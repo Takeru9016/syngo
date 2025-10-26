@@ -10,3 +10,7 @@ export { FavoriteFormModal } from "./Favorites/FavoriteFormModal";
 
 export { StickerCard } from "./Sticker/StickerCard";
 export { AddStickerModal } from "./Sticker/AddStickerModal";
+
+export { ProfileEditModal } from "./Settings/ProfileEditModal";
+
+export { ThemeSelectorModal } from "./Theme/ThemeSelectorModal";
