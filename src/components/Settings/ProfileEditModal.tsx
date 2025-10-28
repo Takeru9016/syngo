@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Modal, Platform, KeyboardAvoidingView, Alert } from 'react-native';
+import { useEffect, useState } from "react";
+import { Modal, Platform, KeyboardAvoidingView, Alert } from "react-native";
 import {
   YStack,
   XStack,
@@ -10,11 +10,13 @@ import {
   Stack,
   ScrollView,
   Image,
-} from 'tamagui';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
+  Spinner,
+} from "tamagui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as ImagePicker from "expo-image-picker";
 
-import { UserProfile } from '@/types';
+import { UserProfile } from "@/types";
+import { uploadAvatar } from "@/services/profile.service";
 
 type Props = {
   visible: boolean;
@@ -25,57 +27,103 @@ type Props = {
 
 export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
   const insets = useSafeAreaInsets();
-  const [displayName, setDisplayName] = useState('');
-  const [bio, setBio] = useState('');
+  const [displayName, setDisplayName] = useState("");
+  const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.displayName);
-      setBio(profile.bio || '');
+      setBio(profile.bio || "");
       setAvatarUrl(profile.avatarUrl);
     }
   }, [profile, visible]);
 
   const handleSave = () => {
     if (!displayName.trim()) {
-      Alert.alert('Missing Name', 'Please enter a display name');
+      Alert.alert("Missing Name", "Please enter a display name");
       return;
     }
+
+    // Only save displayName and bio
+    // Avatar is already saved by pickImage -> uploadAvatar
     onSave({
       displayName: displayName.trim(),
       bio: bio.trim(),
-      avatarUrl,
     });
     onClose();
   };
 
   const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant photo library access');
-      return;
-    }
+    console.log("🎯 ProfileEditModal: pickImage called");
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+    try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission needed", "Please grant photo library access");
+        return;
+      }
 
-    if (!result.canceled && result.assets[0]) {
-      setAvatarUrl(result.assets[0].uri);
+      console.log("🖼️ Launching image picker...");
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"], // Fixed deprecated MediaTypeOptions
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (result.canceled) {
+        console.log("❌ Image picker canceled");
+        return;
+      }
+
+      if (!result.assets[0]) {
+        console.log("❌ No image selected");
+        return;
+      }
+
+      const localUri = result.assets[0].uri;
+      console.log("✅ Image selected:", localUri);
+
+      setUploadingAvatar(true);
+
+      // Upload to Cloudinary (this will also update Firestore)
+      console.log("🚀 Calling uploadAvatar...");
+      const cloudinaryUrl = await uploadAvatar(localUri);
+
+      console.log("✅ Upload complete, Cloudinary URL:", cloudinaryUrl);
+
+      // Update local state with Cloudinary URL for preview
+      setAvatarUrl(cloudinaryUrl);
+
+      Alert.alert("Success", "Avatar uploaded successfully!");
+    } catch (error: any) {
+      console.error("❌ Avatar upload error:", error);
+      console.error("❌ Error stack:", error.stack);
+      Alert.alert("Upload failed", error.message || "Please try again.");
+    } finally {
+      setUploadingAvatar(false);
     }
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+    >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <Stack flex={1} backgroundColor="rgba(0,0,0,0.5)" justifyContent="flex-end">
+        <Stack
+          flex={1}
+          backgroundColor="rgba(0,0,0,0.5)"
+          justifyContent="flex-end"
+        >
           <Stack
             backgroundColor="$bg"
             borderTopLeftRadius="$8"
@@ -109,6 +157,7 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
                     borderRadius={60}
                     overflow="hidden"
                     backgroundColor="$background"
+                    position="relative"
                   >
                     {avatarUrl ? (
                       <Image
@@ -126,8 +175,23 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
                         backgroundColor="$primary"
                       >
                         <Text color="white" fontSize={48} fontWeight="900">
-                          {displayName.charAt(0).toUpperCase() || '?'}
+                          {displayName.charAt(0).toUpperCase() || "?"}
                         </Text>
+                      </Stack>
+                    )}
+                    {/* Upload overlay */}
+                    {uploadingAvatar && (
+                      <Stack
+                        position="absolute"
+                        top={0}
+                        left={0}
+                        right={0}
+                        bottom={0}
+                        backgroundColor="rgba(0,0,0,0.6)"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Spinner color="white" size="large" />
                       </Stack>
                     )}
                   </Stack>
@@ -139,11 +203,21 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
                     height={40}
                     paddingHorizontal="$4"
                     onPress={pickImage}
+                    disabled={uploadingAvatar}
                     pressStyle={{ opacity: 0.7 }}
                   >
-                    <Text color="$color" fontSize={14} fontWeight="600">
-                      Change Photo
-                    </Text>
+                    {uploadingAvatar ? (
+                      <XStack gap="$2" alignItems="center">
+                        <Spinner size="small" />
+                        <Text color="$color" fontSize={14} fontWeight="600">
+                          Uploading...
+                        </Text>
+                      </XStack>
+                    ) : (
+                      <Text color="$color" fontSize={14} fontWeight="600">
+                        Change Photo
+                      </Text>
+                    )}
                   </Button>
                 </YStack>
 
@@ -187,8 +261,8 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
                   borderRadius="$6"
                   height={48}
                   onPress={handleSave}
-                  disabled={!displayName.trim()}
-                  opacity={!displayName.trim() ? 0.5 : 1}
+                  disabled={!displayName.trim() || uploadingAvatar}
+                  opacity={!displayName.trim() || uploadingAvatar ? 0.5 : 1}
                   pressStyle={{ opacity: 0.8 }}
                   marginTop="$2"
                 >

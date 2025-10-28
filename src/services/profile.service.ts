@@ -10,6 +10,7 @@ import {
 import { db } from "@/config/firebase";
 import { getCurrentUserId } from "./auth/auth.service";
 import { UserProfile } from "@/types";
+import { CloudinaryStorage } from "./storage/cloudinary.adapter";
 
 /**
  * Get user profile from Firestore
@@ -89,15 +90,54 @@ export async function updateProfile(
   const uid = getCurrentUserId();
   if (!uid) throw new Error("No user ID available");
 
+  console.log("📝 Updating profile with:", updates);
+
   try {
     const docRef = doc(db, "users", uid);
     await updateDoc(docRef, {
       ...updates,
       updatedAt: serverTimestamp(),
     });
-    console.log("✅ Profile updated successfully");
+    console.log("✅ Profile updated successfully in Firestore");
   } catch (error: any) {
     console.error("❌ Error updating profile:", error.message);
+    throw error;
+  }
+}
+
+/**
+ * Upload avatar and update profile
+ */
+export async function uploadAvatar(localUri: string): Promise<string> {
+  const uid = getCurrentUserId();
+  if (!uid) throw new Error("No user ID available");
+
+  console.log("🎯 uploadAvatar called");
+  console.log("   User ID:", uid);
+  console.log("   Local URI:", localUri);
+
+  try {
+    console.log("📤 Step 1: Uploading to Cloudinary...");
+
+    // Upload to Cloudinary FIRST
+    const { url } = await CloudinaryStorage.upload(localUri, {
+      folder: `notify/avatars/${uid}`,
+    });
+
+    console.log("✅ Step 2: Cloudinary upload complete!");
+    console.log("   Cloudinary URL:", url);
+
+    // THEN update Firestore with the Cloudinary URL
+    console.log("📝 Step 3: Updating Firestore with Cloudinary URL...");
+    await updateProfile({ avatarUrl: url });
+
+    console.log("✅ Step 4: Profile updated successfully!");
+    console.log("   Final avatar URL:", url);
+
+    return url;
+  } catch (error: any) {
+    console.error("❌ Error in uploadAvatar:", error.message);
+    console.error("❌ Error stack:", error.stack);
     throw error;
   }
 }

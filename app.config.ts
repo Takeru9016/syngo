@@ -41,6 +41,13 @@ const config: ExpoConfig = {
         dark: { backgroundColor: "#0000" },
       },
     ],
+    [
+      "expo-image-picker",
+      {
+        photosPermission:
+          "Allow Notify to access your photos to upload avatars and stickers.",
+      },
+    ],
     // We'll add 'expo-notifications' in Phase 3
   ],
 
@@ -59,8 +66,13 @@ const config: ExpoConfig = {
     firebaseAuthDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
     firebaseProjectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
     firebaseStorageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    firebaseMessagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    firebaseMessagingSenderId:
+      process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
     firebaseAppId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+    // Cloudinary
+    CLOUDINARY_CLOUD_NAME: process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_UNSIGNED_PRESET:
+      process.env.EXPO_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
   },
 };
 

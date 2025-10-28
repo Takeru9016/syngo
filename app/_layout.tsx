@@ -6,10 +6,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import config from "../tamagui.config";
 import { usePairingStore } from "@/store/pairing";
+import { useProfileStore } from "@/store/profile";
 import { useThemeStore } from "@/state/theme";
 import { useAuthStore } from "@/store/auth";
 import { initializeAuthListener } from "@/services/auth/auth.service";
-import { getProfile } from "@/services/profile.service";
+import {
+  subscribeToProfile,
+  subscribeToPartnerProfile,
+} from "@/services/profile.service";
 import { testFirebaseConnection } from "@/utils/test/testFirebase";
 
 const qc = new QueryClient();
@@ -32,7 +36,8 @@ function LoadingScreen() {
 function Gate() {
   const router = useRouter();
   const segments = useSegments();
-  const { isPaired, pairId } = usePairingStore();
+  const { isPaired, setPairId } = usePairingStore();
+  const { setProfile, setPartnerProfile } = useProfileStore();
   const { initialized, user } = useAuthStore();
 
   const [mounted, setMounted] = useState(false);
@@ -44,38 +49,54 @@ function Gate() {
     setMounted(true);
   }, []);
 
-  // Check pairing status when user is authenticated
+  // Profile listener - sets up real-time profile updates
   useEffect(() => {
-    if (initialized && user && !pairingChecked) {
-      checkPairingStatus();
-    }
-  }, [initialized, user, pairingChecked]);
+    if (!initialized || !user) return;
 
-  const checkPairingStatus = async () => {
-    try {
-      const profile = await getProfile();
+    console.log("👂 Setting up profile listener");
+
+    const unsubscribe = subscribeToProfile((profile) => {
+      setProfile(profile);
+
+      // Update pairing store with pairId from profile
       if (profile?.pairId) {
-        usePairingStore.setState({
-          isPaired: true,
-          pairId: profile.pairId,
-        });
+        setPairId(profile.pairId);
+
+        // Mark pairing as checked once we have profile data
+        if (!pairingChecked) {
+          setPairingChecked(true);
+        }
       } else {
-        usePairingStore.setState({
-          isPaired: false,
-          pairId: null,
-        });
+        setPairId(null);
+
+        // Mark pairing as checked even if no pairId
+        if (!pairingChecked) {
+          setPairingChecked(true);
+        }
       }
-    } catch (error) {
-      console.error("❌ Error checking pairing status:", error);
-      // Default to not paired on error
-      usePairingStore.setState({
-        isPaired: false,
-        pairId: null,
-      });
-    } finally {
-      setPairingChecked(true);
-    }
-  };
+    });
+
+    return () => {
+      console.log("🔇 Cleaning up profile listener");
+      unsubscribe();
+    };
+  }, [initialized, user]);
+
+  // Partner profile listener - sets up real-time partner updates
+  useEffect(() => {
+    if (!initialized || !user || !isPaired) return;
+
+    console.log("👂 Setting up partner profile listener");
+
+    const unsubscribe = subscribeToPartnerProfile((partnerProfile) => {
+      setPartnerProfile(partnerProfile);
+    });
+
+    return () => {
+      console.log("🔇 Cleaning up partner profile listener");
+      unsubscribe();
+    };
+  }, [initialized, user, isPaired]);
 
   // Router guard
   useEffect(() => {
@@ -90,8 +111,10 @@ function Gate() {
 
       // Initial navigation
       if (user && !isPaired && !inPair) {
+        console.log("🔀 Redirecting to pair screen (not paired)");
         router.replace("/pair");
       } else if (user && isPaired && !inTabs) {
+        console.log("🔀 Redirecting to tabs (paired)");
         router.replace("/(tabs)");
       }
 
@@ -101,9 +124,13 @@ function Gate() {
     // Subsequent navigation
     if (user && !isPaired && inTabs) {
       // User is authenticated but not paired, and trying to access tabs
+      console.log(
+        "🔀 Redirecting to pair screen (unpaired, tried to access tabs)"
+      );
       router.replace("/pair");
     } else if (user && isPaired && inPair) {
       // User is paired but still on pair screen
+      console.log("🔀 Redirecting to tabs (paired, on pair screen)");
       router.replace("/(tabs)");
     }
   }, [mounted, initialized, pairingChecked, user, isPaired, segments]);

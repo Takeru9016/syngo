@@ -18,33 +18,52 @@ service cloud.firestore {
              request.auth.uid in get(/databases/$(database)/documents/pairs/$(pairId)).data.participants;
     }
     
-    // Helper to check if update is only setting pairId
-    function isSettingPairId() {
+    // Helper to check if update is only setting pairId and updatedAt
+    function isSettingPairIdOnly() {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pairId', 'updatedAt']);
+    }
+    
+    // Helper to check if requester is paired with this user
+    function isPairPartner(uid) {
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/users/$(uid)) &&
+             get(/databases/$(database)/documents/users/$(uid)).data.pairId != null &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.pairId == 
+             get(/databases/$(database)/documents/users/$(uid)).data.pairId;
     }
     
     // Users collection
     match /users/{uid} {
-      // Users can read their own profile
-      allow read: if isOwner(uid);
+      function isSelf() {
+        return isAuthenticated() && request.auth.uid == uid;
+      }
       
-      // Users can create their own profile (anonymous auth)
-      allow create: if isAuthenticated() && request.auth.uid == uid;
+      // Read own profile
+      allow read: if isSelf();
       
-      // Users can update their own profile
-      allow update: if isOwner(uid);
-      
-      // Allow setting pairId when being paired (for partner's profile update)
-      allow update: if isAuthenticated() && 
-                       isSettingPairId() &&
-                       request.resource.data.pairId is string;
-      
-      // Users can read their partner's profile if they're paired
+      // Read partner's profile if paired
       allow read: if isAuthenticated() && 
                      exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.pairId != null &&
                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.pairId == 
                      resource.data.pairId;
+      
+      // Create own profile
+      allow create: if isAuthenticated() && request.auth.uid == uid;
+      
+      // Update own profile
+      allow update: if isSelf();
+      
+      // Allow setting pairId when pairing (string) or unpairing (null)
+      allow update: if isAuthenticated() && 
+                       isSettingPairIdOnly() &&
+                       (
+                         // Pairing: setting to a string
+                         (request.resource.data.pairId is string) ||
+                         // Unpairing: setting to null, and requester is a pair member
+                         (request.resource.data.pairId == null && isPairPartner(uid))
+                       );
     }
     
     // Pair codes collection
