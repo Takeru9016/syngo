@@ -13,6 +13,9 @@ const config: ExpoConfig = {
 
   ios: {
     supportsTablet: true,
+    infoPlist: {
+      UIBackgroundModes: ['remote-notification'],
+    },
   },
 
   android: {
@@ -22,6 +25,13 @@ const config: ExpoConfig = {
       backgroundImage: "./assets/images/android-icon-background.png",
       monochromeImage: "./assets/images/android-icon-monochrome.png",
     },
+    permissions: [
+      'INTERNET',
+      'VIBRATE',
+      'WAKE_LOCK',
+      'android.permission.POST_NOTIFICATIONS',
+      'android.permission.RECEIVE_BOOT_COMPLETED',
+    ],
   },
 
   web: {
@@ -48,7 +58,14 @@ const config: ExpoConfig = {
           "Allow Notify to access your photos to upload avatars and stickers.",
       },
     ],
-    // We'll add 'expo-notifications' in Phase 3
+    [
+      "expo-notifications",
+      {
+        icon: "./assets/notification-icon.png", // optional, 96x96 transparent png
+        color: "#4F46E5",
+        mode: "production",
+      },
+    ],
   ],
 
   experiments: {

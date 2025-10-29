@@ -14,6 +14,8 @@ import {
   Separator,
   Spinner,
 } from "tamagui";
+import Constants from "expo-constants";
+import { addSeconds } from "date-fns";
 
 import { UserProfile } from "@/types";
 import {
@@ -27,6 +29,7 @@ import { usePairingStore } from "@/store/pairing";
 import { useProfileStore } from "@/store/profile";
 import { useThemeStore, ThemeMode } from "@/state/theme";
 import { unpair } from "@/services/pairing.service";
+import { NotificationService } from "@/services/notification/notification.service";
 
 export default function SettingsScreen() {
   // Use profile store for real-time updates
@@ -162,6 +165,32 @@ export default function SettingsScreen() {
   };
 
   const isPaired = isPairedFromStore;
+
+  // + add near top of component file (outside component or inside, both fine)
+  const IS_DEV =
+    Constants.expoConfig?.extra?.ENV === "development" ||
+    process.env.EXPO_PUBLIC_ENV === "development" ||
+    process.env.NODE_ENV === "development";
+
+  // + add inside your component
+  const handleTestNotification = async () => {
+    try {
+      const id = await NotificationService.scheduleLocalNotification({
+        title: "Notify",
+        body: "This is a test local notification",
+        when: addSeconds(new Date(), 5),
+        category: "reminders",
+      });
+      console.log("🔔 Scheduled test notification id:", id);
+      Alert.alert(
+        "Scheduled",
+        "A test notification will appear in ~5 seconds."
+      );
+    } catch (e: any) {
+      console.warn("⚠️ Failed to schedule test notification", e);
+      Alert.alert("Error", e?.message ?? "Failed to schedule notification");
+    }
+  };
 
   return (
     <YStack flex={1} backgroundColor="$bg">
@@ -496,6 +525,27 @@ export default function SettingsScreen() {
               )}
             </Stack>
           </YStack>
+
+          <Separator borderColor="$borderColor" />
+
+          {/* Dev-only test notification button (no UI change for prod) */}
+          {IS_DEV && (
+            <YStack gap="$2">
+              <Button
+                backgroundColor="$background"
+                borderColor="$borderColor"
+                borderWidth={1}
+                borderRadius="$5"
+                height={40}
+                onPress={handleTestNotification}
+                pressStyle={{ opacity: 0.7 }}
+              >
+                <Text color="$color" fontSize={14} fontWeight="600">
+                  ▶︎ Send Test Notification (Dev)
+                </Text>
+              </Button>
+            </YStack>
+          )}
 
           <Separator borderColor="$borderColor" />
 

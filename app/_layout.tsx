@@ -15,6 +15,8 @@ import {
   subscribeToPartnerProfile,
 } from "@/services/profile.service";
 import { testFirebaseConnection } from "@/utils/test/testFirebase";
+import { NotificationService } from "@/services/notification/notification.service";
+import { registerDevicePushToken } from "@/services/notification/push.registry";
 
 const qc = new QueryClient();
 
@@ -156,6 +158,24 @@ export default function RootLayout() {
       testFirebaseConnection();
       // testSecurityRules(); // Uncomment to test security rules
     }
+
+    (async () => {
+      try {
+        await NotificationService.init();
+        console.log("🔔 Notifications initialized");
+      } catch (e) {
+        console.warn("⚠️ Notification init failed:", e);
+      }
+    })();
+
+    (async () => {
+      try {
+        const token = await registerDevicePushToken();
+        if (token) console.log("🔑 Push token:", token);
+      } catch (e) {
+        console.warn("⚠️ Push token registration failed:", e);
+      }
+    })();
 
     // Initialize auth listener
     const unsubscribe = initializeAuthListener();

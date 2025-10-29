@@ -64,6 +64,18 @@ service cloud.firestore {
                          // Unpairing: setting to null, and requester is a pair member
                          (request.resource.data.pairId == null && isPairPartner(uid))
                        );
+
+      // Device tokens for push
+      match /devices/{deviceId} {
+        // Only the signed-in owner can read/write their device records
+        allow read, write: if isOwner(uid);
+      }
+
+      // Optional: client-stored scheduled local notifications (Phase 3)
+      match /scheduledNotifications/{notifId} {
+        // Only the signed-in owner can read/write their scheduled notifs
+        allow read, write: if isOwner(uid);
+      }
     }
     
     // Pair codes collection
