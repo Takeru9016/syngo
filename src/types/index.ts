@@ -51,14 +51,14 @@ export type Notification = {
   read: boolean;
 };
 
-// Add these to your existing types file:
-
 export type AppNotificationType =
   | "todo_created"
   | "todo_completed"
   | "favorite_added"
   | "sticker_sent"
   | "pair_connected"
+  | "pair_request"
+  | "pair_accepted"
   | "other";
 
 export type AppNotification = {
@@ -100,3 +100,9 @@ export type PairCode = {
   createdAt: number;
   used: boolean;
 };
+
+export type HomeWidgetType =
+  | "latest_notification"
+  | "recent_todos"
+  | "recent_favorites"
+  | "recent_stickers";
