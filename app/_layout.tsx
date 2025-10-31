@@ -15,7 +15,7 @@ import {
   subscribeToPartnerProfile,
 } from "@/services/profile/profile.service";
 import { testFirebaseConnection } from "@/utils/test/testFirebase";
-import { NotificationService } from "@/services/notification/notification.service";
+import { NotificationService } from "@/services/notification/local-notification.service";
 import { registerDevicePushToken } from "@/services/notification/push.registry";
 
 const qc = new QueryClient();

@@ -29,7 +29,7 @@ import { usePairingStore } from "@/store/pairing";
 import { useProfileStore } from "@/store/profile";
 import { useThemeStore, ThemeMode } from "@/state/theme";
 import { unpair } from "@/services/pairing/pairing.service";
-import { NotificationService } from "@/services/notification/notification.service";
+import { NotificationService } from "@/services/notification/local-notification.service";
 
 export default function SettingsScreen() {
   // Use profile store for real-time updates
