@@ -122,7 +122,6 @@ service cloud.firestore {
     match /todos/{todoId} {
       // Pair members can read todos
       allow read: if isAuthenticated() && 
-                     exists(/databases/$(database)/documents/pairs/$(resource.data.pairId)) &&
                      isPairMember(resource.data.pairId);
       
       // Pair members can create todos

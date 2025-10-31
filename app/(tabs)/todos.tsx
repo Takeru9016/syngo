@@ -1,99 +1,131 @@
-import { useEffect, useState } from "react";
-import { RefreshControl } from "react-native";
-import { YStack, XStack, Text, Button, ScrollView } from "tamagui";
+import { useMemo, useState } from "react";
+import { RefreshControl, Alert } from "react-native";
+import { YStack, XStack, Text, Button, ScrollView, Spinner } from "tamagui";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { TodoItem, TodoModal } from "@/components";
 import { Todo } from "@/types";
 import {
-  addTodo,
-  deleteTodo,
-  getTodos,
-  updateTodo,
-} from "@/services/mock/todo.mock";
+  useTodos,
+  useCreateTodo,
+  useUpdateTodo,
+  useDeleteTodo,
+} from "@/hooks/useTodo";
+import { useProfileStore } from "@/store/profile";
 
 type Filter = "all" | "active" | "completed";
 
 export default function TodosScreen() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const pairId = useProfileStore((s) => s.profile?.pairId);
+
+  const { data: todos = [], isLoading, refetch, isRefetching } = useTodos();
+  const createTodo = useCreateTodo();
+  const updateTodo = useUpdateTodo();
+  const deleteTodo = useDeleteTodo();
+
   const [filter, setFilter] = useState<Filter>("all");
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const load = async () => {
-    const data = await getTodos();
-    setTodos(data);
-  };
-
-  useEffect(() => {
-    load();
-  }, []);
 
   const onRefresh = async () => {
-    setRefreshing(true);
-    await load();
-    setRefreshing(false);
+    await refetch();
   };
 
-  const handleToggle = async (id: string) => {
+  const handleToggle = (id: string) => {
+    // Prevent toggling optimistic items
+    if (id.startsWith("optimistic-")) {
+      Alert.alert("Please wait", "Item is still syncing...");
+      return;
+    }
+
     const todo = todos.find((t) => t.id === id);
     if (!todo) return;
-    await updateTodo(id, { isCompleted: !todo.isCompleted });
-    await load();
+    updateTodo.mutate({ id, updates: { isCompleted: !todo.isCompleted } });
   };
 
   const handleEdit = (todo: Todo) => {
+    // Prevent editing optimistic items
+    if (todo.id.startsWith("optimistic-")) {
+      Alert.alert("Please wait", "Item is still syncing...");
+      return;
+    }
+
     setEditingTodo(todo);
     setModalVisible(true);
   };
 
-  const handleDelete = async (id: string) => {
-    await deleteTodo(id);
-    await load();
+  const handleDelete = (id: string) => {
+    // Prevent deleting optimistic items
+    if (id.startsWith("optimistic-")) {
+      Alert.alert("Please wait", "Item is still syncing...");
+      return;
+    }
+
+    deleteTodo.mutate(id);
   };
 
   const handleSave = async (
     data: Omit<Todo, "id" | "createdAt" | "createdBy">
   ) => {
     if (editingTodo) {
-      await updateTodo(editingTodo.id, data);
+      // Update existing
+      updateTodo.mutate({
+        id: editingTodo.id,
+        updates: {
+          title: data.title,
+          description: data.description,
+          dueDate: data.dueDate,
+          isCompleted: data.isCompleted,
+          priority: data.priority,
+        },
+      });
+      setEditingTodo(null);
     } else {
-      await addTodo({ ...data, createdBy: "user1" });
+      // Create new - wait for completion
+      try {
+        await createTodo.mutateAsync({
+          title: data.title,
+          description: data.description,
+          dueDate: data.dueDate,
+          priority: data.priority,
+        });
+        // Success - modal will close after refetch completes
+      } catch (error) {
+        console.error("Failed to create todo:", error);
+        Alert.alert("Error", "Failed to create reminder. Please try again.");
+      }
     }
-    await load();
-    setEditingTodo(null);
   };
 
-  const handleAdd = () => {
-    setEditingTodo(null);
-    setModalVisible(true);
-  };
+  const filteredTodos = useMemo(() => {
+    if (!todos) return [];
+    return todos.filter((t) => {
+      if (filter === "active") return !t.isCompleted;
+      if (filter === "completed") return t.isCompleted;
+      return true;
+    });
+  }, [todos, filter]);
 
-  const filteredTodos = todos.filter((t) => {
-    if (filter === "active") return !t.isCompleted;
-    if (filter === "completed") return t.isCompleted;
-    return true;
-  });
+  const groupedTodos = useMemo(() => {
+    const now = Date.now();
+    const todayStr = new Date().toDateString();
 
-  const groupedTodos = {
-    overdue: filteredTodos.filter(
-      (t) => !t.isCompleted && t.dueDate < Date.now()
-    ),
-    today: filteredTodos.filter((t) => {
-      const today = new Date().toDateString();
-      return !t.isCompleted && new Date(t.dueDate).toDateString() === today;
-    }),
-    upcoming: filteredTodos.filter((t) => {
-      const today = new Date().toDateString();
-      return (
+    const overdue = filteredTodos.filter(
+      (t) => !t.isCompleted && t.dueDate < now
+    );
+    const today = filteredTodos.filter(
+      (t) => !t.isCompleted && new Date(t.dueDate).toDateString() === todayStr
+    );
+    const upcoming = filteredTodos.filter(
+      (t) =>
         !t.isCompleted &&
-        t.dueDate > Date.now() &&
-        new Date(t.dueDate).toDateString() !== today
-      );
-    }),
-    completed: filteredTodos.filter((t) => t.isCompleted),
-  };
+        t.dueDate > now &&
+        new Date(t.dueDate).toDateString() !== todayStr
+    );
+    const completed = filteredTodos.filter((t) => t.isCompleted);
+
+    return { overdue, today, upcoming, completed };
+  }, [filteredTodos]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -101,7 +133,10 @@ export default function TodosScreen() {
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl
+              refreshing={isLoading || isRefetching}
+              onRefresh={onRefresh}
+            />
           }
         >
           <YStack flex={1} padding="$4" paddingTop="$6" gap="$4">
@@ -115,12 +150,18 @@ export default function TodosScreen() {
                 borderRadius="$6"
                 height={40}
                 paddingHorizontal="$4"
-                onPress={handleAdd}
+                onPress={() => setModalVisible(true)}
+                disabled={!pairId || createTodo.isPending}
+                opacity={pairId && !createTodo.isPending ? 1 : 0.5}
                 pressStyle={{ opacity: 0.8 }}
               >
-                <Text color="white" fontWeight="700" fontSize={15}>
-                  + Add
-                </Text>
+                {createTodo.isPending ? (
+                  <Spinner size="small" color="white" />
+                ) : (
+                  <Text color="white" fontWeight="700" fontSize={15}>
+                    + Add
+                  </Text>
+                )}
               </Button>
             </XStack>
 
@@ -160,7 +201,9 @@ export default function TodosScreen() {
                 <Text color="$muted" fontSize={16} textAlign="center">
                   {filter === "completed"
                     ? "No completed reminders yet"
-                    : "No reminders yet.\nTap + Add to create one!"}
+                    : pairId
+                    ? "No reminders yet.\nTap + Add to create one!"
+                    : "Pair to start creating reminders."}
                 </Text>
               </YStack>
             ) : (
