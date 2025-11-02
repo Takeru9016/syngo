@@ -1,20 +1,26 @@
 {
-  "cli": { "version": ">= 12.6.0" },
+  "cli": {
+    "version": ">= 5.0.0"
+  },
   "build": {
-    "dev": {
+    "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "android": { "buildType": "apk" },
-      "ios": { "simulator": true },
-      "env": { "EXPO_PUBLIC_ENV": "dev" }
+      "ios": {
+        "simulator": true
+      }
     },
     "preview": {
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_ENV": "preview" }
+      "ios": {
+        "simulator": false
+      },
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
-      "autoIncrement": "version",
-      "env": { "EXPO_PUBLIC_ENV": "prod" }
+      "autoIncrement": true
     }
   },
   "submit": {
