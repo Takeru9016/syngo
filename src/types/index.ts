@@ -51,23 +51,29 @@ export type Notification = {
   read: boolean;
 };
 
+// Updated to match Cloud Functions notification types
 export type AppNotificationType =
-  | "todo_created"
-  | "todo_completed"
-  | "favorite_added"
-  | "sticker_sent"
-  | "pair_connected"
-  | "pair_request"
-  | "pair_accepted"
-  | "other";
+  | "todo_reminder" // Cloud Function: onTodoCreated, todoDueReminders
+  | "todo_created" // Client-side
+  | "todo_completed" // Client-side
+  | "todo_due_soon" // Cloud Function: todoDueReminders
+  | "favorite_added" // Cloud Function: onFavoriteAdded
+  | "sticker_sent" // Cloud Function: onStickerSent
+  | "pair_success" // Cloud Function: redeemPairingCode
+  | "pair_connected" // Client-side (alias for pair_success)
+  | "pair_request" // Client-side
+  | "pair_accepted" // Client-side
+  | "unpair" // Client-side
+  | "profile_updated" // Client-side
+  | "other"; // Fallback
 
 export type AppNotification = {
   id: string;
   type: AppNotificationType;
   title: string;
   body: string;
-  senderUid: string;
-  recipientUid: string;
+  recipientUid: string; // Changed from senderUid to match Cloud Functions
+  pairId: string; // Added to match Cloud Functions
   read: boolean;
   createdAt: number;
   data?: Record<string, any>;

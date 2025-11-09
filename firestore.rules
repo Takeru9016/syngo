@@ -87,6 +87,7 @@ service cloud.firestore {
     match /pairCodes/{code} {
       // Anyone authenticated can read codes (to redeem them)
       allow read: if isAuthenticated();
+      allow write: if false;
       
       // Only the owner can create their own code
       allow create: if isAuthenticated() && 
@@ -193,6 +194,7 @@ service cloud.firestore {
       // Recipient can read their notifications
       allow read: if isAuthenticated() && 
                      resource.data.recipientUid == request.auth.uid;
+      allow write: if false;
       
       // Pair members can create notifications for each other
       allow create: if isAuthenticated() && 

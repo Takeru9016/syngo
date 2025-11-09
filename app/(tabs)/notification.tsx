@@ -18,7 +18,7 @@ import {
   useDeleteNotification,
   useClearAllNotifications,
 } from "@/hooks/useAppNotification";
-import { AppNotification } from "@/types";
+import { AppNotification, AppNotificationType } from "@/types";
 import { router } from "expo-router";
 
 export default function NotificationsScreen() {
@@ -47,12 +47,28 @@ export default function NotificationsScreen() {
       markAsRead.mutate(notif.id);
     }
     // Navigate based on notification type
-    if (notif.type === "todo_reminder") {
-      router.push("/(tabs)/todos");
-    } else if (notif.type === "sticker_sent") {
-      router.push("/(tabs)/stickers");
-    } else if (notif.type === "favorite_added") {
-      router.push("/(tabs)/favorites");
+    switch (notif.type) {
+      case "todo_reminder":
+      case "todo_completed":
+      case "todo_due_soon":
+        router.push("/(tabs)/todos");
+        break;
+      case "sticker_sent":
+        router.push("/(tabs)/stickers");
+        break;
+      case "favorite_added":
+        router.push("/(tabs)/favorites");
+        break;
+      case "pair_success":
+      case "pair_request":
+        router.push("/(tabs)");
+        break;
+      case "profile_updated":
+        router.push("/(tabs)/settings");
+        break;
+      default:
+        // Unknown type, stay on notifications
+        break;
     }
   };
 
@@ -84,6 +100,30 @@ export default function NotificationsScreen() {
         },
       ]
     );
+  };
+
+  const getNotificationEmoji = (type: AppNotificationType): string => {
+    switch (type) {
+      case "todo_reminder":
+      case "todo_due_soon":
+        return "⏰";
+      case "todo_completed":
+        return "✅";
+      case "sticker_sent":
+        return "🎨";
+      case "favorite_added":
+        return "⭐";
+      case "pair_success":
+        return "💕";
+      case "pair_request":
+        return "🤝";
+      case "unpair":
+        return "💔";
+      case "profile_updated":
+        return "👤";
+      default:
+        return "🔔";
+    }
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -219,15 +259,7 @@ export default function NotificationsScreen() {
                   >
                     <XStack gap="$3" alignItems="flex-start">
                       <Text fontSize={24}>
-                        {notif.type === "todo_reminder"
-                          ? "⏰"
-                          : notif.type === "sticker_sent"
-                          ? "🎨"
-                          : notif.type === "favorite_added"
-                          ? "⭐"
-                          : notif.type === "pair_success"
-                          ? "💕"
-                          : "🔔"}
+                        {getNotificationEmoji(notif.type)}
                       </Text>
                       <YStack flex={1} gap="$1">
                         <Text color="$color" fontSize={15} fontWeight="700">

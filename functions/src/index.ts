@@ -11,6 +11,9 @@ setGlobalOptions({
 });
 
 // Export all functions
-export * from "./triggers/pairing";
-export * from "./triggers/notifications";
+export * from "./pairing/generateCode";
+export * from "./notifications/onTodoCreated";
+export * from "./notifications/onStickerSent";
+export * from "./notifications/onFavoriteAdded";
 export * from "./scheduled/cleanup";
+export * from "./scheduled/todoDueReminders";
