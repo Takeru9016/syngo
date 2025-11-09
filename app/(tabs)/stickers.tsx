@@ -1,205 +1,170 @@
 import { useState } from "react";
-import { RefreshControl, Dimensions, Alert } from "react-native";
-import {
-  YStack,
-  XStack,
-  Text,
-  Button,
-  ScrollView,
-  Stack,
-  Spinner,
-} from "tamagui";
+import { RefreshControl, FlatList, Alert } from "react-native";
+import * as Haptics from "expo-haptics";
+import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
 
-import { Sticker } from "@/types";
-import { StickerCard, AddStickerModal } from "@/components";
 import {
   useStickers,
   useCreateSticker,
   useDeleteSticker,
 } from "@/hooks/useStickers";
-import { useProfileStore } from "@/store/profile";
-
-const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 56) / 3; // 3 columns with padding
+import { StickerCard, AddStickerModal } from "@/components";
+import { Sticker } from "@/types";
+import { AppNotificationService } from "@/services/notification/notification.service";
 
 export default function StickersScreen() {
-  const pairId = useProfileStore((s) => s.profile?.pairId);
-
-  const {
-    data: stickers = [],
-    isLoading,
-    refetch,
-    isRefetching,
-  } = useStickers();
+  const { data: stickers = [], isLoading, refetch } = useStickers();
   const createSticker = useCreateSticker();
   const deleteSticker = useDeleteSticker();
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = async () => {
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     await refetch();
-  };
-
-  const handleAdd = () => {
-    setModalVisible(true);
-  };
-
-  const handleSave = async (name: string, imageUrl: string) => {
-    try {
-      await createSticker.mutateAsync({
-        name,
-        imageUrl,
-      });
-      setModalVisible(false);
-      Alert.alert("Success! 🎉", "Sticker created successfully");
-    } catch (error) {
-      console.error("Failed to create sticker:", error);
-      Alert.alert("Error", "Failed to create sticker. Please try again.");
-    }
+    setRefreshing(false);
   };
 
   const handleSend = async (sticker: Sticker) => {
-    Alert.alert(
-      "Send Sticker",
-      `Send "${sticker.name}" to your partner?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Send",
-          onPress: async () => {
-            // TODO: Implement send notification in Phase 5
-            Alert.alert(
-              "Coming Soon! 💌",
-              "Sticker notifications will be added in Phase 5"
-            );
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    try {
+      await AppNotificationService.sendToPartner({
+        type: "sticker_sent",
+        title: "Sticker from your partner",
+        body: `${sticker.name} 🎨`,
+        data: { stickerId: sticker.id, stickerUrl: sticker.imageUrl },
+      });
+      Alert.alert("Sent!", `${sticker.name} sent to your partner`);
+    } catch (error) {
+      console.error("Failed to send sticker:", error);
+      Alert.alert("Error", "Failed to send sticker");
+    }
   };
 
   const handleDelete = async (id: string) => {
-    Alert.alert(
-      "Delete Sticker",
-      "Are you sure you want to delete this sticker?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteSticker.mutateAsync(id);
-            } catch (error) {
-              console.error("Failed to delete sticker:", error);
-              Alert.alert(
-                "Error",
-                "Failed to delete sticker. Please try again."
-              );
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    deleteSticker.mutate(id);
   };
 
   const handleLongPress = (sticker: Sticker) => {
-    // Handled in StickerCard component
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  };
+
+  const handleSave = async (name: string, imageUrl: string) => {
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    createSticker.mutate({ name, imageUrl });
   };
 
   return (
     <YStack flex={1} backgroundColor="$bg">
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        refreshControl={
-          <RefreshControl
-            refreshing={isLoading || isRefetching}
-            onRefresh={onRefresh}
-          />
-        }
-      >
-        <YStack flex={1} padding="$4" paddingTop="$6" gap="$4">
-          {/* Header */}
-          <XStack alignItems="center" justifyContent="space-between">
-            <Text color="$color" fontSize={28} fontWeight="900">
-              Stickers
+      {/* Header */}
+      <YStack padding="$4" paddingTop="$6" gap="$4">
+        <XStack alignItems="center" justifyContent="space-between">
+          <Text color="$color" fontSize={28} fontWeight="900">
+            Stickers
+          </Text>
+          <Button
+            backgroundColor="$primary"
+            borderRadius="$7"
+            width={44}
+            height={44}
+            padding={0}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setModalVisible(true);
+            }}
+            pressStyle={{ opacity: 0.8 }}
+          >
+            <Text color="white" fontSize={24} fontWeight="300">
+              +
             </Text>
-            <Button
-              backgroundColor="$primary"
-              borderRadius="$6"
-              height={40}
-              paddingHorizontal="$4"
-              onPress={handleAdd}
-              disabled={!pairId || createSticker.isPending}
-              opacity={pairId && !createSticker.isPending ? 1 : 0.5}
-              pressStyle={{ opacity: 0.8 }}
-            >
-              {createSticker.isPending ? (
-                <Spinner size="small" color="white" />
-              ) : (
-                <Text color="white" fontWeight="700" fontSize={15}>
-                  + Add
-                </Text>
-              )}
-            </Button>
-          </XStack>
+          </Button>
+        </XStack>
+      </YStack>
 
-          {/* Info */}
-          <Stack backgroundColor="$background" borderRadius="$6" padding="$3">
-            <Text color="$muted" fontSize={14} textAlign="center">
-              Tap a sticker to send it to your partner 💌
-            </Text>
-          </Stack>
-
-          {/* Grid */}
-          {stickers.length === 0 ? (
-            <YStack
-              flex={1}
-              alignItems="center"
-              justifyContent="center"
-              gap="$3"
-            >
-              <Text fontSize={60}>🎨</Text>
-              <Text color="$muted" fontSize={16} textAlign="center">
-                {pairId
-                  ? "No stickers yet.\nTap + Add to create your first sticker!"
-                  : "Pair to start creating stickers."}
-              </Text>
-            </YStack>
-          ) : (
-            <XStack flexWrap="wrap" gap="$2">
-              {stickers.map((sticker) => (
-                <Stack key={sticker.id} width={CARD_WIDTH}>
-                  <StickerCard
-                    sticker={sticker}
-                    onSend={handleSend}
-                    onDelete={handleDelete}
-                    onLongPress={handleLongPress}
-                  />
-                </Stack>
-              ))}
-            </XStack>
-          )}
-
-          {/* Instructions */}
-          {stickers.length > 0 && (
+      {/* Loading State */}
+      {isLoading ? (
+        <YStack padding="$4" gap="$2">
+          {[1, 2, 3, 4].map((i) => (
             <Stack
+              key={i}
               backgroundColor="$background"
               borderRadius="$6"
-              padding="$3"
-              marginTop="$2"
+              height={120}
             >
-              <Text color="$muted" fontSize={13} textAlign="center">
-                💡 Long press a sticker for more options
-              </Text>
+              <Spinner size="small" />
+            </Stack>
+          ))}
+        </YStack>
+      ) : stickers.length === 0 ? (
+        /* Empty State */
+        <Stack
+          flex={1}
+          alignItems="center"
+          justifyContent="center"
+          paddingVertical="$10"
+          gap="$4"
+        >
+          <Text fontSize={64}>🎨</Text>
+          <YStack gap="$2" alignItems="center">
+            <Text color="$color" fontSize={20} fontWeight="700">
+              No stickers yet
+            </Text>
+            <Text
+              color="$muted"
+              fontSize={15}
+              textAlign="center"
+              maxWidth={280}
+            >
+              Create custom stickers to send to your partner
+            </Text>
+          </YStack>
+          <Button
+            backgroundColor="$primary"
+            borderRadius="$6"
+            height={48}
+            paddingHorizontal="$6"
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setModalVisible(true);
+            }}
+            pressStyle={{ opacity: 0.8 }}
+            marginTop="$2"
+          >
+            <Text color="white" fontWeight="700" fontSize={16}>
+              Create Sticker
+            </Text>
+          </Button>
+        </Stack>
+      ) : (
+        /* Stickers Grid */
+        <FlatList
+          data={stickers}
+          keyExtractor={(item) => item.id}
+          numColumns={3}
+          contentContainerStyle={{ padding: 16, paddingTop: 0 }}
+          columnWrapperStyle={{ gap: 12 }}
+          ItemSeparatorComponent={() => <Stack height={12} />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+          renderItem={({ item }) => (
+            <Stack flex={1}>
+              <StickerCard
+                sticker={item}
+                onSend={handleSend}
+                onDelete={handleDelete}
+                onLongPress={handleLongPress}
+              />
             </Stack>
           )}
-        </YStack>
-      </ScrollView>
+        />
+      )}
 
-      {/* Add Modal */}
+      {/* Add Sticker Modal */}
       <AddStickerModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}

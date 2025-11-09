@@ -14,7 +14,7 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     infoPlist: {
-      UIBackgroundModes: ['remote-notification'],
+      UIBackgroundModes: ["remote-notification"],
     },
   },
 
@@ -26,11 +26,11 @@ const config: ExpoConfig = {
       monochromeImage: "./assets/images/android-icon-monochrome.png",
     },
     permissions: [
-      'INTERNET',
-      'VIBRATE',
-      'WAKE_LOCK',
-      'android.permission.POST_NOTIFICATIONS',
-      'android.permission.RECEIVE_BOOT_COMPLETED',
+      "INTERNET",
+      "VIBRATE",
+      "WAKE_LOCK",
+      "android.permission.POST_NOTIFICATIONS",
+      "android.permission.RECEIVE_BOOT_COMPLETED",
     ],
   },
 
@@ -41,6 +41,7 @@ const config: ExpoConfig = {
 
   plugins: [
     "expo-router",
+    ["@react-native-async-storage/async-storage"],
     [
       "expo-splash-screen",
       {

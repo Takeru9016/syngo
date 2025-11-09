@@ -17,6 +17,7 @@ import {
 import { testFirebaseConnection } from "@/utils/test/testFirebase";
 import { NotificationService } from "@/services/notification/local-notification.service";
 import { registerDevicePushToken } from "@/services/notification/push.registry";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 const qc = new QueryClient();
 
@@ -187,12 +188,14 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <QueryClientProvider client={qc}>
-      <TamaguiProvider config={config}>
-        <Theme name={activeTheme}>
-          <Gate />
-        </Theme>
-      </TamaguiProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={qc}>
+        <TamaguiProvider config={config}>
+          <Theme name={activeTheme}>
+            <Gate />
+          </Theme>
+        </TamaguiProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

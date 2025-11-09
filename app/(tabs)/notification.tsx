@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { RefreshControl, Alert } from "react-native";
+import * as Haptics from "expo-haptics";
 import {
   YStack,
   XStack,
@@ -9,7 +10,6 @@ import {
   Stack,
   Spinner,
 } from "tamagui";
-import { format } from "date-fns";
 
 import {
   useAppNotifications,
@@ -19,133 +19,51 @@ import {
   useClearAllNotifications,
 } from "@/hooks/useAppNotification";
 import { AppNotification } from "@/types";
-
-function getNotificationIcon(type: string): string {
-  switch (type) {
-    case "todo_created":
-      return "✅";
-    case "todo_completed":
-      return "🎉";
-    case "favorite_added":
-      return "⭐";
-    case "sticker_sent":
-      return "🎨";
-    case "pair_connected":
-      return "💑";
-    default:
-      return "🔔";
-  }
-}
-
-function NotificationCard({
-  notification,
-  onPress,
-  onDelete,
-}: {
-  notification: AppNotification;
-  onPress: () => void;
-  onDelete: () => void;
-}) {
-  return (
-    <Stack
-      backgroundColor={notification.read ? "$background" : "$primary"}
-      opacity={notification.read ? 0.7 : 1}
-      borderRadius="$6"
-      padding="$4"
-      gap="$2"
-      pressStyle={{ opacity: 0.8 }}
-      onPress={onPress}
-    >
-      <XStack alignItems="flex-start" justifyContent="space-between" gap="$3">
-        <XStack flex={1} gap="$3" alignItems="flex-start">
-          <Text fontSize={32}>{getNotificationIcon(notification.type)}</Text>
-          <YStack flex={1} gap="$1">
-            <Text
-              color={notification.read ? "$color" : "white"}
-              fontSize={16}
-              fontWeight="700"
-            >
-              {notification.title}
-            </Text>
-            <Text
-              color={notification.read ? "$muted" : "rgba(255,255,255,0.9)"}
-              fontSize={14}
-            >
-              {notification.body}
-            </Text>
-            <Text
-              color={notification.read ? "$muted" : "rgba(255,255,255,0.7)"}
-              fontSize={12}
-              marginTop="$1"
-            >
-              {format(notification.createdAt, "MMM d, h:mm a")}
-            </Text>
-          </YStack>
-        </XStack>
-        <Button
-          unstyled
-          onPress={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-        >
-          <Text color={notification.read ? "$muted" : "white"} fontSize={20}>
-            ✕
-          </Text>
-        </Button>
-      </XStack>
-    </Stack>
-  );
-}
+import { router } from "expo-router";
 
 export default function NotificationsScreen() {
   const {
     data: notifications = [],
     isLoading,
     refetch,
-    isRefetching,
   } = useAppNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
   const deleteNotification = useDeleteNotification();
   const clearAll = useClearAllNotifications();
 
-  const [filter, setFilter] = useState<"all" | "unread">("all");
+  const [refreshing, setRefreshing] = useState(false);
 
-  const filteredNotifications =
-    filter === "unread"
-      ? notifications.filter((n: any) => !n.read)
-      : notifications;
-
-  const unreadCount = notifications.filter((n: any) => !n.read).length;
-
-  const onRefresh = async () => {
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     await refetch();
+    setRefreshing(false);
   };
 
-  const handleNotificationPress = async (notification: AppNotification) => {
-    if (!notification.read) {
-      await markAsRead.mutateAsync(notification.id);
+  const handlePress = async (notif: AppNotification) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (!notif.read) {
+      markAsRead.mutate(notif.id);
     }
-    // TODO: Navigate to relevant screen based on notification.type and notification.data
+    // Navigate based on notification type
+    if (notif.type === "todo_reminder") {
+      router.push("/(tabs)/todos");
+    } else if (notif.type === "sticker_sent") {
+      router.push("/(tabs)/stickers");
+    } else if (notif.type === "favorite_added") {
+      router.push("/(tabs)/favorites");
+    }
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      await deleteNotification.mutateAsync(id);
-    } catch (error) {
-      console.error("Failed to delete notification:", error);
-    }
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    deleteNotification.mutate(id);
   };
 
   const handleMarkAllAsRead = async () => {
-    if (unreadCount === 0) return;
-    try {
-      await markAllAsRead.mutateAsync();
-    } catch (error) {
-      console.error("Failed to mark all as read:", error);
-      Alert.alert("Error", "Failed to mark all as read");
-    }
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    markAllAsRead.mutate();
   };
 
   const handleClearAll = () => {
@@ -158,27 +76,24 @@ export default function NotificationsScreen() {
           text: "Clear All",
           style: "destructive",
           onPress: async () => {
-            try {
-              await clearAll.mutateAsync();
-            } catch (error) {
-              console.error("Failed to clear all:", error);
-              Alert.alert("Error", "Failed to clear notifications");
-            }
+            await Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Warning
+            );
+            clearAll.mutate();
           },
         },
       ]
     );
   };
 
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
   return (
     <YStack flex={1} backgroundColor="$bg">
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
-          <RefreshControl
-            refreshing={isLoading || isRefetching}
-            onRefresh={onRefresh}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
         <YStack flex={1} padding="$4" paddingTop="$6" gap="$4">
@@ -199,107 +114,143 @@ export default function NotificationsScreen() {
                 {unreadCount > 0 && (
                   <Button
                     backgroundColor="$background"
-                    borderRadius="$6"
+                    borderColor="$borderColor"
+                    borderWidth={1}
+                    borderRadius="$5"
                     height={36}
                     paddingHorizontal="$3"
                     onPress={handleMarkAllAsRead}
-                    disabled={markAllAsRead.isPending}
-                    pressStyle={{ opacity: 0.8 }}
+                    pressStyle={{ opacity: 0.7 }}
                   >
-                    {markAllAsRead.isPending ? (
-                      <Spinner size="small" />
-                    ) : (
-                      <Text color="$color" fontWeight="600" fontSize={13}>
-                        Mark All Read
-                      </Text>
-                    )}
+                    <Text color="$color" fontSize={13} fontWeight="600">
+                      Mark All Read
+                    </Text>
                   </Button>
                 )}
                 <Button
-                  backgroundColor="$background"
-                  borderRadius="$6"
+                  backgroundColor="transparent"
+                  borderColor="$borderColor"
+                  borderWidth={1}
+                  borderRadius="$5"
                   height={36}
                   paddingHorizontal="$3"
                   onPress={handleClearAll}
-                  disabled={clearAll.isPending}
-                  pressStyle={{ opacity: 0.8 }}
+                  pressStyle={{ opacity: 0.7 }}
                 >
-                  {clearAll.isPending ? (
-                    <Spinner size="small" />
-                  ) : (
-                    <Text color="$color" fontWeight="600" fontSize={13}>
-                      Clear All
-                    </Text>
-                  )}
+                  <Text color="#f44336" fontSize={13} fontWeight="600">
+                    Clear All
+                  </Text>
                 </Button>
               </XStack>
             )}
           </XStack>
 
-          {/* Filter */}
-          {notifications.length > 0 && (
-            <XStack gap="$2">
-              <Button
-                flex={1}
-                backgroundColor={filter === "all" ? "$primary" : "$background"}
-                borderRadius="$5"
-                height={40}
-                onPress={() => setFilter("all")}
-                pressStyle={{ opacity: 0.8 }}
-              >
-                <Text
-                  color={filter === "all" ? "white" : "$color"}
-                  fontWeight="600"
-                  fontSize={14}
+          {/* Loading State */}
+          {isLoading ? (
+            <YStack gap="$2">
+              {[1, 2, 3, 4].map((i) => (
+                <Stack
+                  key={i}
+                  backgroundColor="$background"
+                  borderRadius="$6"
+                  padding="$4"
+                  height={80}
                 >
-                  All ({notifications.length})
-                </Text>
-              </Button>
-              <Button
-                flex={1}
-                backgroundColor={
-                  filter === "unread" ? "$primary" : "$background"
-                }
-                borderRadius="$5"
-                height={40}
-                onPress={() => setFilter("unread")}
-                pressStyle={{ opacity: 0.8 }}
-              >
-                <Text
-                  color={filter === "unread" ? "white" : "$color"}
-                  fontWeight="600"
-                  fontSize={14}
-                >
-                  Unread ({unreadCount})
-                </Text>
-              </Button>
-            </XStack>
-          )}
-
-          {/* List */}
-          {filteredNotifications.length === 0 ? (
-            <YStack
+                  <Spinner size="small" />
+                </Stack>
+              ))}
+            </YStack>
+          ) : notifications.length === 0 ? (
+            /* Empty State */
+            <Stack
               flex={1}
               alignItems="center"
               justifyContent="center"
-              gap="$3"
+              paddingVertical="$10"
+              gap="$4"
             >
-              <Text fontSize={60}>🔔</Text>
-              <Text color="$muted" fontSize={16} textAlign="center">
-                {filter === "unread"
-                  ? "No unread notifications"
-                  : "No notifications yet.\nActivity from your partner will appear here."}
-              </Text>
-            </YStack>
+              <Text fontSize={64}>🔔</Text>
+              <YStack gap="$2" alignItems="center">
+                <Text color="$color" fontSize={20} fontWeight="700">
+                  No notifications
+                </Text>
+                <Text
+                  color="$muted"
+                  fontSize={15}
+                  textAlign="center"
+                  maxWidth={280}
+                >
+                  You'll see updates from your partner here
+                </Text>
+              </YStack>
+            </Stack>
           ) : (
-            <YStack gap="$3">
-              {filteredNotifications.map((notification: any) => (
-                <NotificationCard
-                  key={notification.id}
-                  notification={notification}
-                  onPress={() => handleNotificationPress(notification)}
-                  onDelete={() => handleDelete(notification.id)}
-                />
+            /* Notifications List */
+            <YStack gap="$2">
+              {notifications.map((notif) => (
+                <Button
+                  key={notif.id}
+                  unstyled
+                  onPress={() => handlePress(notif)}
+                  onLongPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    Alert.alert(
+                      "Delete Notification",
+                      "Remove this notification?",
+                      [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                          text: "Delete",
+                          style: "destructive",
+                          onPress: () => handleDelete(notif.id),
+                        },
+                      ]
+                    );
+                  }}
+                  pressStyle={{ opacity: 0.7 }}
+                >
+                  <Stack
+                    backgroundColor="$background"
+                    borderRadius="$6"
+                    padding="$4"
+                    opacity={notif.read ? 0.6 : 1}
+                    borderLeftWidth={4}
+                    borderLeftColor={notif.read ? "$borderColor" : "$primary"}
+                  >
+                    <XStack gap="$3" alignItems="flex-start">
+                      <Text fontSize={24}>
+                        {notif.type === "todo_reminder"
+                          ? "⏰"
+                          : notif.type === "sticker_sent"
+                          ? "🎨"
+                          : notif.type === "favorite_added"
+                          ? "⭐"
+                          : notif.type === "pair_success"
+                          ? "💕"
+                          : "🔔"}
+                      </Text>
+                      <YStack flex={1} gap="$1">
+                        <Text color="$color" fontSize={15} fontWeight="700">
+                          {notif.title}
+                        </Text>
+                        <Text color="$muted" fontSize={13}>
+                          {notif.body}
+                        </Text>
+                        <Text color="$muted" fontSize={11}>
+                          {new Date(notif.createdAt).toLocaleString()}
+                        </Text>
+                      </YStack>
+                      {!notif.read && (
+                        <Stack
+                          width={8}
+                          height={8}
+                          borderRadius={4}
+                          backgroundColor="$primary"
+                        />
+                      )}
+                    </XStack>
+                  </Stack>
+                </Button>
               ))}
             </YStack>
           )}

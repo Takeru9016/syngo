@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { User } from 'firebase/auth';
 
 type AuthState = {
+  uid: any;
   user: User | null;
   loading: boolean;
   initialized: boolean;

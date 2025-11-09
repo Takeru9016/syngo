@@ -1,22 +1,38 @@
-import { create } from 'zustand';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useColorScheme } from "react-native";
 
-export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = "light" | "dark" | "system";
 
-type ThemeState = {
+interface ThemeState {
   mode: ThemeMode;
   setMode: (mode: ThemeMode) => void;
-  getActiveTheme: () => 'light' | 'dark';
-};
+  getEffectiveTheme: () => "light" | "dark";
+}
 
-export const useThemeStore = create<ThemeState>((set, get) => ({
-  mode: 'system',
-  setMode: (mode) => set({ mode }),
-  getActiveTheme: () => {
-    const { mode } = get();
-    if (mode === 'system') {
-      // This will be called from a component context where useColorScheme works
-      return 'light'; // fallback
+export const useThemeStore = create<ThemeState>()(
+  persist(
+    (set, get) => ({
+      mode: "system",
+
+      setMode: (mode: ThemeMode) => {
+        console.log("🎨 [ThemeStore] Setting theme mode:", mode);
+        set({ mode });
+      },
+
+      getEffectiveTheme: () => {
+        const { mode } = get();
+        if (mode === "system") {
+          const systemTheme = useColorScheme();
+          return systemTheme === "dark" ? "dark" : "light";
+        }
+        return mode;
+      },
+    }),
+    {
+      name: "theme-storage",
+      storage: createJSONStorage(() => AsyncStorage),
     }
-    return mode;
-  },
-}));
+  )
+);
