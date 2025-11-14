@@ -1,9 +1,25 @@
 import { useState } from "react";
-import { Alert, Switch, ScrollView } from "react-native";
+import {
+  Alert,
+  Switch,
+  ScrollView,
+  TextInput,
+  StyleSheet,
+  useColorScheme,
+} from "react-native";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
-import { YStack, XStack, Text, Button, Stack, Image, Spinner } from "tamagui";
+import {
+  YStack,
+  XStack,
+  Text,
+  Button,
+  Stack,
+  Image,
+  Spinner,
+  useTheme,
+} from "tamagui";
 
 import { useProfileStore } from "@/store/profile";
 import { usePairingStore } from "@/store/pairing";
@@ -13,6 +29,9 @@ import {
 } from "@/store/notificationPreference";
 
 export default function SettingsScreen() {
+  const theme = useTheme();
+  const colorScheme = useColorScheme();
+
   const profile = useProfileStore((s) => s.profile);
   const partner = useProfileStore((s) => s.partnerProfile);
   const updateProfile = useProfileStore((s) => s.updateProfileData);
@@ -127,6 +146,31 @@ export default function SettingsScreen() {
     );
   };
 
+  // Dynamic styles based on theme
+  const inputStyles = StyleSheet.create({
+    input: {
+      backgroundColor: "transparent",
+      borderColor: theme.borderColor?.val || "#ccc",
+      borderWidth: 1,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 15,
+      color:
+        theme.color?.val || (colorScheme === "dark" ? "#EDEAFB" : "#111111"),
+    },
+    textarea: {
+      backgroundColor: "transparent",
+      borderColor: theme.borderColor?.val || "#ccc",
+      borderWidth: 1,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 15,
+      color:
+        theme.color?.val || (colorScheme === "dark" ? "#EDEAFB" : "#111111"),
+      textAlignVertical: "top",
+    },
+  });
+
   return (
     <YStack flex={1} backgroundColor="$bg">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -215,17 +259,12 @@ export default function SettingsScreen() {
               </Text>
               {editingName ? (
                 <YStack gap="$2">
-                  <input
+                  <TextInput
                     value={tempName}
-                    onChange={(e) => setTempName(e.target.value)}
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "1px solid #ccc",
-                      borderRadius: 8,
-                      padding: 12,
-                      fontSize: 15,
-                      color: "inherit",
-                    }}
+                    onChangeText={setTempName}
+                    style={inputStyles.input}
+                    placeholder="Enter your name"
+                    placeholderTextColor={theme.muted?.val || "#999"}
                   />
                   <XStack gap="$2">
                     <Button
@@ -293,20 +332,14 @@ export default function SettingsScreen() {
               </Text>
               {editingBio ? (
                 <YStack gap="$2">
-                  <textarea
+                  <TextInput
                     value={tempBio}
-                    onChange={(e) => setTempBio(e.target.value)}
-                    rows={3}
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "1px solid #ccc",
-                      borderRadius: 8,
-                      padding: 12,
-                      fontSize: 15,
-                      color: "inherit",
-                      fontFamily: "inherit",
-                      resize: "none",
-                    }}
+                    onChangeText={setTempBio}
+                    style={inputStyles.textarea}
+                    placeholder="Tell us about yourself"
+                    placeholderTextColor={theme.muted?.val || "#999"}
+                    multiline
+                    numberOfLines={3}
                   />
                   <XStack gap="$2">
                     <Button

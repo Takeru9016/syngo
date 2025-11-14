@@ -41,7 +41,6 @@ const config: ExpoConfig = {
 
   plugins: [
     "expo-router",
-    ["@react-native-async-storage/async-storage"],
     [
       "expo-splash-screen",
       {

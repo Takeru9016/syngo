@@ -18,6 +18,7 @@ import { testFirebaseConnection } from "@/utils/test/testFirebase";
 import { NotificationService } from "@/services/notification/local-notification.service";
 import { registerDevicePushToken } from "@/services/notification/push.registry";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const qc = new QueryClient();
 
@@ -188,14 +189,16 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <ErrorBoundary>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={qc}>
         <TamaguiProvider config={config}>
           <Theme name={activeTheme}>
-            <Gate />
+            <ErrorBoundary>
+              <Gate />
+            </ErrorBoundary>
           </Theme>
         </TamaguiProvider>
       </QueryClientProvider>
-    </ErrorBoundary>
+    </GestureHandlerRootView>
   );
 }
