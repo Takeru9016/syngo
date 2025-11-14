@@ -16,6 +16,7 @@ import { useProfileStore } from "@/store/profile";
 import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
 import { AppNotification } from "@/types";
 import { router } from "expo-router";
+import { ScreenContainer } from "@/components";
 
 export default function HomeScreen() {
   const profile = useProfileStore((s) => s.profile);
@@ -61,7 +62,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <YStack flex={1} backgroundColor="$bg">
+    <ScreenContainer title="Home">
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
@@ -330,6 +331,6 @@ export default function HomeScreen() {
           </YStack>
         </YStack>
       </ScrollView>
-    </YStack>
+    </ScreenContainer>
   );
 }

@@ -8,7 +8,7 @@ import {
   useCreateSticker,
   useDeleteSticker,
 } from "@/hooks/useStickers";
-import { StickerCard, AddStickerModal } from "@/components";
+import { StickerCard, AddStickerModal, ScreenContainer } from "@/components";
 import { Sticker } from "@/types";
 import { AppNotificationService } from "@/services/notification/notification.service";
 
@@ -59,12 +59,13 @@ export default function StickersScreen() {
   };
 
   return (
+    <ScreenContainer title="Stickers">
     <YStack flex={1} backgroundColor="$bg">
       {/* Header */}
       <YStack padding="$4" paddingTop="$6" gap="$4">
         <XStack alignItems="center" justifyContent="space-between">
           <Text color="$color" fontSize={28} fontWeight="900">
-            Stickers
+            Create/Share
           </Text>
           <Button
             backgroundColor="$primary"
@@ -171,5 +172,6 @@ export default function StickersScreen() {
         onSave={handleSave}
       />
     </YStack>
+    </ScreenContainer>
   );
 }

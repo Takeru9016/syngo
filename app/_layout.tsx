@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useColorScheme } from "react-native";
+import { StatusBar, useColorScheme } from "react-native";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { TamaguiProvider, Theme, YStack, Text } from "tamagui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -193,6 +193,11 @@ export default function RootLayout() {
       <QueryClientProvider client={qc}>
         <TamaguiProvider config={config}>
           <Theme name={activeTheme}>
+            <StatusBar
+              barStyle={
+                activeTheme === "dark" ? "light-content" : "dark-content"
+              }
+            />
             <ErrorBoundary>
               <Gate />
             </ErrorBoundary>

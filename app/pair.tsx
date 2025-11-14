@@ -14,7 +14,7 @@ import {
   Spinner,
 } from "tamagui";
 
-import { CodeInput, Countdown } from "@/components";
+import { CodeInput, Countdown, ScreenContainer } from "@/components";
 import { usePairingStore } from "@/store/pairing";
 import { formatCode, unformatCode } from "@/utils/code-generator";
 import { subscribeToProfile } from "@/services/profile/profile.service";
@@ -136,235 +136,222 @@ export default function PairScreen() {
   const displayCode = myCode ? formatCode(unformatCode(myCode)) : "----·----";
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }} backgroundColor="$bg">
-      <YStack flex={1} padding="$4" paddingTop="$6" gap="$3">
-        {/* Header */}
-        <XStack
-          alignItems="center"
-          justifyContent="space-between"
-          marginBottom="$1"
-        >
-          <Text
-            color="$color"
-            fontSize={24}
-            fontWeight="900"
-            lineHeight={28}
-            flex={1}
-          >
-            Pair with your partner
+    <ScreenContainer title="Pair with your partner">
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} backgroundColor="$bg">
+        <YStack flex={1} padding="$4" paddingTop="$6" gap="$3">
+
+          <Text color="$muted" fontSize={14} marginBottom="$2" lineHeight={20}>
+            Pair and start sending cute reminders, stickers, and notes.
           </Text>
-          <Button unstyled onPress={() => router.replace("/(tabs)")}>
-            <Text color="$primary" fontSize={15} fontWeight="600">
-              Skip
-            </Text>
-          </Button>
-        </XStack>
 
-        <Text color="$muted" fontSize={14} marginBottom="$2" lineHeight={20}>
-          Pair and start sending cute reminders, stickers, and notes.
-        </Text>
-
-        {/* Share Code Card */}
-        <Stack
-          backgroundColor="#e9d7ff"
-          borderRadius="$7"
-          padding="$4"
-          gap="$3"
-        >
-          {/* Title + Badge */}
-          <XStack
-            alignItems="flex-start"
-            justifyContent="space-between"
-            gap="$2"
+          {/* Share Code Card */}
+          <Stack
+            backgroundColor="#e9d7ff"
+            borderRadius="$7"
+            padding="$4"
+            gap="$3"
           >
-            <Text
-              color="$color"
-              fontSize={18}
-              fontWeight="900"
-              flex={1}
-              lineHeight={22}
+            {/* Title + Badge */}
+            <XStack
+              alignItems="flex-start"
+              justifyContent="space-between"
+              gap="$2"
             >
-              I want to invite my partner
-            </Text>
-          </XStack>
+              <Text
+                color="$color"
+                fontSize={18}
+                fontWeight="900"
+                flex={1}
+                lineHeight={22}
+              >
+                I want to invite my partner
+              </Text>
+            </XStack>
 
-          {/* Code Display */}
+            {/* Code Display */}
+            <XStack
+              alignItems="center"
+              justifyContent="center"
+              paddingVertical="$2"
+            >
+              {isLoading && !myCode ? (
+                <Spinner size="large" color="$primary" />
+              ) : (
+                <Text
+                  color="$color"
+                  fontSize={36}
+                  fontWeight="900"
+                  letterSpacing={4}
+                >
+                  {displayCode}
+                </Text>
+              )}
+            </XStack>
+
+            {/* Copy + Share Buttons */}
+            <XStack gap="$3">
+              <Button
+                flex={1}
+                backgroundColor="$primary"
+                borderRadius="$6"
+                height={44}
+                onPress={handleCopy}
+                disabled={isLoading || codeExpired || !myCode}
+                pressStyle={{ opacity: 0.8 }}
+              >
+                {isLoading ? (
+                  <Spinner color="white" />
+                ) : (
+                  <Text color="white" fontWeight="700" fontSize={15}>
+                    Copy
+                  </Text>
+                )}
+              </Button>
+              <Button
+                flex={1}
+                backgroundColor="transparent"
+                borderWidth={2}
+                borderColor="$primary"
+                borderRadius="$6"
+                height={44}
+                onPress={handleShare}
+                disabled={isLoading || codeExpired || !myCode}
+                pressStyle={{ opacity: 0.7 }}
+              >
+                <Text color="$primary" fontWeight="700" fontSize={15}>
+                  Share
+                </Text>
+              </Button>
+            </XStack>
+
+            {/* Secure Connection Row */}
+            <XStack
+              backgroundColor="rgba(255,255,255,0.5)"
+              borderRadius="$5"
+              padding="$3"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Text color="$color" fontSize={14} fontWeight="600">
+                Secure Connection
+              </Text>
+              <Switch
+                size="$3"
+                checked={secure}
+                onCheckedChange={(v) => setSecure(!!v)}
+                backgroundColor={secure ? "$primary" : "$borderColor"}
+              >
+                <Switch.Thumb backgroundColor="white" />
+              </Switch>
+            </XStack>
+
+            {/* Countdown Row */}
+            <XStack
+              backgroundColor="rgba(255,255,255,0.3)"
+              borderRadius="$5"
+              padding="$3"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Countdown expiresAt={expiresAt} />
+              <Button
+                chromeless
+                onPress={handleGenerate}
+                disabled={isLoading}
+                pressStyle={{ opacity: 0.6 }}
+              >
+                {isLoading ? (
+                  <Spinner size="small" color="$primary" />
+                ) : (
+                  <Text color="$primary" fontWeight="700" fontSize={14}>
+                    Regenerate
+                  </Text>
+                )}
+              </Button>
+            </XStack>
+          </Stack>
+
+          {/* Divider "or" */}
           <XStack
             alignItems="center"
             justifyContent="center"
-            paddingVertical="$2"
+            marginVertical="$2"
           >
-            {isLoading && !myCode ? (
-              <Spinner size="large" color="$primary" />
-            ) : (
-              <Text
-                color="$color"
-                fontSize={36}
-                fontWeight="900"
-                letterSpacing={4}
-              >
-                {displayCode}
+            <Separator flex={1} borderColor="$borderColor" />
+            <Stack
+              width={36}
+              height={36}
+              borderRadius={18}
+              backgroundColor="$background"
+              borderWidth={1}
+              borderColor="$borderColor"
+              alignItems="center"
+              justifyContent="center"
+              marginHorizontal="$3"
+            >
+              <Text color="$muted" fontSize={13}>
+                or
               </Text>
-            )}
+            </Stack>
+            <Separator flex={1} borderColor="$borderColor" />
           </XStack>
 
-          {/* Copy + Share Buttons */}
-          <XStack gap="$3">
+          {/* Enter Code Card */}
+          <Stack
+            backgroundColor="#ffd0c8"
+            borderRadius="$7"
+            padding="$4"
+            gap="$3"
+            marginBottom="$4"
+          >
+            <Text color="$color" fontSize={18} fontWeight="900" lineHeight={22}>
+              I have a code
+            </Text>
+            <Text color="$muted" fontSize={14}>
+              Enter your partner's code
+            </Text>
+
+            <CodeInput
+              length={8}
+              group={4}
+              value={input}
+              onChange={handleInputChange}
+              error={error}
+            />
+
+            {error ? (
+              <Stack
+                backgroundColor="rgba(255,255,255,0.7)"
+                borderRadius="$4"
+                padding="$2"
+              >
+                <Text color="#d32f2f" fontSize={13} fontWeight="600">
+                  {error}
+                </Text>
+              </Stack>
+            ) : null}
+
             <Button
-              flex={1}
               backgroundColor="$primary"
               borderRadius="$6"
               height={44}
-              onPress={handleCopy}
-              disabled={isLoading || codeExpired || !myCode}
+              onPress={handleRedeem}
+              disabled={
+                isLoading || input.replace(/[^A-Z0-9]/gi, "").length < 8
+              }
               pressStyle={{ opacity: 0.8 }}
             >
               {isLoading ? (
                 <Spinner color="white" />
               ) : (
                 <Text color="white" fontWeight="700" fontSize={15}>
-                  Copy
+                  Pair now
                 </Text>
               )}
             </Button>
-            <Button
-              flex={1}
-              backgroundColor="transparent"
-              borderWidth={2}
-              borderColor="$primary"
-              borderRadius="$6"
-              height={44}
-              onPress={handleShare}
-              disabled={isLoading || codeExpired || !myCode}
-              pressStyle={{ opacity: 0.7 }}
-            >
-              <Text color="$primary" fontWeight="700" fontSize={15}>
-                Share
-              </Text>
-            </Button>
-          </XStack>
-
-          {/* Secure Connection Row */}
-          <XStack
-            backgroundColor="rgba(255,255,255,0.5)"
-            borderRadius="$5"
-            padding="$3"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Text color="$color" fontSize={14} fontWeight="600">
-              Secure Connection
-            </Text>
-            <Switch
-              size="$3"
-              checked={secure}
-              onCheckedChange={(v) => setSecure(!!v)}
-              backgroundColor={secure ? "$primary" : "$borderColor"}
-            >
-              <Switch.Thumb backgroundColor="white" />
-            </Switch>
-          </XStack>
-
-          {/* Countdown Row */}
-          <XStack
-            backgroundColor="rgba(255,255,255,0.3)"
-            borderRadius="$5"
-            padding="$3"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Countdown expiresAt={expiresAt} />
-            <Button
-              chromeless
-              onPress={handleGenerate}
-              disabled={isLoading}
-              pressStyle={{ opacity: 0.6 }}
-            >
-              {isLoading ? (
-                <Spinner size="small" color="$primary" />
-              ) : (
-                <Text color="$primary" fontWeight="700" fontSize={14}>
-                  Regenerate
-                </Text>
-              )}
-            </Button>
-          </XStack>
-        </Stack>
-
-        {/* Divider "or" */}
-        <XStack alignItems="center" justifyContent="center" marginVertical="$2">
-          <Separator flex={1} borderColor="$borderColor" />
-          <Stack
-            width={36}
-            height={36}
-            borderRadius={18}
-            backgroundColor="$background"
-            borderWidth={1}
-            borderColor="$borderColor"
-            alignItems="center"
-            justifyContent="center"
-            marginHorizontal="$3"
-          >
-            <Text color="$muted" fontSize={13}>
-              or
-            </Text>
           </Stack>
-          <Separator flex={1} borderColor="$borderColor" />
-        </XStack>
-
-        {/* Enter Code Card */}
-        <Stack
-          backgroundColor="#ffd0c8"
-          borderRadius="$7"
-          padding="$4"
-          gap="$3"
-          marginBottom="$4"
-        >
-          <Text color="$color" fontSize={18} fontWeight="900" lineHeight={22}>
-            I have a code
-          </Text>
-          <Text color="$muted" fontSize={14}>
-            Enter your partner's code
-          </Text>
-
-          <CodeInput
-            length={8}
-            group={4}
-            value={input}
-            onChange={handleInputChange}
-            error={error}
-          />
-
-          {error ? (
-            <Stack
-              backgroundColor="rgba(255,255,255,0.7)"
-              borderRadius="$4"
-              padding="$2"
-            >
-              <Text color="#d32f2f" fontSize={13} fontWeight="600">
-                {error}
-              </Text>
-            </Stack>
-          ) : null}
-
-          <Button
-            backgroundColor="$primary"
-            borderRadius="$6"
-            height={44}
-            onPress={handleRedeem}
-            disabled={isLoading || input.replace(/[^A-Z0-9]/gi, "").length < 8}
-            pressStyle={{ opacity: 0.8 }}
-          >
-            {isLoading ? (
-              <Spinner color="white" />
-            ) : (
-              <Text color="white" fontWeight="700" fontSize={15}>
-                Pair now
-              </Text>
-            )}
-          </Button>
-        </Stack>
-      </YStack>
-    </ScrollView>
+        </YStack>
+      </ScrollView>
+    </ScreenContainer>
   );
 }
