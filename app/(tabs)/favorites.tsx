@@ -74,7 +74,6 @@ export default function FavoritesScreen() {
 
   return (
     <ScreenContainer title="Favorites">
-      <YStack flex={1} backgroundColor="$bg">
         {/* Header */}
         <YStack padding="$4" paddingTop="$6" gap="$4">
           <XStack alignItems="center" justifyContent="space-between">
@@ -193,7 +192,6 @@ export default function FavoritesScreen() {
           onClose={handleCloseFormModal}
           onSave={handleSave}
         />
-      </YStack>
     </ScreenContainer>
   );
 }

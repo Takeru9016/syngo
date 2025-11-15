@@ -131,7 +131,6 @@ export default function NotificationsScreen() {
 
   return (
     <ScreenContainer title="Notifications">
-      <YStack flex={1} backgroundColor="$bg">
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           refreshControl={
@@ -290,7 +289,6 @@ export default function NotificationsScreen() {
             )}
           </YStack>
         </ScrollView>
-      </YStack>
     </ScreenContainer>
   );
 }

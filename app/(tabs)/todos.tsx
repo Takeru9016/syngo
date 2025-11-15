@@ -82,7 +82,6 @@ export default function TodosScreen() {
 
   return (
     <ScreenContainer title="To-Do Reminders">
-      <YStack flex={1} backgroundColor="$bg">
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           refreshControl={
@@ -218,7 +217,6 @@ export default function TodosScreen() {
           onClose={handleCloseModal}
           onSave={handleSave}
         />
-      </YStack>
     </ScreenContainer>
   );
 }

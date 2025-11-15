@@ -3,6 +3,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   limit,
   orderBy,
@@ -11,6 +12,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+
 import { db } from "@/config/firebase";
 import { getCurrentUserId } from "@/services/auth/auth.service";
 import { AppNotification, AppNotificationType } from "@/types";
@@ -21,11 +23,22 @@ type CreateNotificationInput = {
   title: string;
   body: string;
   data?: Record<string, any>;
+  pairId?: string | null;
 };
 
 function nowMs(): number {
   return Date.now();
 }
+
+export type SendToPartnerInput = {
+  type: Extract<
+    AppNotificationType,
+    "sticker_sent" | "favorite_added" | "todo_created" | "todo_reminder"
+  >;
+  title: string;
+  body: string;
+  data?: Record<string, any>;
+};
 
 export const AppNotificationService = {
   /**
@@ -72,8 +85,9 @@ export const AppNotificationService = {
         type: String(data.type ?? "other") as AppNotificationType,
         title: String(data.title ?? ""),
         body: String(data.body ?? ""),
-        senderUid: String(data.senderUid ?? ""),
+        senderUid: data.senderUid ? String(data.senderUid) : undefined,
         recipientUid: String(data.recipientUid ?? ""),
+        pairId: data.pairId ?? null,
         read: Boolean(data.read ?? false),
         createdAt: Number(data.createdAt ?? 0),
         data: data.data || {},
@@ -100,6 +114,7 @@ export const AppNotificationService = {
       body: input.body,
       senderUid: uid,
       recipientUid: input.recipientUid,
+      pairId: input.pairId ?? null,
       read: false,
       createdAt: nowMs(),
       updatedAt: serverTimestamp(),
@@ -273,5 +288,87 @@ export const AppNotificationService = {
       console.error("❌ [AppNotificationService.clearAll] Error:", error);
       throw error;
     }
+  },
+
+  /**
+   * High-level helper: send a notification to the current user's partner.
+   * Requires that the current user has a pairId on their profile and that
+   * pairs/{pairId} exists with participants: [uid1, uid2].
+   */
+  async sendToPartner(input: SendToPartnerInput): Promise<string> {
+    const currentUid = getCurrentUserId();
+    if (!currentUid) {
+      console.error(
+        "❌ [AppNotificationService.sendToPartner] Not authenticated"
+      );
+      throw new Error("Not authenticated");
+    }
+
+    console.log(
+      "📨 [AppNotificationService.sendToPartner] Resolving partner for uid:",
+      currentUid
+    );
+
+    // 1. Load current user's profile to get pairId
+    const userProfileRef = doc(db, "users", currentUid);
+    const userProfileSnap = await getDoc(userProfileRef);
+    if (!userProfileSnap.exists()) {
+      console.error(
+        "❌ [AppNotificationService.sendToPartner] User profile not found for uid:",
+        currentUid
+      );
+      throw new Error("User profile not found");
+    }
+
+    const userProfileData = userProfileSnap.data() as {
+      pairId?: string | null;
+    };
+    const pairId = userProfileData.pairId ?? null;
+    if (!pairId) {
+      console.error(
+        "❌ [AppNotificationService.sendToPartner] User is not paired, cannot send to partner"
+      );
+      throw new Error("User is not paired");
+    }
+
+    console.log(
+      "📨 [AppNotificationService.sendToPartner] Found pairId:",
+      pairId
+    );
+
+    // 2. Load pair doc to resolve partner uid
+    const pairRef = doc(db, "pairs", pairId);
+    const pairSnap = await getDoc(pairRef);
+    if (!pairSnap.exists()) {
+      console.error(
+        "❌ [AppNotificationService.sendToPartner] Pair document not found for pairId:",
+        pairId
+      );
+      throw new Error("Pair not found");
+    }
+
+    const pairData = pairSnap.data() as { participants: [string, string] };
+    const [uid1, uid2] = pairData.participants;
+    const recipientUid = uid1 === currentUid ? uid2 : uid1;
+
+    console.log(
+      "📨 [AppNotificationService.sendToPartner] Sending notification to partner:",
+      {
+        currentUid,
+        recipientUid,
+        pairId,
+        type: input.type,
+      }
+    );
+
+    // 3. Delegate to create()
+    return this.create({
+      type: input.type,
+      title: input.title,
+      body: input.body,
+      recipientUid,
+      pairId,
+      data: input.data,
+    });
   },
 };

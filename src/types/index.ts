@@ -72,8 +72,9 @@ export type AppNotification = {
   type: AppNotificationType;
   title: string;
   body: string;
-  recipientUid: string; // Changed from senderUid to match Cloud Functions
-  pairId: string; // Added to match Cloud Functions
+  recipientUid: string;
+  senderUid?: string;
+  pairId?: string | null;
   read: boolean;
   createdAt: number;
   data?: Record<string, any>;

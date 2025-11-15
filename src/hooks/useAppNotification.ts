@@ -57,6 +57,7 @@ export function useAppNotifications() {
             title: String(data.title ?? ""),
             body: String(data.body ?? ""),
             senderUid: String(data.senderUid ?? ""),
+            pairId: String(data.pairId ?? ""),
             recipientUid: String(data.recipientUid ?? ""),
             read: Boolean(data.read ?? false),
             createdAt: Number(data.createdAt ?? 0),

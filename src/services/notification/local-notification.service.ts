@@ -8,9 +8,8 @@ import { getCurrentUserId } from "@/services/auth/auth.service";
 // Foreground behavior
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    // iOS 15+ foreground behavior
-    shouldShowBanner: true, // formerly shouldShowAlert
-    shouldShowList: true,   // appear in Notification Center list
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
@@ -22,15 +21,36 @@ export type NotificationCategory =
   | "favorites"
   | "system";
 
-export type ScheduleOptions = {
+export type BaseScheduleOptions = {
   title: string;
   body: string;
   data?: Record<string, any>;
   category?: NotificationCategory;
-  when: Date; // absolute time
   androidChannelId?: string;
-  iosSound?: string | boolean; // true -> default sound
+  iosSound?: string | boolean;
 };
+
+export type OneShotScheduleOptions = BaseScheduleOptions & {
+  mode: "one-shot";
+  when: Date;
+};
+
+export type IntervalScheduleOptions = BaseScheduleOptions & {
+  mode: "interval";
+  seconds: number;
+  repeats: boolean;
+};
+
+export type DailyScheduleOptions = BaseScheduleOptions & {
+  mode: "daily";
+  hour: number;
+  minute: number;
+};
+
+export type ScheduleOptions =
+  | OneShotScheduleOptions
+  | IntervalScheduleOptions
+  | DailyScheduleOptions;
 
 export const NotificationService = {
   async init(): Promise<void> {
@@ -113,14 +133,60 @@ export const NotificationService = {
     const granted = await this.ensurePermissions();
     if (!granted) throw new Error("Notification permissions not granted");
 
-    const trigger: Notifications.NotificationTriggerInput = {
-      date: opts.when,
-      channelId:
-        Platform.OS === "android"
-          ? opts.androidChannelId || categoryToChannel(opts.category)
-          : undefined,
-      repeats: false,
-    };
+    const androidChannelId =
+      Platform.OS === "android"
+        ? opts.androidChannelId || categoryToChannel(opts.category)
+        : undefined;
+
+    let trigger: Notifications.NotificationTriggerInput;
+
+    switch (opts.mode) {
+      case "one-shot": {
+        trigger = {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: opts.when,
+          channelId: androidChannelId,
+        };
+        break;
+      }
+
+      case "interval": {
+        if (opts.repeats && opts.seconds < 60) {
+          throw new Error(
+            "Repeating interval notifications require at least 60 seconds"
+          );
+        }
+        trigger = {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: opts.seconds,
+          repeats: opts.repeats,
+          channelId: androidChannelId,
+        };
+        break;
+      }
+
+      case "daily": {
+        if (opts.hour < 0 || opts.hour > 23) {
+          throw new Error("Hour must be between 0 and 23");
+        }
+        if (opts.minute < 0 || opts.minute > 59) {
+          throw new Error("Minute must be between 0 and 59");
+        }
+        trigger = {
+          type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+          hour: opts.hour,
+          minute: opts.minute,
+          repeats: true,
+          channelId: androidChannelId,
+        };
+        break;
+      }
+
+      default: {
+        const _exhaustive: never = opts;
+        throw new Error(`Unsupported schedule mode: ${(opts as any).mode}`);
+      }
+    }
 
     const id = await Notifications.scheduleNotificationAsync({
       content: {
@@ -133,7 +199,6 @@ export const NotificationService = {
       trigger,
     });
 
-    // Optional record in Firestore
     try {
       const uid = getCurrentUserId();
       if (uid) {
@@ -143,14 +208,19 @@ export const NotificationService = {
             id,
             category: opts.category || "system",
             title: opts.title,
-            when: opts.when.toISOString(),
+            mode: opts.mode,
+            when: opts.mode === "one-shot" ? opts.when.toISOString() : null,
+            intervalSeconds: opts.mode === "interval" ? opts.seconds : null,
+            intervalRepeats: opts.mode === "interval" ? opts.repeats : null,
+            dailyHour: opts.mode === "daily" ? opts.hour : null,
+            dailyMinute: opts.mode === "daily" ? opts.minute : null,
             createdAt: serverTimestamp(),
           },
           { merge: true }
         );
       }
-    } catch {
-      // non-fatal
+    } catch (err) {
+      console.warn("Failed to persist scheduled notification:", err);
     }
 
     return id;
@@ -158,6 +228,19 @@ export const NotificationService = {
 
   async cancelNotification(id: string): Promise<void> {
     await Notifications.cancelScheduledNotificationAsync(id);
+
+    try {
+      const uid = getCurrentUserId();
+      if (uid) {
+        await setDoc(
+          doc(db, "users", uid, "scheduledNotifications", id),
+          { cancelledAt: serverTimestamp() },
+          { merge: true }
+        );
+      }
+    } catch {
+      // Non-fatal
+    }
   },
 
   async cancelAll(): Promise<void> {
@@ -168,13 +251,17 @@ export const NotificationService = {
     return Notifications.getAllScheduledNotificationsAsync();
   },
 
-  // Expo push token (dev). In production builds we can also use getDevicePushTokenAsync(Firebase/APNs).
   async getPushToken(): Promise<string | null> {
     const granted = await this.ensurePermissions();
     if (!granted) return null;
 
-    const token = await Notifications.getExpoPushTokenAsync();
-    return token.data ?? null;
+    try {
+      const token = await Notifications.getExpoPushTokenAsync();
+      return token.data ?? null;
+    } catch (err) {
+      console.error("Failed to get push token:", err);
+      return null;
+    }
   },
 };
 
