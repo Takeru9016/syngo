@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Modal, Platform, KeyboardAvoidingView } from 'react-native';
+import { useEffect, useState } from "react";
+import { Modal, Platform, KeyboardAvoidingView } from "react-native";
 import {
   YStack,
   XStack,
@@ -9,25 +9,28 @@ import {
   TextArea,
   Stack,
   ScrollView,
-} from 'tamagui';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import DateTimePicker from '@react-native-community/datetimepicker';
+} from "tamagui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { X, Calendar, Clock, Flag } from "@tamagui/lucide-icons";
 
-import { Todo, TodoPriority } from '@/types';
+import { Todo, TodoPriority } from "@/types";
 
 type Props = {
   visible: boolean;
   todo?: Todo | null;
   onClose: () => void;
-  onSave: (data: Omit<Todo, 'id' | 'createdAt' | 'createdBy'>) => void;
+  onSave: (data: Omit<Todo, "id" | "createdAt" | "createdBy">) => void;
 };
 
 export function TodoModal({ visible, todo, onClose, onSave }: Props) {
   const insets = useSafeAreaInsets();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState(new Date(Date.now() + 3600000)); // 1 hour from now
-  const [priority, setPriority] = useState<TodoPriority>('medium');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState(
+    new Date(Date.now() + 3600000) // 1 hour from now
+  );
+  const [priority, setPriority] = useState<TodoPriority>("medium");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
@@ -38,10 +41,10 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
       setDueDate(new Date(todo.dueDate));
       setPriority(todo.priority);
     } else {
-      setTitle('');
-      setDescription('');
+      setTitle("");
+      setDescription("");
       setDueDate(new Date(Date.now() + 3600000));
-      setPriority('medium');
+      setPriority("medium");
     }
   }, [todo, visible]);
 
@@ -57,21 +60,35 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
     onClose();
   };
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  };
+  const formatTime = (date: Date) =>
+    date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+    >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <Stack flex={1} backgroundColor="rgba(0,0,0,0.5)" justifyContent="flex-end">
+        <Stack
+          flex={1}
+          backgroundColor="rgba(0,0,0,0.4)"
+          justifyContent="flex-end"
+        >
           <Stack
             backgroundColor="$bg"
             borderTopLeftRadius="$8"
@@ -80,138 +97,211 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
           >
             <ScrollView
               contentContainerStyle={{
-                paddingBottom: Math.max(insets.bottom, 20) + 80, // Extra space for tab bar + button
+                paddingBottom: Math.max(insets.bottom, 20) + 80,
               }}
               showsVerticalScrollIndicator={true}
             >
-              <YStack padding="$4" gap="$4">
+              <YStack padding="$5" gap="$4">
                 {/* Header */}
                 <XStack alignItems="center" justifyContent="space-between">
-                  <Text color="$color" fontSize={22} fontWeight="900">
-                    {todo ? 'Edit Reminder' : 'New Reminder'}
-                  </Text>
-                  <Button unstyled onPress={onClose}>
-                    <Text color="$muted" fontSize={28}>
-                      ✕
+                  <YStack>
+                    <Text
+                      fontFamily="$heading"
+                      color="$color"
+                      fontSize={22}
+                      fontWeight="800"
+                    >
+                      {todo ? "Edit reminder" : "New reminder"}
                     </Text>
+                    <Text fontFamily="$body" color="$colorMuted" fontSize={13}>
+                      Set a gentle nudge for the two of you.
+                    </Text>
+                  </YStack>
+                  <Button unstyled onPress={onClose} hitSlop={16}>
+                    <X size={22} color="$colorMuted" />
                   </Button>
                 </XStack>
 
                 {/* Title */}
                 <YStack gap="$2">
-                  <Text color="$color" fontSize={14} fontWeight="600">
+                  <Text
+                    fontFamily="$body"
+                    color="$color"
+                    fontSize={14}
+                    fontWeight="600"
+                  >
                     Title
                   </Text>
                   <Input
                     value={title}
                     onChangeText={setTitle}
-                    placeholder="Enter title"
-                    backgroundColor="$background"
+                    placeholder="Plan the weekend, pick up flowers..."
+                    backgroundColor="$bgCard"
                     borderColor="$borderColor"
-                    borderRadius="$5"
-                    height={44}
+                    borderRadius="$7"
+                    height={46}
                     fontSize={15}
+                    fontFamily="$body"
+                    color="$color"
                   />
                 </YStack>
 
                 {/* Description */}
                 <YStack gap="$2">
-                  <Text color="$color" fontSize={14} fontWeight="600">
+                  <Text
+                    fontFamily="$body"
+                    color="$color"
+                    fontSize={14}
+                    fontWeight="600"
+                  >
                     Description
                   </Text>
                   <TextArea
                     value={description}
                     onChangeText={setDescription}
                     placeholder="Add details (optional)"
-                    backgroundColor="$background"
+                    backgroundColor="$bgCard"
                     borderColor="$borderColor"
-                    borderRadius="$5"
-                    minHeight={80}
+                    borderRadius="$7"
+                    minHeight={90}
                     fontSize={15}
+                    fontFamily="$body"
+                    color="$color"
                   />
                 </YStack>
 
                 {/* Date & Time */}
                 <YStack gap="$2">
-                  <Text color="$color" fontSize={14} fontWeight="600">
-                    Due Date & Time
+                  <Text
+                    fontFamily="$body"
+                    color="$color"
+                    fontSize={14}
+                    fontWeight="600"
+                  >
+                    Due date & time
                   </Text>
                   <XStack gap="$2">
                     <Button
                       flex={1}
-                      backgroundColor="$background"
+                      backgroundColor="$bgCard"
                       borderColor="$borderColor"
                       borderWidth={1}
-                      borderRadius="$5"
+                      borderRadius="$7"
                       height={44}
                       onPress={() => setShowDatePicker(true)}
                       pressStyle={{ opacity: 0.7 }}
                     >
-                      <Text color="$color" fontSize={15}>
-                        {formatDate(dueDate)}
-                      </Text>
+                      <XStack
+                        alignItems="center"
+                        justifyContent="center"
+                        gap="$2"
+                      >
+                        <Calendar size={16} color="$colorMuted" />
+                        <Text fontFamily="$body" color="$color" fontSize={15}>
+                          {formatDate(dueDate)}
+                        </Text>
+                      </XStack>
                     </Button>
                     <Button
                       flex={1}
-                      backgroundColor="$background"
+                      backgroundColor="$bgCard"
                       borderColor="$borderColor"
                       borderWidth={1}
-                      borderRadius="$5"
+                      borderRadius="$7"
                       height={44}
                       onPress={() => setShowTimePicker(true)}
                       pressStyle={{ opacity: 0.7 }}
                     >
-                      <Text color="$color" fontSize={15}>
-                        {formatTime(dueDate)}
-                      </Text>
+                      <XStack
+                        alignItems="center"
+                        justifyContent="center"
+                        gap="$2"
+                      >
+                        <Clock size={16} color="$colorMuted" />
+                        <Text fontFamily="$body" color="$color" fontSize={15}>
+                          {formatTime(dueDate)}
+                        </Text>
+                      </XStack>
                     </Button>
                   </XStack>
                 </YStack>
 
                 {/* Priority */}
                 <YStack gap="$2">
-                  <Text color="$color" fontSize={14} fontWeight="600">
+                  <Text
+                    fontFamily="$body"
+                    color="$color"
+                    fontSize={14}
+                    fontWeight="600"
+                  >
                     Priority
                   </Text>
                   <XStack gap="$2">
-                    {(['low', 'medium', 'high'] as TodoPriority[]).map((p) => (
-                      <Button
-                        key={p}
-                        flex={1}
-                        backgroundColor={priority === p ? '$primary' : '$background'}
-                        borderColor={priority === p ? '$primary' : '$borderColor'}
-                        borderWidth={1}
-                        borderRadius="$5"
-                        height={44}
-                        onPress={() => setPriority(p)}
-                        pressStyle={{ opacity: 0.7 }}
-                      >
-                        <Text
-                          color={priority === p ? 'white' : '$color'}
-                          fontSize={15}
-                          fontWeight="600"
-                          textTransform="capitalize"
+                    {(["low", "medium", "high"] as TodoPriority[]).map((p) => {
+                      const isActive = priority === p;
+                      const label =
+                        p === "low"
+                          ? "Low"
+                          : p === "medium"
+                          ? "Normal"
+                          : "High";
+
+                      return (
+                        <Button
+                          key={p}
+                          flex={1}
+                          backgroundColor={
+                            isActive ? "$primarySoft" : "$bgCard"
+                          }
+                          borderColor={isActive ? "$primary" : "$borderColor"}
+                          borderWidth={1}
+                          borderRadius="$7"
+                          height={44}
+                          onPress={() => setPriority(p)}
+                          pressStyle={{ opacity: 0.8 }}
                         >
-                          {p}
-                        </Text>
-                      </Button>
-                    ))}
+                          <XStack
+                            alignItems="center"
+                            justifyContent="center"
+                            gap="$2"
+                          >
+                            <Flag
+                              size={14}
+                              color={isActive ? "$primary" : "$colorMuted"}
+                            />
+                            <Text
+                              fontFamily="$body"
+                              color={isActive ? "$primary" : "$color"}
+                              fontSize={14}
+                              fontWeight="600"
+                            >
+                              {label}
+                            </Text>
+                          </XStack>
+                        </Button>
+                      );
+                    })}
                   </XStack>
                 </YStack>
 
                 {/* Save Button */}
                 <Button
                   backgroundColor="$primary"
-                  borderRadius="$6"
+                  borderRadius="$8"
                   height={48}
                   onPress={handleSave}
                   disabled={!title.trim()}
                   opacity={!title.trim() ? 0.5 : 1}
-                  pressStyle={{ opacity: 0.8 }}
+                  pressStyle={{ opacity: 0.85 }}
                   marginTop="$2"
                 >
-                  <Text color="white" fontWeight="700" fontSize={16}>
-                    {todo ? 'Update' : 'Create'} Reminder
+                  <Text
+                    fontFamily="$body"
+                    color="white"
+                    fontWeight="700"
+                    fontSize={16}
+                  >
+                    {todo ? "Update reminder" : "Create reminder"}
                   </Text>
                 </Button>
               </YStack>
@@ -224,7 +314,7 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
               value={dueDate}
               mode="date"
               display="default"
-              onChange={(event, date) => {
+              onChange={(_, date) => {
                 setShowDatePicker(false);
                 if (date) setDueDate(date);
               }}
@@ -237,7 +327,7 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
               value={dueDate}
               mode="time"
               display="default"
-              onChange={(event, date) => {
+              onChange={(_, date) => {
                 setShowTimePicker(false);
                 if (date) setDueDate(date);
               }}

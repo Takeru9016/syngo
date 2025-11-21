@@ -1,9 +1,18 @@
-import { useState } from 'react';
-import { Alert } from 'react-native';
-import { XStack, YStack, Text, Stack, Button } from 'tamagui';
-import { Swipeable } from 'react-native-gesture-handler';
+import { useState } from "react";
+import { Alert } from "react-native";
+import { XStack, YStack, Text, Stack, Button } from "tamagui";
+import { Swipeable } from "react-native-gesture-handler";
+import {
+  CheckCircle2,
+  Circle,
+  CalendarClock,
+  Flag,
+  Pencil,
+  Trash2,
+} from "@tamagui/lucide-icons";
 
-import { Todo } from '@/types';
+import { Todo } from "@/types";
+import { triggerSelectionHaptic } from "@/state/haptics";
 
 type Props = {
   todo: Todo;
@@ -16,53 +25,91 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
   const [swiping, setSwiping] = useState(false);
 
   const formatDate = (ts: number) => {
+    if (!ts) return "No date";
     const date = new Date(ts);
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
     const isTomorrow =
       date.toDateString() === new Date(now.getTime() + 86400000).toDateString();
 
-    if (isToday) return `Today ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
-    if (isTomorrow) return `Tomorrow ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    const timeStr = date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+    if (isToday) return `Today • ${timeStr}`;
+    if (isTomorrow) return `Tomorrow • ${timeStr}`;
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
   };
 
+  const isOverdue =
+    !!todo.dueDate && todo.dueDate < Date.now() && !todo.isCompleted;
+
   const getPriorityColor = () => {
-    if (todo.priority === 'high') return '#ff7b7b';
-    if (todo.priority === 'medium') return '#ffa726';
-    return '#66bb6a';
+    if (todo.priority === "high") return "#ff7b7b";
+    if (todo.priority === "medium") return "#ffa726";
+    return "#66bb6a";
   };
 
   const handleDelete = () => {
-    Alert.alert('Delete Todo', 'Are you sure you want to delete this reminder?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => onDelete(todo.id) },
-    ]);
+    Alert.alert(
+      "Delete reminder",
+      "Are you sure you want to delete this reminder?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => onDelete(todo.id),
+        },
+      ]
+    );
   };
 
   const renderRightActions = () => (
-    <XStack gap="$2" paddingLeft="$2">
+    <XStack gap="$2" paddingLeft="$2" alignItems="center">
       <Button
-        backgroundColor="#2196f3"
-        borderRadius="$5"
-        width={70}
-        onPress={() => onEdit(todo)}
-        pressStyle={{ opacity: 0.8 }}
+        backgroundColor="$primarySoft"
+        borderRadius="$6"
+        width={80}
+        height={80}
+        onPress={() => {
+          triggerSelectionHaptic();
+          onEdit(todo);
+        }}
+        pressStyle={{ opacity: 0.9 }}
       >
-        <Text color="white" fontWeight="700" fontSize={14}>
-          Edit
-        </Text>
+        <XStack alignItems="center" gap="$2" justifyContent="center">
+          <Pencil size={16} color="$primary" />
+          <Text
+            fontFamily="$body"
+            color="$primary"
+            fontWeight="700"
+            fontSize={13}
+          >
+            Edit
+          </Text>
+        </XStack>
       </Button>
       <Button
         backgroundColor="#f44336"
-        borderRadius="$5"
-        width={70}
+        borderRadius="$6"
+        width={80}
+        height={80}
         onPress={handleDelete}
-        pressStyle={{ opacity: 0.8 }}
+        pressStyle={{ opacity: 0.9 }}
       >
-        <Text color="white" fontWeight="700" fontSize={14}>
-          Delete
-        </Text>
+        <XStack alignItems="center" gap="$2" justifyContent="center">
+          <Trash2 size={16} color="white" />
+          <Text fontFamily="$body" color="white" fontWeight="700" fontSize={13}>
+            Delete
+          </Text>
+        </XStack>
       </Button>
     </XStack>
   );
@@ -74,64 +121,97 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
       onSwipeableClose={() => setSwiping(false)}
     >
       <Stack
-        backgroundColor="$background"
-        borderRadius="$6"
-        padding="$3"
+        backgroundColor="$bgCard"
+        borderRadius="$8"
+        padding="$4"
         marginBottom="$2"
-        opacity={todo.isCompleted ? 0.6 : 1}
+        borderWidth={1}
+        borderColor="$borderColor"
+        opacity={todo.isCompleted ? 0.55 : 1}
       >
         <XStack gap="$3" alignItems="flex-start">
           {/* Checkbox */}
           <Button
             unstyled
-            width={24}
-            height={24}
-            borderRadius={12}
-            borderWidth={2}
-            borderColor={todo.isCompleted ? '$primary' : '$borderColor'}
-            backgroundColor={todo.isCompleted ? '$primary' : 'transparent'}
+            width={26}
+            height={26}
+            borderRadius={13}
             alignItems="center"
             justifyContent="center"
-            onPress={() => onToggle(todo.id)}
+            onPress={() => {
+              triggerSelectionHaptic();
+              onToggle(todo.id);
+            }}
             marginTop={2}
           >
-            {todo.isCompleted && (
-              <Text color="white" fontSize={14} fontWeight="900">
-                ✓
-              </Text>
+            {todo.isCompleted ? (
+              <CheckCircle2 size={22} color="$primary" />
+            ) : (
+              <Circle size={22} color="$borderColor" />
             )}
           </Button>
 
           {/* Content */}
           <YStack flex={1} gap="$1">
             <Text
+              fontFamily="$body"
               color="$color"
               fontSize={16}
               fontWeight="700"
-              textDecorationLine={todo.isCompleted ? 'line-through' : 'none'}
+              textDecorationLine={todo.isCompleted ? "line-through" : "none"}
             >
               {todo.title}
             </Text>
+
             {todo.description ? (
               <Text
-                color="$muted"
+                fontFamily="$body"
+                color="$colorMuted"
                 fontSize={14}
                 numberOfLines={2}
-                textDecorationLine={todo.isCompleted ? 'line-through' : 'none'}
+                textDecorationLine={todo.isCompleted ? "line-through" : "none"}
               >
                 {todo.description}
               </Text>
             ) : null}
-            <XStack gap="$2" alignItems="center" marginTop="$1">
-              <Text color="$muted" fontSize={12}>
-                {formatDate(todo.dueDate)}
-              </Text>
-              <Stack
-                width={8}
-                height={8}
-                borderRadius={4}
-                backgroundColor={getPriorityColor()}
-              />
+
+            <XStack gap="$2" alignItems="center" marginTop="$2" flexWrap="wrap">
+              <XStack alignItems="center" gap="$2">
+                <CalendarClock size={14} color="$colorMuted" />
+                <Text fontFamily="$body" color="$colorMuted" fontSize={12}>
+                  {formatDate(todo.dueDate)}
+                </Text>
+              </XStack>
+
+              {isOverdue && (
+                <XStack
+                  paddingHorizontal="$2"
+                  paddingVertical="$1"
+                  borderRadius="$5"
+                  backgroundColor="$primarySoft"
+                  alignItems="center"
+                  gap="$1"
+                >
+                  <Text
+                    fontFamily="$body"
+                    color="$primary"
+                    fontSize={11}
+                    fontWeight="700"
+                  >
+                    Overdue
+                  </Text>
+                </XStack>
+              )}
+
+              <XStack alignItems="center" gap="$2">
+                <Flag size={13} color="$colorMuted" />
+                <Stack
+                  width={10}
+                  height={10}
+                  borderRadius={5}
+                  backgroundColor={getPriorityColor()}
+                />
+              </XStack>
             </XStack>
           </YStack>
         </XStack>
