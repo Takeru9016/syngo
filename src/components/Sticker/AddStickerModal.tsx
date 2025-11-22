@@ -13,6 +13,7 @@ import {
 } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
+import { Image as LucideImage, Camera, X } from "@tamagui/lucide-icons";
 
 import { CloudinaryStorage } from "@/services/storage/cloudinary.adapter";
 
@@ -55,18 +56,11 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
       return;
     }
 
-    console.log("💾 [AddStickerModal] Saving sticker:", {
-      name: name.trim(),
-      imageUrl,
-    });
     onSave(name.trim(), imageUrl);
     handleClose();
   };
 
   const uploadImage = async (localUri: string) => {
-    console.log("☁️ [AddStickerModal] Starting upload for:", localUri);
-
-    // Show local preview immediately
     setLocalPreview(localUri);
     setUploading(true);
 
@@ -75,13 +69,11 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
         folder: "stickers",
       });
 
-      console.log("✅ [AddStickerModal] Upload successful:", result.url);
-
       setImageUrl(result.url);
       setLocalPreview(result.url);
       Alert.alert("Success", "Image uploaded successfully!");
     } catch (error) {
-      console.error("❌ [AddStickerModal] Upload failed:", error);
+      console.error("Upload failed:", error);
       Alert.alert("Upload failed", "Could not upload image. Please try again.");
       setLocalPreview(null);
     } finally {
@@ -90,16 +82,11 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
   };
 
   const pickImage = async () => {
-    console.log("📷 [AddStickerModal] Requesting media library permissions");
-
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      console.warn("⚠️ [AddStickerModal] Permission denied");
       Alert.alert("Permission needed", "Please grant photo library access");
       return;
     }
-
-    console.log("📷 [AddStickerModal] Launching image picker");
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -108,33 +95,19 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
       quality: 0.8,
     });
 
-    if (result.canceled) {
-      console.log("❌ [AddStickerModal] Image picker canceled");
-      return;
-    }
-
-    if (!result.assets[0]) {
-      console.error("❌ [AddStickerModal] No asset selected");
-      return;
-    }
+    if (result.canceled) return;
+    if (!result.assets[0]) return;
 
     const localUri = result.assets[0].uri;
-    console.log("✅ [AddStickerModal] Image selected:", localUri);
-
     await uploadImage(localUri);
   };
 
   const takePhoto = async () => {
-    console.log("📸 [AddStickerModal] Requesting camera permissions");
-
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
-      console.warn("⚠️ [AddStickerModal] Camera permission denied");
       Alert.alert("Permission needed", "Please grant camera access");
       return;
     }
-
-    console.log("📸 [AddStickerModal] Launching camera");
 
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
@@ -142,19 +115,10 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
       quality: 0.8,
     });
 
-    if (result.canceled) {
-      console.log("❌ [AddStickerModal] Camera canceled");
-      return;
-    }
-
-    if (!result.assets[0]) {
-      console.error("❌ [AddStickerModal] No photo taken");
-      return;
-    }
+    if (result.canceled) return;
+    if (!result.assets[0]) return;
 
     const localUri = result.assets[0].uri;
-    console.log("✅ [AddStickerModal] Photo taken:", localUri);
-
     await uploadImage(localUri);
   };
 
@@ -189,18 +153,25 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
               contentContainerStyle={{
                 paddingBottom: Math.max(insets.bottom, 20) + 80,
               }}
-              showsVerticalScrollIndicator={true}
+              showsVerticalScrollIndicator
             >
               <YStack padding="$4" gap="$4">
                 {/* Header */}
                 <XStack alignItems="center" justifyContent="space-between">
-                  <Text color="$color" fontSize={22} fontWeight="900">
+                  <Text
+                    fontFamily="$heading"
+                    color="$color"
+                    fontSize={22}
+                    fontWeight="900"
+                  >
                     New Sticker
                   </Text>
-                  <Button unstyled onPress={handleClose}>
-                    <Text color="$muted" fontSize={28}>
-                      ✕
-                    </Text>
+                  <Button
+                    unstyled
+                    onPress={handleClose}
+                    aria-label="Close modal"
+                  >
+                    <X color="$muted" size={28} />
                   </Button>
                 </XStack>
 
@@ -212,14 +183,14 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                       height={200}
                       borderRadius="$6"
                       overflow="hidden"
-                      backgroundColor="$background"
+                      backgroundColor="$bgCard"
                       position="relative"
                     >
                       <Image
                         source={{ uri: localPreview }}
                         width="100%"
                         height="100%"
-                        resizeMode="cover"
+                        objectFit="cover"
                       />
                       {uploading && (
                         <Stack
@@ -250,16 +221,15 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                           padding={0}
                           onPress={removeImage}
                           pressStyle={{ opacity: 0.8 }}
+                          aria-label="Remove image"
                         >
-                          <Text color="white" fontSize={18}>
-                            ✕
-                          </Text>
+                          <X color="white" size={18} />
                         </Button>
                       )}
                     </Stack>
                     {!uploading && (
                       <Button
-                        backgroundColor="$background"
+                        backgroundColor="$bgCard"
                         borderColor="$borderColor"
                         borderWidth={1}
                         borderRadius="$5"
@@ -267,10 +237,19 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                         paddingHorizontal="$4"
                         onPress={pickImage}
                         pressStyle={{ opacity: 0.7 }}
+                        aria-label="Change image"
                       >
-                        <Text color="$color" fontSize={14} fontWeight="600">
-                          Change Image
-                        </Text>
+                        <YStack
+                          alignItems="center"
+                          gap="$2"
+                          flexDirection="row"
+                          justifyContent="center"
+                        >
+                          <LucideImage color="$color" size={18} />
+                          <Text color="$color" fontSize={14} fontWeight="600">
+                            Change Image
+                          </Text>
+                        </YStack>
                       </Button>
                     )}
                   </Stack>
@@ -282,7 +261,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                     <XStack gap="$2">
                       <Button
                         flex={1}
-                        backgroundColor="$background"
+                        backgroundColor="$bgCard"
                         borderColor="$borderColor"
                         borderWidth={1}
                         borderRadius="$5"
@@ -291,12 +270,13 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                         disabled={uploading}
                         opacity={uploading ? 0.5 : 1}
                         pressStyle={{ opacity: 0.7 }}
+                        aria-label="Pick image from gallery"
                       >
                         <YStack alignItems="center" gap="$2">
                           {uploading ? (
                             <Spinner size="small" />
                           ) : (
-                            <Text fontSize={32}>📷</Text>
+                            <LucideImage color="$color" size={32} />
                           )}
                           <Text color="$color" fontSize={14} fontWeight="600">
                             Gallery
@@ -305,7 +285,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                       </Button>
                       <Button
                         flex={1}
-                        backgroundColor="$background"
+                        backgroundColor="$bgCard"
                         borderColor="$borderColor"
                         borderWidth={1}
                         borderRadius="$5"
@@ -314,12 +294,13 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                         disabled={uploading}
                         opacity={uploading ? 0.5 : 1}
                         pressStyle={{ opacity: 0.7 }}
+                        aria-label="Take photo with camera"
                       >
                         <YStack alignItems="center" gap="$2">
                           {uploading ? (
                             <Spinner size="small" />
                           ) : (
-                            <Text fontSize={32}>📸</Text>
+                            <Camera color="$color" size={32} />
                           )}
                           <Text color="$color" fontSize={14} fontWeight="600">
                             Camera
@@ -339,11 +320,13 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                     value={name}
                     onChangeText={setName}
                     placeholder="e.g., Happy Face, Love, Hug"
-                    backgroundColor="$background"
+                    backgroundColor="$bgCard"
                     borderColor="$borderColor"
                     borderRadius="$5"
                     height={44}
                     fontSize={15}
+                    fontFamily="$body"
+                    aria-label="Sticker name input"
                   />
                 </YStack>
 
@@ -357,9 +340,14 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                   opacity={!name.trim() || !imageUrl || uploading ? 0.5 : 1}
                   pressStyle={{ opacity: 0.8 }}
                   marginTop="$2"
+                  aria-label="Save sticker"
                 >
                   {uploading ? (
-                    <XStack gap="$2" alignItems="center">
+                    <XStack
+                      gap="$2"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
                       <Spinner size="small" color="white" />
                       <Text color="white" fontWeight="700" fontSize={16}>
                         Uploading...

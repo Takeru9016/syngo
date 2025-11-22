@@ -107,11 +107,11 @@ export default function FavoritesScreen() {
   ];
 
   return (
-    <ScreenContainer title="Favorites" scroll={false}>
+    <ScreenContainer scroll={false}>
       {/* Header */}
       <YStack padding="$5" paddingTop="$6" gap="$4">
         <YStack gap="$2">
-          <XStack alignItems="center" justifyContent="space-between">
+          <XStack alignItems="center" justifyContent="center" gap="$2">
             <YStack gap="$1">
               <Text
                 fontFamily="$heading"

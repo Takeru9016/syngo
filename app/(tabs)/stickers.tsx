@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { RefreshControl, FlatList, Alert } from "react-native";
+import { useState, useMemo } from "react";
+import { RefreshControl, FlatList, Alert, ListRenderItem } from "react-native";
 import * as Haptics from "expo-haptics";
 import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
+import { ImagePlus, Sparkles } from "@tamagui/lucide-icons";
 
 import {
   useStickers,
@@ -51,6 +52,7 @@ export default function StickersScreen() {
 
   const handleLongPress = (sticker: Sticker) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    // Alert logic is inside StickerCard
   };
 
   const handleSave = async (name: string, imageUrl: string) => {
@@ -58,109 +60,191 @@ export default function StickersScreen() {
     createSticker.mutate({ name, imageUrl });
   };
 
+  const totalCount = stickers.length;
+
+  const sortedStickers = useMemo(
+    () => [...stickers], // placeholder for future sort (e.g., by createdAt)
+    [stickers]
+  );
+
+  const renderItem: ListRenderItem<Sticker> = ({ item, index }) => (
+    <Stack
+      flex={1}
+      // slight offset every other row to look less rigid if you want:
+      // marginTop={index % 2 === 0 ? 0 : 4}
+    >
+      <StickerCard
+        sticker={item}
+        onSend={handleSend}
+        onDelete={handleDelete}
+        onLongPress={handleLongPress}
+      />
+    </Stack>
+  );
+
   return (
-    <ScreenContainer title="Stickers">
-      {/* Header */}
-      <YStack padding="$4" paddingTop="$6" gap="$4">
+    <ScreenContainer scroll={false}>
+      {/* Hero header */}
+      <YStack paddingTop="$4" paddingBottom="$3" gap="$3">
         <XStack alignItems="center" justifyContent="space-between">
-          <Text color="$color" fontSize={28} fontWeight="900">
-            Create/Share
-          </Text>
+          <YStack gap="$1" maxWidth="70%">
+            <Text
+              color="$color"
+              fontSize={22}
+              fontFamily="$heading"
+              fontWeight="800"
+            >
+              Sticker gallery
+            </Text>
+            <Text color="$muted" fontSize={13}>
+              A shared board of tiny reactions only you two understand.
+            </Text>
+          </YStack>
+
           <Button
             backgroundColor="$primary"
-            borderRadius="$7"
-            width={44}
-            height={44}
+            borderRadius="$8"
+            width={46}
+            height={46}
             padding={0}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setModalVisible(true);
             }}
-            pressStyle={{ opacity: 0.8 }}
+            pressStyle={{ opacity: 0.9, scale: 0.98 }}
           >
-            <Text color="white" fontSize={24} fontWeight="300">
-              +
-            </Text>
+            <ImagePlus size={22} color="white" />
           </Button>
+        </XStack>
+
+        {/* Summary pill */}
+        <XStack alignItems="center" justifyContent="flex-start">
+          <XStack
+            alignItems="center"
+            gap="$2"
+            paddingHorizontal="$3"
+            paddingVertical="$2"
+            borderRadius="$8"
+            backgroundColor="$bgSoft"
+          >
+            <Sparkles size={16} color="$primary" />
+            <Text color="$muted" fontSize={12}>
+              {totalCount} sticker{totalCount === 1 ? "" : "s"} in your gallery
+            </Text>
+          </XStack>
         </XStack>
       </YStack>
 
       {/* Loading State */}
       {isLoading ? (
-        <YStack padding="$4" gap="$2">
-          {[1, 2, 3, 4].map((i) => (
-            <Stack
-              key={i}
-              backgroundColor="$background"
-              borderRadius="$6"
-              height={120}
-            >
-              <Spinner size="small" />
-            </Stack>
-          ))}
+        <YStack paddingTop="$3" gap="$3">
+          <XStack gap="$3">
+            {[1, 2].map((i) => (
+              <Stack
+                key={i}
+                flex={1}
+                height={170}
+                borderRadius="$7"
+                backgroundColor="$bgSoft"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Spinner size="small" color="$muted" />
+              </Stack>
+            ))}
+          </XStack>
+          <XStack gap="$3">
+            {[3, 4].map((i) => (
+              <Stack
+                key={i}
+                flex={1}
+                height={170}
+                borderRadius="$7"
+                backgroundColor="$bgSoft"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Spinner size="small" color="$muted" />
+              </Stack>
+            ))}
+          </XStack>
         </YStack>
-      ) : stickers.length === 0 ? (
+      ) : sortedStickers.length === 0 ? (
         /* Empty State */
         <Stack
           flex={1}
           alignItems="center"
           justifyContent="center"
-          paddingVertical="$10"
+          paddingVertical="$8"
           gap="$4"
         >
-          <Text fontSize={64}>🎨</Text>
-          <YStack gap="$2" alignItems="center">
-            <Text color="$color" fontSize={20} fontWeight="700">
+          <Stack
+            width={110}
+            height={110}
+            borderRadius="$8"
+            backgroundColor="$bgSoft"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Sparkles size={40} color="$primary" />
+          </Stack>
+
+          <YStack gap="$2" alignItems="center" paddingHorizontal="$6">
+            <Text
+              color="$color"
+              fontSize={18}
+              fontWeight="700"
+              fontFamily="$heading"
+              textAlign="center"
+            >
               No stickers yet
             </Text>
             <Text
               color="$muted"
-              fontSize={15}
+              fontSize={14}
               textAlign="center"
               maxWidth={280}
             >
-              Create custom stickers to send to your partner
+              Turn your inside jokes and favorite moments into little stickers
+              you can send in a tap.
             </Text>
           </YStack>
+
           <Button
             backgroundColor="$primary"
-            borderRadius="$6"
-            height={48}
+            borderRadius="$7"
+            height={46}
             paddingHorizontal="$6"
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               setModalVisible(true);
             }}
-            pressStyle={{ opacity: 0.8 }}
-            marginTop="$2"
+            pressStyle={{ opacity: 0.9, scale: 0.98 }}
           >
-            <Text color="white" fontWeight="700" fontSize={16}>
-              Create Sticker
-            </Text>
+            <XStack alignItems="center" gap="$2">
+              <ImagePlus size={18} color="white" />
+              <Text color="white" fontWeight="700" fontSize={15}>
+                Create your first sticker
+              </Text>
+            </XStack>
           </Button>
         </Stack>
       ) : (
-        /* Stickers Grid */
+        /* 2-column gallery grid */
         <FlatList
-          data={stickers}
+          data={sortedStickers}
           keyExtractor={(item) => item.id}
-          numColumns={3}
-          contentContainerStyle={{ padding: 16, paddingTop: 0 }}
-          columnWrapperStyle={{ gap: 12 }}
-          ItemSeparatorComponent={() => <Stack height={12} />}
+          numColumns={2}
+          contentContainerStyle={{
+            paddingBottom: 24,
+          }}
+          columnWrapperStyle={{ gap: 16, paddingHorizontal: 4 }}
+          ItemSeparatorComponent={() => <Stack height={16} />}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
-          renderItem={({ item }) => (
-            <Stack flex={1}>
-              <StickerCard
-                sticker={item}
-                onSend={handleSend}
-                onDelete={handleDelete}
-                onLongPress={handleLongPress}
-              />
-            </Stack>
-          )}
+          showsVerticalScrollIndicator={false}
+          renderItem={renderItem}
         />
       )}
 
