@@ -196,7 +196,7 @@ export default function TodosScreen() {
   };
 
   return (
-    <ScreenContainer title="To-Do Reminders">
+    <ScreenContainer>
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={

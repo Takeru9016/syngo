@@ -1,8 +1,8 @@
-import { createInterFont } from "@tamagui/font-inter";
+import { createFont } from "tamagui";
 
 // Body font: Inter (clean, modern sans)
-export const bodyFont = createInterFont({
-  family: "Inter",
+export const bodyFont = createFont({
+  family: "Inter-Regular",
   size: {
     1: 11,
     2: 13,
@@ -26,13 +26,13 @@ export const bodyFont = createInterFont({
     9: 46,
   },
   weight: {
-    1: "300",
+    1: "400", // Regular
     2: "400",
-    3: "500",
-    4: "600",
-    5: "700",
-    6: "800",
-    7: "900",
+    3: "500", // Medium
+    4: "600", // SemiBold
+    5: "700", // Bold
+    6: "700",
+    7: "700",
   },
   letterSpacing: {
     1: 0,
@@ -45,11 +45,18 @@ export const bodyFont = createInterFont({
     8: 0,
     9: 0,
   },
+  // Map weight values to actual font files
+  face: {
+    400: { normal: "Inter-Regular" },
+    500: { normal: "Inter-Medium" },
+    600: { normal: "Inter-SemiBold" },
+    700: { normal: "Inter-Bold" },
+  },
 });
 
 // Heading font: Playfair Display (elegant serif for romantic touch)
-export const headingFont = createInterFont({
-  family: "PlayfairDisplay_600SemiBold", // Will load via expo-font
+export const headingFont = createFont({
+  family: "PlayfairDisplay-SemiBold",
   size: {
     1: 13,
     2: 15,
@@ -62,13 +69,13 @@ export const headingFont = createInterFont({
     9: 48,
   },
   weight: {
-    1: "600",
+    1: "600", // SemiBold
     2: "600",
-    3: "700",
+    3: "700", // Bold
     4: "700",
-    5: "800",
+    5: "800", // ExtraBold
     6: "800",
-    7: "900",
+    7: "900", // Black
     8: "900",
     9: "900",
   },
@@ -82,5 +89,12 @@ export const headingFont = createInterFont({
     7: -1.5,
     8: -1.5,
     9: -2,
+  },
+  // Map weight values to actual font files
+  face: {
+    600: { normal: "PlayfairDisplay-SemiBold" },
+    700: { normal: "PlayfairDisplay-Bold" },
+    800: { normal: "PlayfairDisplay-ExtraBold" },
+    900: { normal: "PlayfairDisplay-Black" },
   },
 });

@@ -126,7 +126,7 @@ export default function NotificationsScreen() {
   );
 
   return (
-    <ScreenContainer title="Notifications" scroll={false}>
+    <ScreenContainer scroll={false}>
       <YStack flex={1} paddingTop="$4" gap="$3">
         {/* Hero header */}
         <YStack gap="$2">

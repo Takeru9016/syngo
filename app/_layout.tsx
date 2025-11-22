@@ -4,14 +4,7 @@ import { Slot, useRouter, useSegments } from "expo-router";
 import { TamaguiProvider, Theme, YStack, Text } from "tamagui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
-import {
-  useFonts as usePlayfairFonts,
-  PlayfairDisplay_600SemiBold,
-  PlayfairDisplay_700Bold,
-  PlayfairDisplay_800ExtraBold,
-  PlayfairDisplay_900Black,
-} from "@expo-google-fonts/playfair-display";
-import { useFonts as useInterFonts } from "expo-font";
+import { useFonts } from "expo-font"; // ← Single import
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import config from "../tamagui.config";
@@ -163,21 +156,20 @@ export default function RootLayout() {
   const systemScheme = useColorScheme();
   const { mode, colorScheme } = useThemeStore();
 
-  // Load Playfair Display fonts
-  const [playfairLoaded] = usePlayfairFonts({
-    PlayfairDisplay_600SemiBold,
-    PlayfairDisplay_700Bold,
-    PlayfairDisplay_800ExtraBold,
-    PlayfairDisplay_900Black,
-  });
+  // Load all fonts from local assets
+  const [fontsLoaded] = useFonts({
+    // Playfair Display weights
+    "PlayfairDisplay-SemiBold": require("../assets/fonts/PlayfairDisplay-SemiBold.ttf"),
+    "PlayfairDisplay-Bold": require("../assets/fonts/PlayfairDisplay-Bold.ttf"),
+    "PlayfairDisplay-ExtraBold": require("../assets/fonts/PlayfairDisplay-ExtraBold.ttf"),
+    "PlayfairDisplay-Black": require("../assets/fonts/PlayfairDisplay-Black.ttf"),
 
-  // Load Inter fonts
-  const [interLoaded] = useInterFonts({
-    Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
-    InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
+    // Inter weights
+    "Inter-Regular": require("../assets/fonts/Inter-Regular.ttf"),
+    "Inter-Medium": require("../assets/fonts/Inter-Medium.ttf"),
+    "Inter-SemiBold": require("../assets/fonts/Inter-SemiBold.ttf"),
+    "Inter-Bold": require("../assets/fonts/Inter-Bold.ttf"),
   });
-
-  const fontsLoaded = playfairLoaded && interLoaded;
 
   useEffect(() => {
     if (fontsLoaded) {

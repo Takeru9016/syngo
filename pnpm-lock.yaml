@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@expo-google-fonts/playfair-display':
-        specifier: ^0.4.2
-        version: 0.4.2
       '@expo/vector-icons':
         specifier: ^15.0.3
         version: 15.0.3(expo-font@14.0.9(expo@54.0.23)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -29,9 +26,6 @@ importers:
       '@react-navigation/native':
         specifier: ^7.1.19
         version: 7.1.19(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      '@tamagui/font-inter':
-        specifier: ^1.137.3
-        version: 1.137.3(react-dom@19.1.0(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       '@tamagui/lucide-icons':
         specifier: ^1.137.3
         version: 1.137.3(react-dom@19.1.0(react@19.1.0))(react-native-svg@15.15.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -726,9 +720,6 @@ packages:
   '@eslint/plugin-kit@0.4.1':
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@expo-google-fonts/playfair-display@0.4.2':
-    resolution: {integrity: sha512-mWhBV59RUjSS3aYpytUb7UyHHTnXcHh7epAn7gq+M4XAEh5PuMKUrP8eiUfkJLb6UwHZCi7EhQpUzxHu5OL96w==}
 
   '@expo/cli@54.0.16':
     resolution: {integrity: sha512-hY/OdRaJMs5WsVPuVSZ+RLH3VObJmL/pv5CGCHEZHN2PxZjSZSdctyKV8UcFBXTF0yIKNAJ9XLs1dlNYXHh4Cw==}
@@ -1783,9 +1774,6 @@ packages:
     resolution: {integrity: sha512-TOPEnJXskCZL1qR9nK65gaeSIrC3OzzVzLATu0LpMbEhuVza89zXhX6DPLFvFo9IEamPcWlh03gOjWiCiOGNVw==}
     peerDependencies:
       react: '*'
-
-  '@tamagui/font-inter@1.137.3':
-    resolution: {integrity: sha512-6Hrz19EgdwdzX9fhWdx866sKoUjxkl8O638d58s6xOZ+hEPN+oB2K55XRmOoMGwPuspu3wWCndnw7Mfv/CmigQ==}
 
   '@tamagui/font-size@1.137.3':
     resolution: {integrity: sha512-y3yG67/7JbsAnLaa+hYMxo61qq7RtPZoap0Qx60A4NkmHoDisFaFwX/kSbd5TTT+KXV+E98kyKEJChFGh0DgBQ==}
@@ -6432,8 +6420,6 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@expo-google-fonts/playfair-display@0.4.2': {}
-
   '@expo/cli@54.0.16(expo-router@6.0.14)(expo@54.0.23)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))':
     dependencies:
       '@0no-co/graphql.web': 1.2.0
@@ -8059,14 +8045,6 @@ snapshots:
       '@tamagui/web': 1.137.3(react-dom@19.1.0(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       react: 19.1.0
     transitivePeerDependencies:
-      - react-dom
-      - react-native
-
-  '@tamagui/font-inter@1.137.3(react-dom@19.1.0(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@tamagui/core': 1.137.3(react-dom@19.1.0(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-    transitivePeerDependencies:
-      - react
       - react-dom
       - react-native
 
