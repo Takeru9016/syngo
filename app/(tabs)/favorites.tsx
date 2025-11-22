@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { RefreshControl, FlatList } from "react-native";
-import * as Haptics from "expo-haptics";
 import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
+import { Star, BookmarkPlus, HeartHandshake } from "@tamagui/lucide-icons";
 
 import {
   useFavorites,
@@ -15,7 +15,16 @@ import {
   FavoriteFormModal,
   ScreenContainer,
 } from "@/components";
-import { Favorite } from "@/types";
+import { Favorite, FavoriteCategory } from "@/types";
+import {
+  triggerLightHaptic,
+  triggerSuccessHaptic,
+  triggerWarningHaptic,
+} from "@/state/haptics";
+
+type CategoryFilter = FavoriteCategory | "all";
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 export default function FavoritesScreen() {
   const { data: favorites = [], isLoading, refetch } = useFavorites();
@@ -30,35 +39,36 @@ export default function FavoritesScreen() {
   );
   const [editingFavorite, setEditingFavorite] = useState<Favorite | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    triggerLightHaptic();
     await refetch();
     setRefreshing(false);
   };
 
   const handlePress = (favorite: Favorite) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    triggerLightHaptic();
     setSelectedFavorite(favorite);
     setDetailModalVisible(true);
   };
 
   const handleEdit = (favorite: Favorite) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    triggerLightHaptic();
     setEditingFavorite(favorite);
     setFormModalVisible(true);
   };
 
-  const handleDelete = async (id: string) => {
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+  const handleDelete = (id: string) => {
+    triggerWarningHaptic();
     deleteFavorite.mutate(id);
   };
 
-  const handleSave = async (
+  const handleSave = (
     data: Omit<Favorite, "id" | "createdAt" | "createdBy">
   ) => {
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    triggerSuccessHaptic();
     if (editingFavorite) {
       updateFavorite.mutate({ id: editingFavorite.id, updates: data });
     } else {
@@ -72,126 +82,274 @@ export default function FavoritesScreen() {
     setEditingFavorite(null);
   };
 
+  const totalCount = favorites.length;
+
+  const recentCount = useMemo(() => {
+    const now = Date.now();
+    return favorites.filter((f) => now - f.createdAt < WEEK_MS).length;
+  }, [favorites]);
+
+  const filteredFavorites = useMemo(() => {
+    if (categoryFilter === "all") return favorites;
+    return favorites.filter((f) => f.category === categoryFilter);
+  }, [favorites, categoryFilter]);
+
+  const hasAnyFavorites = favorites.length > 0;
+
+  const categoryChips: { label: string; value: CategoryFilter }[] = [
+    { label: "All", value: "all" },
+    { label: "Movies", value: "movie" },
+    { label: "Food", value: "food" },
+    { label: "Places", value: "place" },
+    { label: "Quotes", value: "quote" },
+    { label: "Links", value: "link" },
+    { label: "Other", value: "other" },
+  ];
+
   return (
-    <ScreenContainer title="Favorites">
-        {/* Header */}
-        <YStack padding="$4" paddingTop="$6" gap="$4">
+    <ScreenContainer title="Favorites" scroll={false}>
+      {/* Header */}
+      <YStack padding="$5" paddingTop="$6" gap="$4">
+        <YStack gap="$2">
           <XStack alignItems="center" justifyContent="space-between">
-            <Text color="$color" fontSize={28} fontWeight="900">
-              Create Favorite
-            </Text>
+            <YStack gap="$1">
+              <Text
+                fontFamily="$heading"
+                color="$color"
+                fontSize={26}
+                fontWeight="800"
+              >
+                Favorites
+              </Text>
+              <Text fontFamily="$body" color="$colorMuted" fontSize={13}>
+                Moments, links, and little things you both care about.
+              </Text>
+            </YStack>
+
             <Button
-              backgroundColor="$primary"
-              borderRadius="$7"
               width={44}
               height={44}
+              borderRadius="$8"
+              backgroundColor="$primarySoft"
+              borderWidth={1}
+              borderColor="$primary"
               padding={0}
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                triggerLightHaptic();
                 setFormModalVisible(true);
               }}
-              pressStyle={{ opacity: 0.8 }}
+              pressStyle={{ opacity: 0.9, scale: 0.98 }}
             >
-              <Text color="white" fontSize={24} fontWeight="300">
-                +
-              </Text>
+              <BookmarkPlus size={22} color="$primary" />
             </Button>
+          </XStack>
+
+          <XStack gap="$2" alignItems="center" marginTop="$2">
+            <XStack
+              paddingHorizontal="$3"
+              paddingVertical="$2"
+              borderRadius="$5"
+              backgroundColor="$bgCard"
+              alignItems="center"
+              gap="$2"
+            >
+              <Star size={16} color="$primary" />
+              <Text fontFamily="$body" color="$colorMuted" fontSize={13}>
+                {totalCount} saved
+                {recentCount > 0 && ` • ${recentCount} this week`}
+              </Text>
+            </XStack>
           </XStack>
         </YStack>
 
-        {/* Loading State */}
-        {isLoading ? (
-          <YStack padding="$4" gap="$2">
-            {[1, 2, 3].map((i) => (
-              <Stack
-                key={i}
-                backgroundColor="$background"
-                borderRadius="$6"
-                height={200}
-              >
-                <Spinner size="small" />
-              </Stack>
-            ))}
-          </YStack>
-        ) : favorites.length === 0 ? (
-          /* Empty State */
+        {/* Category filter */}
+        {hasAnyFavorites && (
+          <XStack gap="$2" flexWrap="wrap">
+            {categoryChips.map((chip) => {
+              const isActive = categoryFilter === chip.value;
+              return (
+                <Button
+                  key={chip.value}
+                  unstyled
+                  onPress={() => setCategoryFilter(chip.value)}
+                  pressStyle={{ opacity: 0.85, scale: 0.98 }}
+                >
+                  <XStack
+                    paddingHorizontal="$3"
+                    paddingVertical="$2"
+                    borderRadius="$7"
+                    backgroundColor={isActive ? "$primarySoft" : "$bgCard"}
+                    borderWidth={isActive ? 1 : 0}
+                    borderColor={isActive ? "$primary" : "transparent"}
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text
+                      fontFamily="$body"
+                      fontSize={13}
+                      fontWeight={isActive ? "700" : "500"}
+                      color={isActive ? "$primary" : "$colorMuted"}
+                    >
+                      {chip.label}
+                    </Text>
+                  </XStack>
+                </Button>
+              );
+            })}
+          </XStack>
+        )}
+      </YStack>
+
+      {/* Loading / Empty / Grid */}
+      {isLoading ? (
+        <YStack padding="$5" gap="$3">
+          {[1, 2].map((row) => (
+            <XStack key={row} gap="$3">
+              {[1, 2].map((col) => (
+                <Stack
+                  key={`${row}-${col}`}
+                  flex={1}
+                  backgroundColor="$bgCard"
+                  borderRadius="$8"
+                  height={190}
+                  borderWidth={1}
+                  borderColor="$borderColor"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Spinner size="small" color="$primary" />
+                </Stack>
+              ))}
+            </XStack>
+          ))}
+        </YStack>
+      ) : !hasAnyFavorites ? (
+        // Global empty
+        <Stack
+          flex={1}
+          alignItems="center"
+          justifyContent="center"
+          paddingVertical="$10"
+          gap="$4"
+        >
           <Stack
-            flex={1}
+            width={64}
+            height={64}
+            borderRadius={32}
+            backgroundColor="$primarySoft"
             alignItems="center"
             justifyContent="center"
-            paddingVertical="$10"
-            gap="$4"
           >
-            <Text fontSize={64}>⭐</Text>
-            <YStack gap="$2" alignItems="center">
-              <Text color="$color" fontSize={20} fontWeight="700">
-                No favorites yet
-              </Text>
-              <Text
-                color="$muted"
-                fontSize={15}
-                textAlign="center"
-                maxWidth={280}
-              >
-                Save your favorite movies, places, quotes, and more
-              </Text>
-            </YStack>
-            <Button
-              backgroundColor="$primary"
-              borderRadius="$6"
-              height={48}
-              paddingHorizontal="$6"
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setFormModalVisible(true);
-              }}
-              pressStyle={{ opacity: 0.8 }}
-              marginTop="$2"
-            >
-              <Text color="white" fontWeight="700" fontSize={16}>
-                Add Favorite
-              </Text>
-            </Button>
+            <HeartHandshake size={32} color="$primary" />
           </Stack>
-        ) : (
-          /* Favorites Grid */
-          <FlatList
-            data={favorites}
-            keyExtractor={(item) => item.id}
-            numColumns={2}
-            contentContainerStyle={{ padding: 16, paddingTop: 0 }}
-            columnWrapperStyle={{ gap: 12 }}
-            ItemSeparatorComponent={() => <Stack height={12} />}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-              />
-            }
-            renderItem={({ item }) => (
-              <Stack flex={1}>
-                <FavoriteCard favorite={item} onPress={handlePress} />
-              </Stack>
-            )}
-          />
-        )}
-
-        {/* Detail Modal */}
-        <FavoriteDetailModal
-          visible={detailModalVisible}
-          favorite={selectedFavorite}
-          onClose={() => setDetailModalVisible(false)}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          <YStack gap="$2" alignItems="center">
+            <Text
+              fontFamily="$heading"
+              color="$color"
+              fontSize={20}
+              fontWeight="700"
+            >
+              No favorites yet
+            </Text>
+            <Text
+              fontFamily="$body"
+              color="$colorMuted"
+              fontSize={15}
+              textAlign="center"
+              maxWidth={280}
+            >
+              Save your favorite movies, places, quotes, and more in one cozy
+              place.
+            </Text>
+          </YStack>
+          <Button
+            backgroundColor="$primary"
+            borderRadius="$8"
+            height={48}
+            paddingHorizontal="$6"
+            onPress={() => {
+              triggerLightHaptic();
+              setFormModalVisible(true);
+            }}
+            pressStyle={{ opacity: 0.9, scale: 0.98 }}
+            marginTop="$2"
+          >
+            <Text
+              fontFamily="$body"
+              color="white"
+              fontWeight="700"
+              fontSize={16}
+            >
+              Save your first favorite
+            </Text>
+          </Button>
+        </Stack>
+      ) : filteredFavorites.length === 0 ? (
+        // Category-specific empty
+        <Stack
+          flex={1}
+          alignItems="center"
+          justifyContent="center"
+          paddingVertical="$8"
+          paddingHorizontal="$5"
+          gap="$3"
+        >
+          <Text fontSize={40}>✨</Text>
+          <YStack gap="$2" alignItems="center">
+            <Text
+              fontFamily="$heading"
+              color="$color"
+              fontSize={18}
+              fontWeight="700"
+            >
+              Nothing here yet
+            </Text>
+            <Text
+              fontFamily="$body"
+              color="$colorMuted"
+              fontSize={14}
+              textAlign="center"
+              maxWidth={260}
+            >
+              Add a new favorite and it will show up under this filter.
+            </Text>
+          </YStack>
+        </Stack>
+      ) : (
+        <FlatList
+          data={filteredFavorites}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24 }}
+          columnWrapperStyle={{ gap: 12 }}
+          ItemSeparatorComponent={() => <Stack height={12} />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+          renderItem={({ item }) => (
+            <Stack flex={1}>
+              <FavoriteCard favorite={item} onPress={handlePress} />
+            </Stack>
+          )}
         />
+      )}
 
-        {/* Form Modal */}
-        <FavoriteFormModal
-          visible={formModalVisible}
-          favorite={editingFavorite}
-          onClose={handleCloseFormModal}
-          onSave={handleSave}
-        />
+      {/* Detail Modal */}
+      <FavoriteDetailModal
+        visible={detailModalVisible}
+        favorite={selectedFavorite}
+        onClose={() => setDetailModalVisible(false)}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+
+      {/* Form Modal */}
+      <FavoriteFormModal
+        visible={formModalVisible}
+        favorite={editingFavorite}
+        onClose={handleCloseFormModal}
+        onSave={handleSave}
+      />
     </ScreenContainer>
   );
 }

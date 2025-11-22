@@ -14,6 +14,16 @@ import {
 } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
+import {
+  X,
+  Film,
+  UtensilsCrossed,
+  MapPin,
+  MessageSquareQuote,
+  Link2,
+  Star,
+  Camera,
+} from "@tamagui/lucide-icons";
 
 import { Favorite, FavoriteCategory } from "@/types";
 import { CloudinaryStorage } from "@/services/storage/cloudinary.adapter";
@@ -25,15 +35,18 @@ type Props = {
   onSave: (data: Omit<Favorite, "id" | "createdAt" | "createdBy">) => void;
 };
 
-const categories: { value: FavoriteCategory; label: string; emoji: string }[] =
-  [
-    { value: "movie", label: "Movie", emoji: "🎬" },
-    { value: "food", label: "Food", emoji: "🍕" },
-    { value: "place", label: "Place", emoji: "📍" },
-    { value: "quote", label: "Quote", emoji: "💭" },
-    { value: "link", label: "Link", emoji: "🔗" },
-    { value: "other", label: "Other", emoji: "⭐" },
-  ];
+const categories: {
+  value: FavoriteCategory;
+  label: string;
+  Icon: React.ComponentType<{ size?: number; color?: string }>;
+}[] = [
+  { value: "movie", label: "Movie", Icon: Film },
+  { value: "food", label: "Food", Icon: UtensilsCrossed },
+  { value: "place", label: "Place", Icon: MapPin },
+  { value: "quote", label: "Quote", Icon: MessageSquareQuote },
+  { value: "link", label: "Link", Icon: Link2 },
+  { value: "other", label: "Other", Icon: Star },
+];
 
 export function FavoriteFormModal({
   visible,
@@ -73,7 +86,6 @@ export function FavoriteFormModal({
       Alert.alert("Title required", "Please enter a title for your favorite");
       return;
     }
-
     if (uploading) {
       Alert.alert(
         "Upload in progress",
@@ -93,16 +105,11 @@ export function FavoriteFormModal({
   };
 
   const pickImage = async () => {
-    console.log("📷 [FavoriteFormModal] Requesting media library permissions");
-
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      console.warn("⚠️ [FavoriteFormModal] Permission denied");
       Alert.alert("Permission needed", "Please grant photo library access");
       return;
     }
-
-    console.log("📷 [FavoriteFormModal] Launching image picker");
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -111,35 +118,22 @@ export function FavoriteFormModal({
       quality: 0.8,
     });
 
-    if (result.canceled) {
-      console.log("❌ [FavoriteFormModal] Image picker canceled");
-      return;
-    }
-
-    if (!result.assets[0]) {
-      console.error("❌ [FavoriteFormModal] No asset selected");
-      return;
-    }
+    if (result.canceled || !result.assets[0]) return;
 
     const localUri = result.assets[0].uri;
-    console.log("✅ [FavoriteFormModal] Image selected:", localUri);
-
-    // Show local preview immediately
     setLocalPreview(localUri);
     setUploading(true);
 
     try {
-      console.log("☁️ [FavoriteFormModal] Starting Cloudinary upload");
-      const result = await CloudinaryStorage.upload(localUri, {
+      const uploadResult = await CloudinaryStorage.upload(localUri, {
         folder: "favorites",
       });
-      console.log("✅ [FavoriteFormModal] Upload successful:", result.url);
 
-      setImageUrl(result.url);
-      setLocalPreview(result.url);
+      setImageUrl(uploadResult.url);
+      setLocalPreview(uploadResult.url);
       Alert.alert("Success", "Image uploaded successfully!");
     } catch (error) {
-      console.error("❌ [FavoriteFormModal] Upload failed:", error);
+      console.error("Upload failed:", error);
       Alert.alert("Upload failed", "Could not upload image. Please try again.");
       setLocalPreview(undefined);
     } finally {
@@ -178,106 +172,145 @@ export function FavoriteFormModal({
               contentContainerStyle={{
                 paddingBottom: Math.max(insets.bottom, 20) + 80,
               }}
-              showsVerticalScrollIndicator={true}
+              showsVerticalScrollIndicator
             >
-              <YStack padding="$4" gap="$4">
+              <YStack padding="$5" gap="$4">
                 {/* Header */}
                 <XStack alignItems="center" justifyContent="space-between">
-                  <Text color="$color" fontSize={22} fontWeight="900">
-                    {favorite ? "Edit Favorite" : "New Favorite"}
-                  </Text>
-                  <Button unstyled onPress={onClose}>
-                    <Text color="$muted" fontSize={28}>
-                      ✕
+                  <YStack>
+                    <Text
+                      fontFamily="$heading"
+                      color="$color"
+                      fontSize={22}
+                      fontWeight="800"
+                    >
+                      {favorite ? "Edit favorite" : "New favorite"}
                     </Text>
+                    <Text fontFamily="$body" color="$colorMuted" fontSize={13}>
+                      Save something you both want to remember.
+                    </Text>
+                  </YStack>
+                  <Button unstyled onPress={onClose} hitSlop={16}>
+                    <X size={22} color="$colorMuted" />
                   </Button>
                 </XStack>
 
                 {/* Category */}
                 <YStack gap="$2">
-                  <Text color="$color" fontSize={14} fontWeight="600">
+                  <Text
+                    fontFamily="$body"
+                    color="$color"
+                    fontSize={14}
+                    fontWeight="600"
+                  >
                     Category
                   </Text>
                   <XStack gap="$2" flexWrap="wrap">
-                    {categories.map((cat) => (
-                      <Button
-                        key={cat.value}
-                        backgroundColor={
-                          category === cat.value ? "$primary" : "$background"
-                        }
-                        borderColor={
-                          category === cat.value ? "$primary" : "$borderColor"
-                        }
-                        borderWidth={1}
-                        borderRadius="$5"
-                        height={40}
-                        paddingHorizontal="$3"
-                        onPress={() => setCategory(cat.value)}
-                        pressStyle={{ opacity: 0.7 }}
-                      >
-                        <XStack gap="$1" alignItems="center">
-                          <Text fontSize={16}>{cat.emoji}</Text>
-                          <Text
-                            color={category === cat.value ? "white" : "$color"}
-                            fontSize={14}
-                            fontWeight="600"
-                          >
-                            {cat.label}
-                          </Text>
-                        </XStack>
-                      </Button>
-                    ))}
+                    {categories.map(({ value, label, Icon }) => {
+                      const isActive = category === value;
+                      return (
+                        <Button
+                          key={value}
+                          backgroundColor={
+                            isActive ? "$primarySoft" : "$bgCard"
+                          }
+                          borderColor={isActive ? "$primary" : "$borderColor"}
+                          borderWidth={1}
+                          borderRadius="$7"
+                          height={40}
+                          paddingHorizontal="$3"
+                          onPress={() => setCategory(value)}
+                          pressStyle={{ opacity: 0.85 }}
+                        >
+                          <XStack gap="$2" alignItems="center">
+                            <Icon
+                              size={16}
+                              color={isActive ? "$primary" : "$colorMuted"}
+                            />
+                            <Text
+                              fontFamily="$body"
+                              color={isActive ? "$primary" : "$color"}
+                              fontSize={14}
+                              fontWeight="600"
+                            >
+                              {label}
+                            </Text>
+                          </XStack>
+                        </Button>
+                      );
+                    })}
                   </XStack>
                 </YStack>
 
                 {/* Title */}
                 <YStack gap="$2">
-                  <Text color="$color" fontSize={14} fontWeight="600">
+                  <Text
+                    fontFamily="$body"
+                    color="$color"
+                    fontSize={14}
+                    fontWeight="600"
+                  >
                     Title
                   </Text>
                   <Input
                     value={title}
                     onChangeText={setTitle}
-                    placeholder="Enter title"
-                    backgroundColor="$background"
+                    placeholder="Movie, restaurant, quote..."
+                    backgroundColor="$bgCard"
                     borderColor="$borderColor"
-                    borderRadius="$5"
+                    borderRadius="$7"
                     height={44}
                     fontSize={15}
+                    fontFamily="$body"
+                    color="$color"
                   />
                 </YStack>
 
                 {/* Description */}
                 <YStack gap="$2">
-                  <Text color="$color" fontSize={14} fontWeight="600">
+                  <Text
+                    fontFamily="$body"
+                    color="$color"
+                    fontSize={14}
+                    fontWeight="600"
+                  >
                     Description
                   </Text>
                   <TextArea
                     value={description}
                     onChangeText={setDescription}
-                    placeholder="Add details"
-                    backgroundColor="$background"
+                    placeholder="Why is this special to you both? (optional)"
+                    backgroundColor="$bgCard"
                     borderColor="$borderColor"
-                    borderRadius="$5"
-                    minHeight={80}
+                    borderRadius="$7"
+                    minHeight={90}
                     fontSize={15}
+                    fontFamily="$body"
+                    color="$color"
                   />
                 </YStack>
 
                 {/* URL (optional) */}
                 <YStack gap="$2">
-                  <Text color="$color" fontSize={14} fontWeight="600">
-                    Link (Optional)
+                  <Text
+                    fontFamily="$body"
+                    color="$color"
+                    fontSize={14}
+                    fontWeight="600"
+                  >
+                    Link (optional)
                   </Text>
                   <Input
                     value={url}
                     onChangeText={setUrl}
                     placeholder="https://..."
-                    backgroundColor="$background"
+                    backgroundColor="$bgCard"
                     borderColor="$borderColor"
-                    borderRadius="$5"
+                    borderRadius="$7"
                     height={44}
                     fontSize={15}
+                    fontFamily="$body"
+                    color="$color"
                     autoCapitalize="none"
                     keyboardType="url"
                   />
@@ -285,15 +318,19 @@ export function FavoriteFormModal({
 
                 {/* Image Picker */}
                 <YStack gap="$2">
-                  <Text color="$color" fontSize={14} fontWeight="600">
-                    Image (Optional)
+                  <Text
+                    fontFamily="$body"
+                    color="$color"
+                    fontSize={14}
+                    fontWeight="600"
+                  >
+                    Image (optional)
                   </Text>
 
-                  {/* Image Preview */}
                   {localPreview && (
                     <Stack
-                      backgroundColor="$background"
-                      borderRadius="$5"
+                      backgroundColor="$bgCard"
+                      borderRadius="$7"
                       overflow="hidden"
                       position="relative"
                     >
@@ -315,7 +352,12 @@ export function FavoriteFormModal({
                           justifyContent="center"
                         >
                           <Spinner size="large" color="white" />
-                          <Text color="white" fontSize={14} marginTop="$2">
+                          <Text
+                            fontFamily="$body"
+                            color="white"
+                            fontSize={14}
+                            marginTop="$2"
+                          >
                             Uploading...
                           </Text>
                         </Stack>
@@ -326,45 +368,51 @@ export function FavoriteFormModal({
                           top="$2"
                           right="$2"
                           backgroundColor="rgba(0,0,0,0.7)"
-                          borderRadius="$7"
+                          borderRadius="$8"
                           width={32}
                           height={32}
                           padding={0}
                           onPress={removeImage}
-                          pressStyle={{ opacity: 0.8 }}
+                          pressStyle={{ opacity: 0.85 }}
                         >
-                          <Text color="white" fontSize={18}>
-                            ✕
-                          </Text>
+                          <X size={18} color="white" />
                         </Button>
                       )}
                     </Stack>
                   )}
 
-                  {/* Pick Image Button */}
                   <Button
-                    backgroundColor="$background"
+                    backgroundColor="$bgCard"
                     borderColor="$borderColor"
                     borderWidth={1}
-                    borderRadius="$5"
+                    borderRadius="$7"
                     height={44}
                     onPress={pickImage}
                     disabled={uploading}
                     opacity={uploading ? 0.5 : 1}
-                    pressStyle={{ opacity: 0.7 }}
+                    pressStyle={{ opacity: 0.8 }}
                   >
-                    <XStack gap="$2" alignItems="center">
+                    <XStack
+                      gap="$2"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
                       {uploading ? (
                         <Spinner size="small" />
                       ) : (
-                        <Text fontSize={18}>📷</Text>
+                        <Camera size={18} color="$colorMuted" />
                       )}
-                      <Text color="$color" fontSize={15} fontWeight="600">
+                      <Text
+                        fontFamily="$body"
+                        color="$color"
+                        fontSize={15}
+                        fontWeight="600"
+                      >
                         {uploading
                           ? "Uploading..."
                           : localPreview
-                          ? "Change Image"
-                          : "Pick Image"}
+                          ? "Change image"
+                          : "Pick image"}
                       </Text>
                     </XStack>
                   </Button>
@@ -373,24 +421,38 @@ export function FavoriteFormModal({
                 {/* Save Button */}
                 <Button
                   backgroundColor="$primary"
-                  borderRadius="$6"
+                  borderRadius="$8"
                   height={48}
                   onPress={handleSave}
                   disabled={!title.trim() || uploading}
                   opacity={!title.trim() || uploading ? 0.5 : 1}
-                  pressStyle={{ opacity: 0.8 }}
+                  pressStyle={{ opacity: 0.85 }}
                   marginTop="$2"
                 >
                   {uploading ? (
-                    <XStack gap="$2" alignItems="center">
+                    <XStack
+                      gap="$2"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
                       <Spinner size="small" color="white" />
-                      <Text color="white" fontWeight="700" fontSize={16}>
+                      <Text
+                        fontFamily="$body"
+                        color="white"
+                        fontWeight="700"
+                        fontSize={16}
+                      >
                         Uploading...
                       </Text>
                     </XStack>
                   ) : (
-                    <Text color="white" fontWeight="700" fontSize={16}>
-                      {favorite ? "Update" : "Add"} Favorite
+                    <Text
+                      fontFamily="$body"
+                      color="white"
+                      fontWeight="700"
+                      fontSize={16}
+                    >
+                      {favorite ? "Update favorite" : "Add favorite"}
                     </Text>
                   )}
                 </Button>

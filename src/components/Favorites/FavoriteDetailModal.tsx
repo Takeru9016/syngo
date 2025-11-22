@@ -9,6 +9,18 @@ import {
   Image,
 } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  X,
+  Film,
+  UtensilsCrossed,
+  MapPin,
+  MessageSquareQuote,
+  Link2,
+  Star,
+  ExternalLink,
+  Pencil,
+  Trash2,
+} from "@tamagui/lucide-icons";
 
 import { Favorite, FavoriteCategory } from "@/types";
 
@@ -20,13 +32,22 @@ type Props = {
   onDelete: (id: string) => void;
 };
 
-const categoryEmojis: Record<FavoriteCategory, string> = {
-  movie: "🎬",
-  food: "🍕",
-  place: "📍",
-  quote: "💭",
-  link: "🔗",
-  other: "⭐",
+const categoryIcon = (cat: FavoriteCategory) => {
+  switch (cat) {
+    case "movie":
+      return Film;
+    case "food":
+      return UtensilsCrossed;
+    case "place":
+      return MapPin;
+    case "quote":
+      return MessageSquareQuote;
+    case "link":
+      return Link2;
+    case "other":
+    default:
+      return Star;
+  }
 };
 
 export function FavoriteDetailModal({
@@ -40,9 +61,11 @@ export function FavoriteDetailModal({
 
   if (!favorite) return null;
 
+  const Icon = categoryIcon(favorite.category);
+
   const handleDelete = () => {
     Alert.alert(
-      "Delete Favorite",
+      "Delete favorite",
       "Are you sure you want to delete this favorite?",
       [
         { text: "Cancel", style: "cancel" },
@@ -62,15 +85,11 @@ export function FavoriteDetailModal({
     if (!favorite.url) return;
 
     let urlToOpen = favorite.url.trim();
-
-    // Add https:// if no protocol specified
     if (!urlToOpen.startsWith("http://") && !urlToOpen.startsWith("https://")) {
       urlToOpen = "https://" + urlToOpen;
     }
 
-    // Check if URL can be opened
     const canOpen = await Linking.canOpenURL(urlToOpen);
-
     if (canOpen) {
       Linking.openURL(urlToOpen).catch((err) => {
         console.error("Failed to open URL:", err);
@@ -81,13 +100,12 @@ export function FavoriteDetailModal({
     }
   };
 
-  const formatDate = (ts: number) => {
-    return new Date(ts).toLocaleDateString("en-US", {
+  const formatDate = (ts: number) =>
+    new Date(ts).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
-  };
 
   return (
     <Modal
@@ -109,25 +127,41 @@ export function FavoriteDetailModal({
         >
           <ScrollView
             contentContainerStyle={{
-              paddingBottom: Math.max(insets.bottom, 20) + 20,
+              paddingBottom: Math.max(insets.bottom, 20) + 24,
             }}
-            showsVerticalScrollIndicator={true}
+            showsVerticalScrollIndicator
           >
             <YStack gap="$4">
               {/* Header */}
               <XStack
                 alignItems="center"
                 justifyContent="space-between"
-                padding="$4"
-                paddingBottom="$2"
+                padding="$5"
+                paddingBottom="$3"
               >
-                <Text color="$color" fontSize={22} fontWeight="900">
-                  {categoryEmojis[favorite.category]} {favorite.category}
-                </Text>
-                <Button unstyled onPress={onClose}>
-                  <Text color="$muted" fontSize={28}>
-                    ✕
+                <XStack gap="$2" alignItems="center">
+                  <Stack
+                    width={32}
+                    height={32}
+                    borderRadius={16}
+                    backgroundColor="$primarySoft"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Icon size={18} color="$primary" />
+                  </Stack>
+                  <Text
+                    fontFamily="$heading"
+                    color="$color"
+                    fontSize={18}
+                    fontWeight="700"
+                    textTransform="capitalize"
+                  >
+                    {favorite.category}
                   </Text>
+                </XStack>
+                <Button unstyled onPress={onClose} hitSlop={16}>
+                  <X size={22} color="$colorMuted" />
                 </Button>
               </XStack>
 
@@ -136,19 +170,29 @@ export function FavoriteDetailModal({
                 <Image
                   source={{ uri: favorite.imageUrl }}
                   width="100%"
-                  height={250}
-                  resizeMode="cover"
+                  height={260}
+                  objectFit="cover"
                 />
               )}
 
               {/* Content */}
-              <YStack paddingHorizontal="$4" gap="$3">
-                <Text color="$color" fontSize={24} fontWeight="900">
+              <YStack paddingHorizontal="$5" gap="$3">
+                <Text
+                  fontFamily="$heading"
+                  color="$color"
+                  fontSize={24}
+                  fontWeight="800"
+                >
                   {favorite.title}
                 </Text>
 
                 {favorite.description && (
-                  <Text color="$color" fontSize={16} lineHeight={24}>
+                  <Text
+                    fontFamily="$body"
+                    color="$color"
+                    fontSize={16}
+                    lineHeight={24}
+                  >
                     {favorite.description}
                   </Text>
                 )}
@@ -156,60 +200,90 @@ export function FavoriteDetailModal({
                 {favorite.url && (
                   <YStack gap="$2">
                     <Button
-                      backgroundColor="$background"
+                      backgroundColor="$bgCard"
                       borderColor="$borderColor"
                       borderWidth={1}
-                      borderRadius="$5"
+                      borderRadius="$8"
                       height={44}
                       onPress={handleOpenUrl}
-                      pressStyle={{ opacity: 0.7 }}
+                      pressStyle={{ opacity: 0.85 }}
                     >
-                      <XStack gap="$2" alignItems="center">
-                        <Text fontSize={18}>🔗</Text>
-                        <Text color="$primary" fontSize={15} fontWeight="600">
-                          Open Link
+                      <XStack
+                        gap="$2"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <ExternalLink size={18} color="$primary" />
+                        <Text
+                          fontFamily="$body"
+                          color="$primary"
+                          fontSize={15}
+                          fontWeight="600"
+                        >
+                          Open link
                         </Text>
                       </XStack>
                     </Button>
-                    <Text color="$muted" fontSize={12} numberOfLines={1}>
+                    <Text
+                      fontFamily="$body"
+                      color="$colorMuted"
+                      fontSize={12}
+                      numberOfLines={1}
+                    >
                       {favorite.url}
                     </Text>
                   </YStack>
                 )}
 
-                <Text color="$muted" fontSize={13}>
+                <Text fontFamily="$body" color="$colorMuted" fontSize={13}>
                   Added on {formatDate(favorite.createdAt)}
                 </Text>
               </YStack>
 
               {/* Actions */}
-              <YStack paddingHorizontal="$4" gap="$2" marginTop="$2">
+              <YStack paddingHorizontal="$5" gap="$3" marginTop="$3">
                 <Button
                   backgroundColor="$primary"
-                  borderRadius="$6"
+                  borderRadius="$8"
                   height={48}
                   onPress={() => {
                     onEdit(favorite);
                     onClose();
                   }}
-                  pressStyle={{ opacity: 0.8 }}
+                  pressStyle={{ opacity: 0.9 }}
                 >
-                  <Text color="white" fontWeight="700" fontSize={16}>
-                    Edit Favorite
-                  </Text>
+                  <XStack alignItems="center" justifyContent="center" gap="$2">
+                    <Pencil size={18} color="white" />
+                    <Text
+                      fontFamily="$body"
+                      color="white"
+                      fontWeight="700"
+                      fontSize={16}
+                    >
+                      Edit favorite
+                    </Text>
+                  </XStack>
                 </Button>
                 <Button
                   backgroundColor="transparent"
                   borderColor="$borderColor"
                   borderWidth={1}
-                  borderRadius="$6"
+                  borderRadius="$8"
                   height={48}
                   onPress={handleDelete}
-                  pressStyle={{ opacity: 0.7 }}
+                  pressStyle={{ opacity: 0.85 }}
                 >
-                  <Text color="#f44336" fontWeight="700" fontSize={16}>
-                    Delete Favorite
-                  </Text>
+                  <XStack alignItems="center" justifyContent="center" gap="$2">
+                    <Trash2 size={18} color="#f44336" />
+                    <Text
+                      fontFamily="$body"
+                      color="#f44336"
+                      fontWeight="700"
+                      fontSize={16}
+                    >
+                      Delete favorite
+                    </Text>
+                  </XStack>
                 </Button>
               </YStack>
             </YStack>

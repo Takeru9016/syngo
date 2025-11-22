@@ -1,7 +1,5 @@
-import { Image } from 'tamagui';
-import { YStack, XStack, Text, Stack, Button } from 'tamagui';
-
-import { Favorite, FavoriteCategory } from '@/types';
+import { Image, YStack, XStack, Text, Stack, Button } from "tamagui";
+import { Favorite, FavoriteCategory } from "@/types";
 
 type Props = {
   favorite: Favorite;
@@ -9,71 +7,80 @@ type Props = {
 };
 
 const categoryEmojis: Record<FavoriteCategory, string> = {
-  movie: '🎬',
-  food: '🍕',
-  place: '📍',
-  quote: '💭',
-  link: '🔗',
-  other: '⭐',
+  movie: "🎬",
+  food: "🍕",
+  place: "📍",
+  quote: "💭",
+  link: "🔗",
+  other: "⭐",
 };
 
 const categoryColors: Record<FavoriteCategory, string> = {
-  movie: '#e91e63',
-  food: '#ff9800',
-  place: '#4caf50',
-  quote: '#9c27b0',
-  link: '#2196f3',
-  other: '#607d8b',
+  movie: "#e91e63",
+  food: "#ff9800",
+  place: "#4caf50",
+  quote: "#9c27b0",
+  link: "#2196f3",
+  other: "#607d8b",
 };
 
 export function FavoriteCard({ favorite, onPress }: Props) {
+  const emoji = categoryEmojis[favorite.category];
+  const color = categoryColors[favorite.category];
+
   return (
     <Button
       unstyled
       onPress={() => onPress(favorite)}
-      pressStyle={{ opacity: 0.8 }}
+      pressStyle={{ opacity: 0.9, scale: 0.98 }}
     >
       <YStack
-        backgroundColor="$background"
-        borderRadius="$6"
+        backgroundColor="$bgCard"
+        borderRadius="$8"
         overflow="hidden"
-        gap="$2"
+        borderWidth={1}
+        borderColor="$borderColor"
+        gap="$0"
       >
-        {/* Image */}
+        {/* Image / placeholder */}
         {favorite.imageUrl ? (
           <Image
             source={{ uri: favorite.imageUrl }}
             width="100%"
-            height={140}
-            resizeMode="cover"
+            height={120}
+            objectFit="cover"
           />
         ) : (
           <Stack
             width="100%"
-            height={140}
-            backgroundColor={categoryColors[favorite.category]}
+            height={120}
+            backgroundColor={color}
             alignItems="center"
             justifyContent="center"
           >
-            <Text fontSize={48}>{categoryEmojis[favorite.category]}</Text>
+            <Text fontSize={40}>{emoji}</Text>
           </Stack>
         )}
 
         {/* Content */}
-        <YStack padding="$3" gap="$1">
+        <YStack padding="$3" gap="$2">
           <XStack alignItems="center" gap="$2">
-            <Text fontSize={16}>{categoryEmojis[favorite.category]}</Text>
+            <Text fontSize={16}>{emoji}</Text>
             <Text
-              color="$muted"
+              fontFamily="$body"
+              color="$colorMuted"
               fontSize={11}
               fontWeight="600"
               textTransform="uppercase"
-              letterSpacing={0.5}
+              letterSpacing={0.7}
+              numberOfLines={1}
             >
               {favorite.category}
             </Text>
           </XStack>
+
           <Text
+            fontFamily="$body"
             color="$color"
             fontSize={15}
             fontWeight="700"
@@ -81,8 +88,14 @@ export function FavoriteCard({ favorite, onPress }: Props) {
           >
             {favorite.title}
           </Text>
+
           {favorite.description && (
-            <Text color="$muted" fontSize={13} numberOfLines={2}>
+            <Text
+              fontFamily="$body"
+              color="$colorMuted"
+              fontSize={13}
+              numberOfLines={2}
+            >
               {favorite.description}
             </Text>
           )}

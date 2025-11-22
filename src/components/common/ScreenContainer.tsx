@@ -1,4 +1,3 @@
-// components/layout/ScreenContainer.tsx
 import { ReactNode } from "react";
 import { StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,40 +8,95 @@ interface ScreenContainerProps {
   title?: string;
   children: ReactNode;
   rightSlot?: ReactNode;
+  /**
+   * Whether ScreenContainer should include its own scroll container.
+   * Use scroll={false} on screens that render FlatList / FlashList / SectionList.
+   */
+  scroll?: boolean;
+  /**
+   * Whether to use KeyboardAwareScrollView when scroll is true.
+   * Mostly useful for forms. Defaults to true.
+   */
+  keyboardAware?: boolean;
+  /**
+   * Override horizontal padding for the content section (default is $4).
+   */
+  contentPaddingHorizontal?: number;
 }
 
 export function ScreenContainer({
   title,
   children,
   rightSlot,
+  scroll = true,
+  keyboardAware = true,
+  contentPaddingHorizontal,
 }: ScreenContainerProps) {
   const insets = useSafeAreaInsets();
 
-  return (
-    <YStack flex={1} backgroundColor="$bg">
-      {/* Header */}
-      <YStack paddingTop={insets.top} paddingHorizontal="$4" paddingBottom="$3">
-        <XStack alignItems="center" justifyContent="space-between">
-          <Text color="$color" fontSize={28} fontWeight="900">
+  const contentPaddingX =
+    contentPaddingHorizontal !== undefined ? contentPaddingHorizontal : 16; // ~$4
+
+  // Header (shared)
+  const Header = (
+    <YStack
+      paddingTop={insets.top}
+      paddingHorizontal="$4"
+      paddingBottom="$3"
+      backgroundColor="$bg"
+    >
+      <XStack alignItems="center" justifyContent="space-between">
+        {title ? (
+          <Text
+            color="$color"
+            fontSize={24}
+            fontWeight="800"
+            fontFamily="$heading"
+          >
             {title}
           </Text>
-          {rightSlot ? <XStack>{rightSlot}</XStack> : null}
-        </XStack>
-      </YStack>
+        ) : (
+          <YStack />
+        )}
+        {rightSlot ? <XStack>{rightSlot}</XStack> : null}
+      </XStack>
+    </YStack>
+  );
 
-      {/* Keyboard-aware scrollable content */}
-      <KeyboardAwareScrollView
-        style={styles.flex}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        enableOnAndroid
-        extraScrollHeight={60} // how much EXTRA to scroll when focused
-        extraHeight={80} // helps on some Android devices
-      >
-        <YStack paddingHorizontal="$4" paddingBottom="$6" gap="$5">
+  // Non-scroll variant: child components own scrolling (FlatList, etc.)
+  if (!scroll) {
+    return (
+      <YStack flex={1} backgroundColor="$bg">
+        {Header}
+        <YStack flex={1} paddingHorizontal={contentPaddingX} paddingBottom="$6">
           {children}
         </YStack>
-      </KeyboardAwareScrollView>
+      </YStack>
+    );
+  }
+
+  // Scroll / keyboard-aware variant for form-style screens
+  const ScrollComponent = keyboardAware
+    ? KeyboardAwareScrollView
+    : (KeyboardAwareScrollView as any); // we’ll configure props similarly for now
+
+  return (
+    <YStack flex={1} backgroundColor="$bg">
+      {Header}
+
+      <ScrollComponent
+        style={styles.flex}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingHorizontal: contentPaddingX, paddingBottom: 24 },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid={keyboardAware}
+        extraScrollHeight={keyboardAware ? 60 : 0}
+        extraHeight={keyboardAware ? 80 : 0}
+      >
+        {children}
+      </ScrollComponent>
     </YStack>
   );
 }

@@ -408,7 +408,7 @@ const config = createTamagui({
       8: 32,
       9: 36,
       10: 40,
-      true: 8,
+      true: 2,
     },
     size: {
       0: 0,
@@ -422,7 +422,7 @@ const config = createTamagui({
       8: 32,
       9: 36,
       10: 40,
-      true: 16,
+      true: 4,
     },
     radius: {
       0: 0,
@@ -434,7 +434,7 @@ const config = createTamagui({
       6: 24,
       7: 28,
       8: 32,
-      true: 12,
+      true: 3,
     },
     zIndex: {
       0: 0,
