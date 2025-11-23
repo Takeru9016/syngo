@@ -8,9 +8,11 @@ import {
   Bell,
   Settings,
 } from "@tamagui/lucide-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabsLayout() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -20,9 +22,10 @@ export default function TabsLayout() {
           backgroundColor: theme.bgCard.val,
           borderTopColor: theme.borderColor.val,
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
+          // Remove fixed height; use padding + safe area instead
+          // height: 60,
           paddingTop: 8,
+          paddingBottom: Math.max(insets.bottom, 8), // respect home indicator
         },
         tabBarActiveTintColor: theme.primary.val,
         tabBarInactiveTintColor: theme.colorMuted.val,

@@ -35,6 +35,7 @@ export async function getProfile(): Promise<UserProfile | null> {
         bio: data.bio || "",
         avatarUrl: data.avatarUrl || "",
         pairId: data.pairId || undefined,
+        showOnboardingAfterUnpair: data.showOnboardingAfterUnpair, // ADD THIS LINE
       };
     } else {
       // Create default profile if doesn't exist
@@ -143,6 +144,29 @@ export async function uploadAvatar(localUri: string): Promise<string> {
 }
 
 /**
+ * Update any user's profile (admin/system use)
+ * Used during unpair to set flags for both users
+ */
+export async function updateUserProfile(
+  uid: string,
+  updates: Partial<Omit<UserProfile, "id" | "uid">>
+): Promise<void> {
+  console.log(`📝 Updating profile for user ${uid} with:`, updates);
+
+  try {
+    const docRef = doc(db, "users", uid);
+    await updateDoc(docRef, {
+      ...updates,
+      updatedAt: serverTimestamp(),
+    });
+    console.log(`✅ Profile updated successfully for user ${uid}`);
+  } catch (error: any) {
+    console.error(`❌ Error updating profile for user ${uid}:`, error.message);
+    throw error;
+  }
+}
+
+/**
  * Get partner profile
  * Uses the pairId from current user's profile to find partner
  */
@@ -192,6 +216,7 @@ export async function getPartnerProfile(): Promise<UserProfile | null> {
       bio: data.bio || "",
       avatarUrl: data.avatarUrl || "",
       pairId: data.pairId || undefined,
+      showOnboardingAfterUnpair: data.showOnboardingAfterUnpair, // ADD THIS LINE
     };
   } catch (error: any) {
     console.error("❌ Error getting partner profile:", error.message);
@@ -226,6 +251,7 @@ export function subscribeToProfile(
           bio: data.bio || "",
           avatarUrl: data.avatarUrl || "",
           pairId: data.pairId || undefined,
+          showOnboardingAfterUnpair: data.showOnboardingAfterUnpair, // ADD THIS LINE
         };
         console.log("📬 Profile updated:", profile);
         callback(profile);
@@ -316,6 +342,7 @@ export function subscribeToPartnerProfile(
                 bio: data.bio || "",
                 avatarUrl: data.avatarUrl || "",
                 pairId: data.pairId || undefined,
+                showOnboardingAfterUnpair: data.showOnboardingAfterUnpair, // ADD THIS LINE
               };
               console.log("📬 Partner profile updated:", partnerProfile);
               callback(partnerProfile);

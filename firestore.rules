@@ -69,6 +69,13 @@ service cloud.firestore {
                          // Unpairing: setting to null, and requester is a pair member
                          (request.resource.data.pairId == null && isPairPartner(uid))
                        );
+      
+      // Allow setting showOnboardingAfterUnpair during unpair
+      // This allows both users to be updated when one initiates unpair
+      allow update: if isAuthenticated() && 
+                       isPairPartner(uid) &&
+                       request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['pairId', 'showOnboardingAfterUnpair', 'updatedAt']);
 
       // Device tokens for push
       match /devices/{deviceId} {

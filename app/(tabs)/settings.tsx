@@ -6,7 +6,6 @@ import {
   StyleSheet,
   useColorScheme,
 } from "react-native";
-import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import {
@@ -212,7 +211,8 @@ export default function SettingsScreen() {
               Haptics.NotificationFeedbackType.Warning
             );
             await unpair();
-            router.replace("/pair");
+            // No need to call setHasSeenOnboarding - Firestore flag handles it
+            // Gate will automatically redirect to /onboarding
           },
         },
       ]

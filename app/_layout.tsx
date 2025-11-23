@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { StatusBar, useColorScheme } from "react-native";
+import { useColorScheme } from "react-native";
 import { Slot, useRouter, useSegments } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { TamaguiProvider, Theme, YStack, Text } from "tamagui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
@@ -46,7 +47,7 @@ function Gate() {
   const router = useRouter();
   const segments = useSegments();
   const { isPaired, setPairId } = usePairingStore();
-  const { setProfile, setPartnerProfile } = useProfileStore();
+  const { profile, setProfile, setPartnerProfile } = useProfileStore(); // ADD profile here
   const { initialized, user } = useAuthStore();
 
   const [mounted, setMounted] = useState(false);
@@ -113,36 +114,62 @@ function Gate() {
 
     const inTabs = segments[0] === "(tabs)";
     const inPair = segments[0] === "pair";
+    const inOnboarding = segments[0] === "onboarding";
+
+    const isUnpaired = user && !isPaired;
+
+    // Show onboarding if unpaired AND flag is true (or undefined, default to true)
+    const shouldShowOnboarding =
+      isUnpaired && profile?.showOnboardingAfterUnpair !== false;
 
     // Skip first run to prevent flash
     if (firstRun.current) {
       firstRun.current = false;
 
       // Initial navigation
-      if (user && !isPaired && !inPair) {
-        console.log("🔀 Redirecting to pair screen (not paired)");
-        router.replace("/pair");
-      } else if (user && isPaired && !inTabs) {
+      if (user && isPaired && !inTabs) {
         console.log("🔀 Redirecting to tabs (paired)");
         router.replace("/(tabs)");
+        return;
+      }
+
+      if (shouldShowOnboarding && !inOnboarding) {
+        console.log("🔀 Redirecting to onboarding (unpaired, flag true)");
+        router.replace("/onboarding");
+        return;
+      }
+
+      if (isUnpaired && !shouldShowOnboarding && !inPair) {
+        console.log(
+          "🔀 Redirecting to pair screen (unpaired, skip onboarding)"
+        );
+        router.replace("/pair");
+        return;
       }
 
       return;
     }
 
     // Subsequent navigation
-    if (user && !isPaired && inTabs) {
-      // User is authenticated but not paired, and trying to access tabs
-      console.log(
-        "🔀 Redirecting to pair screen (unpaired, tried to access tabs)"
-      );
-      router.replace("/pair");
-    } else if (user && isPaired && inPair) {
-      // User is paired but still on pair screen
-      console.log("🔀 Redirecting to tabs (paired, on pair screen)");
+    if (user && isPaired && (inPair || inOnboarding)) {
+      console.log("🔀 Redirecting to tabs (paired, not in tabs)");
       router.replace("/(tabs)");
+    } else if (shouldShowOnboarding && !inOnboarding) {
+      console.log("🔀 Redirecting to onboarding (unpaired, flag true)");
+      router.replace("/onboarding");
+    } else if (isUnpaired && !shouldShowOnboarding && inTabs) {
+      console.log("🔀 Redirecting to pair screen (unpaired, in tabs)");
+      router.replace("/pair");
     }
-  }, [mounted, initialized, pairingChecked, user, isPaired, segments]);
+  }, [
+    mounted,
+    initialized,
+    pairingChecked,
+    user,
+    isPaired,
+    profile?.showOnboardingAfterUnpair,
+    segments,
+  ]);
 
   // Show loading screen until auth and pairing status are checked
   if (!initialized || !pairingChecked) {
@@ -226,9 +253,8 @@ export default function RootLayout() {
         <TamaguiProvider config={config}>
           <Theme name={activeTheme}>
             <StatusBar
-              barStyle={
-                effectiveMode === "dark" ? "light-content" : "dark-content"
-              }
+              style={effectiveMode === "dark" ? "light" : "dark"}
+              animated
             />
             <ErrorBoundary>
               <Gate />

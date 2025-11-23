@@ -87,6 +87,7 @@ export type UserProfile = {
   avatarUrl?: string;
   bio?: string;
   pairId?: string;
+  showOnboardingAfterUnpair?: boolean;
 };
 
 export type PairStatus = "active" | "inactive";

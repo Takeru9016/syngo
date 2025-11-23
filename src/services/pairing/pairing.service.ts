@@ -338,12 +338,12 @@ export async function unpair(): Promise<void> {
 
   const pairId = profile.pairId;
 
-  // Get pair document to find partner
+  // Get pair document to find both participants
   const pairDoc = await getDoc(doc(db, "pairs", pairId));
   if (!pairDoc.exists()) {
     console.log("⚠️ Pair document not found");
     // Clean up user profile anyway
-    await updateProfile({ pairId: undefined });
+    await updateProfile({ pairId: undefined, showOnboardingAfterUnpair: true });
     return;
   }
 
@@ -353,10 +353,11 @@ export async function unpair(): Promise<void> {
   // Delete pair document
   batch.delete(doc(db, "pairs", pairId));
 
-  // Update both user profiles
+  // Update both user profiles: clear pairId + set onboarding flag
   participants.forEach((userId) => {
     batch.update(doc(db, "users", userId), {
       pairId: null,
+      showOnboardingAfterUnpair: true, // NEW: both users see onboarding
       updatedAt: serverTimestamp(),
     });
   });
@@ -364,7 +365,7 @@ export async function unpair(): Promise<void> {
   // Commit batch
   await batch.commit();
 
-  console.log("✅ Unpaired successfully");
+  console.log("✅ Unpaired successfully, both users will see onboarding");
 }
 
 /**

@@ -12,19 +12,32 @@ import { db } from "@/config/firebase";
 import { AppNotificationService } from "@/services/notification/notification.service";
 import { AppNotification } from "@/types";
 import { getCurrentUserId } from "@/services/auth/auth.service";
+import { useProfileStore } from "@/store/profile"; // ADD THIS IMPORT
 
 const key = (uid?: string) => ["app-notifications", uid || "none"] as const;
 
 export function useAppNotifications() {
-  const uid = getCurrentUserId() ?? undefined; // Convert null to undefined
+  const uid = getCurrentUserId() ?? undefined;
+  const { profile } = useProfileStore(); // ADD THIS LINE
   const qc = useQueryClient();
 
-  console.log("🔄 [useAppNotifications] Hook called with uid:", uid);
+  const isPaired = !!profile?.pairId; // ADD THIS LINE
 
-  // Set up real-time listener
+  console.log(
+    "🔄 [useAppNotifications] Hook called with uid:",
+    uid,
+    "isPaired:",
+    isPaired
+  );
+
+  // Set up real-time listener ONLY when paired
   useEffect(() => {
-    if (!uid) {
-      console.log("⚠️ [useAppNotifications] No uid, skipping listener");
+    if (!uid || !isPaired) {
+      console.log(
+        "⚠️ [useAppNotifications] Not subscribed: no uid or not paired"
+      );
+      // Clear notifications when unpaired
+      qc.setQueryData<AppNotification[]>(key(uid), []);
       return;
     }
 
@@ -79,7 +92,7 @@ export function useAppNotifications() {
       );
       unsubscribe();
     };
-  }, [uid, qc]);
+  }, [uid, isPaired, qc]); // ADD isPaired TO DEPS
 
   return useQuery({
     queryKey: key(uid),
@@ -90,7 +103,7 @@ export function useAppNotifications() {
       );
       return AppNotificationService.listForCurrentUser();
     },
-    enabled: !!uid,
+    enabled: !!uid && isPaired, // ADD isPaired CHECK
     staleTime: 30_000,
     refetchOnMount: "always",
   });
