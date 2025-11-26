@@ -1,8 +1,8 @@
 import Constants from "expo-constants";
 
-const CLOUD_NAME = Constants.expoConfig?.extra?.CLOUDINARY_CLOUD_NAME as string;
+const CLOUD_NAME = Constants.expoConfig?.extra?.cloudinaryCloudName as string;
 const UPLOAD_PRESET = Constants.expoConfig?.extra
-  ?.CLOUDINARY_UNSIGNED_PRESET as string;
+  ?.cloudinaryUploadPreset as string;
 
 export type UploadResult = {
   url: string;

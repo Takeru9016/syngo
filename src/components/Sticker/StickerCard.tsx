@@ -97,6 +97,7 @@ export function StickerCard({ sticker, onSend, onDelete }: Props) {
           fontWeight="600"
           numberOfLines={1}
           textAlign="left"
+          padding="$2"
         >
           {sticker.name}
         </Text>
