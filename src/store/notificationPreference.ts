@@ -59,7 +59,7 @@ export const useNotificationPreferences =
                 { notificationPreferences: newPreferences },
                 { merge: true }
               );
-              console.log("✅ Notification preferences synced to Firestore");
+
             } catch (error) {
               console.error(
                 "❌ Failed to sync notification preferences:",
@@ -80,7 +80,7 @@ export const useNotificationPreferences =
                 { notificationPreferences: DEFAULT_PREFERENCES },
                 { merge: true }
               );
-              console.log("✅ Notification preferences reset");
+
             } catch (error) {
               console.error(
                 "❌ Failed to reset notification preferences:",

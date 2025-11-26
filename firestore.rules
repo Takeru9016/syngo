@@ -59,6 +59,9 @@ service cloud.firestore {
       
       // Update own profile
       allow update: if isSelf();
+
+      // Delete own profile (Required for Account Deletion)
+      allow delete: if isSelf();
       
       // Allow setting pairId when pairing (string) or unpairing (null)
       allow update: if isAuthenticated() && 

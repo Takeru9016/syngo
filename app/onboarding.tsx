@@ -18,8 +18,6 @@ export default function OnboardingScreen() {
   const { user } = useAuthStore();
 
   const handleGetStarted = async () => {
-    console.log("🔥 Get started pressed");
-
     try {
       if (user?.uid) {
         console.log("Updating profile for", user.uid);

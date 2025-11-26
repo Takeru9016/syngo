@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 10.0.0"
+    "version": ">= 13.0.0",
+    "appVersionSource": "local"
   },
   "build": {
     "development": {
@@ -29,11 +30,23 @@
       "channel": "production",
       "autoIncrement": true,
       "ios": {
-        "simulator": false,
-        "buildType": "release"
+        "simulator": false
       },
       "android": {
         "buildType": "app-bundle"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "sahiljadhav835@gmail.com",
+        "ascAppId": "placeholder",
+        "appleTeamId": "3RNFFHNH54"
+      },
+      "android": {
+        "track": "internal",
+        "releaseStatus": "completed"
       }
     }
   }

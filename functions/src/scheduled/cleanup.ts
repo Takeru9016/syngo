@@ -1,4 +1,5 @@
 import { onSchedule } from "firebase-functions/v2/scheduler";
+import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 
 const db = admin.firestore();
@@ -7,7 +8,7 @@ const db = admin.firestore();
  * Scheduled function: Clean up expired data (runs every hour)
  */
 export const scheduledCleanup = onSchedule("every 1 hours", async (event) => {
-  console.log("🧹 Starting scheduled cleanup...");
+  logger.info("🧹 Starting scheduled cleanup...");
 
   try {
     const now = admin.firestore.Timestamp.now();
@@ -25,7 +26,7 @@ export const scheduledCleanup = onSchedule("every 1 hours", async (event) => {
       const batch = db.batch();
       expiredCodes.docs.forEach((doc) => batch.delete(doc.ref));
       await batch.commit();
-      console.log(`✅ Deleted ${expiredCodes.size} expired pairing codes`);
+      logger.info(`✅ Deleted ${expiredCodes.size} expired pairing codes`);
     }
 
     // 2. Delete old notifications (older than 30 days)
@@ -39,7 +40,7 @@ export const scheduledCleanup = onSchedule("every 1 hours", async (event) => {
       const batch = db.batch();
       oldNotifications.docs.forEach((doc) => batch.delete(doc.ref));
       await batch.commit();
-      console.log(`✅ Deleted ${oldNotifications.size} old notifications`);
+      logger.info(`✅ Deleted ${oldNotifications.size} old notifications`);
     }
 
     // 3. Clean up inactive device tokens (no activity in 90 days)
@@ -65,11 +66,11 @@ export const scheduledCleanup = onSchedule("every 1 hours", async (event) => {
     }
 
     if (deletedTokens > 0) {
-      console.log(`✅ Deleted ${deletedTokens} inactive device tokens`);
+      logger.info(`✅ Deleted ${deletedTokens} inactive device tokens`);
     }
 
-    console.log("✅ Scheduled cleanup completed");
+    logger.info("✅ Scheduled cleanup completed");
   } catch (error) {
-    console.error("❌ Error in scheduled cleanup:", error);
+    logger.error("❌ Error in scheduled cleanup:", error);
   }
 });

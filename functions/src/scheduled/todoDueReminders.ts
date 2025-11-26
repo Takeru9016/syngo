@@ -1,4 +1,5 @@
 import { onSchedule } from "firebase-functions/v2/scheduler";
+import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 import {
   sendPushToUser,
@@ -13,7 +14,7 @@ const db = admin.firestore();
 export const todoDueReminders = onSchedule(
   "every 15 minutes",
   async (event) => {
-    console.log("⏰ Checking for todos due soon...");
+    logger.info("⏰ Checking for todos due soon...");
 
     try {
       const now = new Date();
@@ -33,11 +34,11 @@ export const todoDueReminders = onSchedule(
         .get();
 
       if (todosSnapshot.empty) {
-        console.log("✅ No todos due soon");
+        logger.info("✅ No todos due soon");
         return;
       }
 
-      console.log(`📋 Found ${todosSnapshot.size} todos due soon`);
+      logger.info(`📋 Found ${todosSnapshot.size} todos due soon`);
 
       // Send reminders
       const promises = todosSnapshot.docs.map(async (todoDoc) => {
@@ -91,13 +92,13 @@ export const todoDueReminders = onSchedule(
 
         // Mark as reminded
         await todoDoc.ref.update({ reminderSent: true });
-        console.log(`✅ Reminder sent for todo: ${todoDoc.id}`);
+        logger.info(`✅ Reminder sent for todo: ${todoDoc.id}`);
       });
 
       await Promise.all(promises);
-      console.log("✅ Todo reminders completed");
+      logger.info("✅ Todo reminders completed");
     } catch (error) {
-      console.error("❌ Error in todoDueReminders:", error);
+      logger.error("❌ Error in todoDueReminders:", error);
     }
   }
 );

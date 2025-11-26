@@ -1,6 +1,8 @@
 import "dotenv/config";
 import type { ExpoConfig } from "@expo/config";
 
+const EAS_PROJECT_ID = "0f6d9962-45d9-4648-bc14-54362c3f999e";
+
 const config: ExpoConfig = {
   name: "Notify",
   slug: "notify",
@@ -9,92 +11,164 @@ const config: ExpoConfig = {
   scheme: "notify",
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
+
+  // App description and metadata
+  description:
+    "A calm shared space just for two. Stay in sync with shared todos, reminders, and small moments that matter. No feeds, no noise—just the two of you.",
+
   icon: "./assets/images/icon.png",
 
-  // Add splash config at root level
   splash: {
-    image: "./assets/images/splash-icon.png",
+    image: "./assets/images/splash.png",
     resizeMode: "contain",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#050816",
   },
 
   ios: {
     bundleIdentifier: "com.sahiljadhav.notify",
     buildNumber: "1",
-    supportsTablet: false, // Changed to false - you're portrait-only couple app
+    supportsTablet: false, // Portrait-only app
+
+    // App Store metadata
+    appStoreUrl: "https://apps.apple.com/app/notify/idXXXXXXXXXX", // Will be filled after app is live
+
     infoPlist: {
+      // Background modes for notifications
       UIBackgroundModes: ["remote-notification"],
-      // Required permission descriptions:
-      NSUserTrackingUsageDescription:
-        "We use analytics to improve app performance. No ads or cross-app tracking.",
+      ITSAppUsesNonExemptEncryption: false,
+
+      // Privacy - Photo Library
       NSPhotoLibraryUsageDescription:
-        "Notify needs access to your photos to upload avatars and stickers.",
+        "Notify needs access to your photo library so you can upload stickers and images to share with your partner.",
+      NSPhotoLibraryAddUsageDescription:
+        "Notify needs permission to save images to your photo library.",
+
+      // Privacy - Camera
       NSCameraUsageDescription:
-        "Notify needs camera access to take photos for avatars and stickers.",
-      UNUserNotificationCenterDelegateDescription:
-        "Notify sends you reminders and updates about shared tasks and events.",
+        "Notify needs camera access so you can take photos for stickers and images to share with your partner.",
+
+      // Privacy - Notifications (iOS 10+)
+      // This is implicit with expo-notifications, but good to document
+
+      // Prevent App Tracking Transparency prompt (you don't track)
+      // If you add analytics later that Apple considers "tracking", you'll need NSUserTrackingUsageDescription
+
+      // Localization
+      CFBundleDevelopmentRegion: "en",
+      CFBundleAllowMixedLocalizations: true,
+
+      // Status bar
+      UIStatusBarStyle: "UIStatusBarStyleDefault",
+      UIViewControllerBasedStatusBarAppearance: true,
+
+      // Disable iTunes file sharing (privacy)
+      UIFileSharingEnabled: false,
+
+      // Require full screen (no split view on iPad, though you disabled tablet)
+      UIRequiresFullScreen: true,
     },
+
+    // Associated domains for universal links (if you add deep linking later)
+    // associatedDomains: ["applinks:notify.app"],
   },
 
   android: {
     package: "com.sahiljadhav.notify",
     versionCode: 1,
+
+    // Play Store metadata
+    playStoreUrl:
+      "https://play.google.com/store/apps/details?id=com.sahiljadhav.notify", // Will be filled after app is live
+
     adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
-      foregroundImage: "./assets/images/android-icon-foreground.png",
-      backgroundImage: "./assets/images/android-icon-background.png",
-      monochromeImage: "./assets/images/android-icon-monochrome.png",
+      backgroundColor: "#050816",
+      foregroundImage: "./assets/images/icon.png", // My gradient pill icon
     },
+
     permissions: [
+      // Required
       "INTERNET",
-      "VIBRATE",
-      "WAKE_LOCK",
+      "ACCESS_NETWORK_STATE",
+
+      // Notifications (Android 13+)
       "android.permission.POST_NOTIFICATIONS",
+
+      // Vibration for haptics
+      "VIBRATE",
+
+      // Keep device awake for notifications
+      "WAKE_LOCK",
+
+      // Boot receiver (for scheduled notifications)
       "android.permission.RECEIVE_BOOT_COMPLETED",
+
+      // Camera and storage (for stickers/images)
+      "CAMERA",
+      "READ_EXTERNAL_STORAGE",
+      "WRITE_EXTERNAL_STORAGE",
+
+      // Media (Android 13+ granular permissions)
+      "READ_MEDIA_IMAGES",
+    ],
+
+    // Blocking permissions (explicitly state you DON'T need these - helps with Play Store review)
+    blockedPermissions: [
+      "ACCESS_FINE_LOCATION",
+      "ACCESS_COARSE_LOCATION",
+      "ACCESS_BACKGROUND_LOCATION",
+      "BLUETOOTH",
+      "BLUETOOTH_ADMIN",
+      "RECORD_AUDIO",
     ],
   },
 
   web: {
     output: "static",
-    favicon: "./assets/images/favicon.png",
+    favicon: "./assets/images/icon.png",
+    bundler: "metro",
   },
 
   plugins: [
     "expo-router",
+
     [
       "expo-splash-screen",
       {
-        image: "./assets/images/splash-icon.png",
+        image: "./assets/images/splash.png",
         imageWidth: 200,
         resizeMode: "contain",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#050816",
       },
     ],
+
     [
       "expo-image-picker",
       {
         photosPermission:
-          "Allow Notify to access your photos to upload avatars and stickers.",
+          "Notify needs access to your photo library so you can upload stickers and images to share with your partner.",
         cameraPermission:
-          "Allow Notify to use your camera to take photos for avatars and stickers.",
+          "Notify needs camera access so you can take photos for stickers and images to share with your partner.",
+        microphonePermission: false,
       },
     ],
+
     [
       "expo-notifications",
       {
-        icon: "./assets/images/notification-icon.png", // ⚠️ Verify this file exists (96x96 transparent PNG)
-        color: "#4F46E5",
+        icon: "./assets/images/notification-icon.png", // 96×96 transparent PNG with white icon
+        color: "#6366F1", // My primary indigo color
         mode: "production",
-        sounds: [], // Add custom notification sounds here if you have them
+        sounds: "./assets/sounds/notification.mp3", // Custom notification sound
       },
     ],
+
     [
       "@sentry/react-native/expo",
       {
-        url: process.env.SENTRY_URL,
+        url: process.env.SENTRY_URL || "https://sentry.io/",
         organization: process.env.SENTRY_ORG,
         project: process.env.SENTRY_PROJECT,
-        dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+        authToken: process.env.SENTRY_AUTH_TOKEN,
       },
     ],
   ],
@@ -106,8 +180,9 @@ const config: ExpoConfig = {
 
   extra: {
     eas: {
-      projectId: process.env.EAS_PROJECT_ID,
+      projectId: EAS_PROJECT_ID,
     },
+
     // Firebase config from environment variables
     firebaseApiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
     firebaseAuthDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -116,10 +191,30 @@ const config: ExpoConfig = {
     firebaseMessagingSenderId:
       process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
     firebaseAppId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+    firebaseMeasurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID, // Optional: for Analytics
+
     // Cloudinary
-    CLOUDINARY_CLOUD_NAME: process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    CLOUDINARY_UNSIGNED_PRESET:
-      process.env.EXPO_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
+    cloudinaryCloudName: process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    cloudinaryUploadPreset: process.env.EXPO_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
+
+    // App metadata (accessible via Constants.expoConfig.extra)
+    appVersion: "1.0.0",
+    appBuildNumber: "1",
+    supportEmail: "timetocode22@gmail.com",
+    privacyPolicyUrl: "https://notify-landing-page.vercel.app/privacy",
+    termsOfServiceUrl: "https://notify-landing-page.vercel.app/eula",
+    websiteUrl: "https://notify-landing-page.vercel.app/",
+  },
+
+  // Update configuration (for OTA updates via EAS Update)
+  updates: {
+    enabled: true,
+    fallbackToCacheTimeout: 0,
+    url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
+  },
+
+  runtimeVersion: {
+    policy: "appVersion", // or "sdkVersion" or "nativeVersion"
   },
 };
 

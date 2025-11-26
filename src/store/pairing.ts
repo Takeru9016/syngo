@@ -76,7 +76,7 @@ export const usePairingStore = create<PairingState>((set) => ({
         expiresAt: null,
       });
 
-      console.log("✅ Successfully paired!");
+
     } catch (error: any) {
       console.error("❌ Error redeeming code:", error.message);
 
@@ -149,7 +149,7 @@ export const usePairingStore = create<PairingState>((set) => ({
         isLoading: false,
       });
 
-      console.log("✅ Successfully unpaired");
+
     } catch (error: any) {
       console.error("❌ Error unpairing:", error.message);
 

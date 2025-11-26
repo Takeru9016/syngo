@@ -1,4 +1,5 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 import {
   sendPushToUser,
@@ -18,7 +19,7 @@ export const onFavoriteAdded = onDocumentCreated(
     const favoriteId = event.params.favoriteId;
 
     if (!favoriteData) {
-      console.log("⚠️ No favorite data");
+      logger.info("⚠️ No favorite data");
       return;
     }
 
@@ -27,14 +28,14 @@ export const onFavoriteAdded = onDocumentCreated(
       const pairId = favoriteData.pairId;
 
       if (!creatorUid || !pairId) {
-        console.log("⚠️ Favorite missing creatorUid or pairId");
+        logger.info("⚠️ Favorite missing creatorUid or pairId");
         return;
       }
 
       // Get partner UID
       const partnerUid = await getPartnerUid(creatorUid, pairId);
       if (!partnerUid) {
-        console.log("⚠️ Partner not found");
+        logger.info("⚠️ Partner not found");
         return;
       }
 
@@ -65,9 +66,9 @@ export const onFavoriteAdded = onDocumentCreated(
         }),
       ]);
 
-      console.log(`✅ Favorite notification sent to partner: ${partnerUid}`);
+      logger.info(`✅ Favorite notification sent to partner: ${partnerUid}`);
     } catch (error) {
-      console.error("❌ Error in onFavoriteAdded:", error);
+      logger.error("❌ Error in onFavoriteAdded:", error);
     }
   }
 );

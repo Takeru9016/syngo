@@ -462,7 +462,7 @@ const SegmentChip = ({ label, isActive, onPress, small }: SegmentChipProps) => (
     <XStack
       paddingHorizontal={small ? "$2" : "$3"}
       paddingVertical={small ? "$1" : "$2"}
-      borderRadius="$7"
+      borderRadius="$8"
       backgroundColor={isActive ? "$primarySoft" : "transparent"}
       alignItems="center"
       justifyContent="center"

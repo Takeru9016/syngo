@@ -1,4 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 
 const db = admin.firestore();
@@ -84,14 +85,14 @@ export const generatePairingCode = onCall(async (request) => {
       used: false,
     });
 
-    console.log(`✅ Generated pairing code: ${code} for user: ${uid}`);
+    logger.info(`✅ Generated pairing code: ${code} for user: ${uid}`);
 
     return {
       code,
       expiresAt: expiresAt.toMillis(),
     };
   } catch (error: any) {
-    console.error("❌ Error generating pairing code:", error);
+    logger.error("❌ Error generating pairing code:", error);
     throw new HttpsError("internal", error.message);
   }
 });
@@ -194,7 +195,7 @@ export const redeemPairingCode = onCall(async (request) => {
       };
     });
 
-    console.log(
+    logger.info(
       `✅ Pairing successful: ${result.ownerUid} <-> ${result.redeemerUid}`
     );
 
@@ -206,7 +207,7 @@ export const redeemPairingCode = onCall(async (request) => {
       result.redeemerName,
       result.pairId
     ).catch((error) =>
-      console.error("Failed to send pairing notifications:", error)
+      logger.error("Failed to send pairing notifications:", error)
     );
 
     return {
@@ -215,7 +216,7 @@ export const redeemPairingCode = onCall(async (request) => {
       partnerName: result.ownerName,
     };
   } catch (error: any) {
-    console.error("❌ Error redeeming pairing code:", error);
+    logger.error("❌ Error redeeming pairing code:", error);
     if (error instanceof HttpsError) {
       throw error;
     }

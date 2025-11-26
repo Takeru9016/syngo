@@ -34,7 +34,7 @@ function nowMs(): number {
 
 function requirePairId(): string {
   const profile = useProfileStore.getState().profile;
-  console.log("🔍 [TodoService] Current profile:", profile);
+
 
   const pairId = profile?.pairId;
   if (!pairId) {
@@ -42,7 +42,7 @@ function requirePairId(): string {
     throw new Error("Pair not established");
   }
 
-  console.log("✅ [TodoService] Using pairId:", pairId);
+
   return pairId;
 }
 
@@ -51,12 +51,7 @@ export const TodoService = {
     const pairId = requirePairId();
     const uid = getCurrentUserId();
 
-    console.log(
-      "📋 [TodoService.listByPair] Querying todos for pairId:",
-      pairId,
-      "uid:",
-      uid
-    );
+
 
     const q = query(
       collection(db, "todos"),
@@ -66,11 +61,11 @@ export const TodoService = {
     );
 
     const snap = await getDocs(q);
-    console.log("📋 [TodoService.listByPair] Found", snap.docs.length, "todos");
+
 
     const todos = snap.docs.map((d) => {
       const data = d.data() as any;
-      console.log("📄 [TodoService.listByPair] Todo doc:", d.id, data);
+
 
       const todo: Todo = {
         id: d.id,
@@ -113,11 +108,11 @@ export const TodoService = {
       updatedAt: serverTimestamp(),
     };
 
-    console.log("➕ [TodoService.create] Creating todo with payload:", payload);
+
 
     try {
       const ref = await addDoc(collection(db, "todos"), payload);
-      console.log("✅ [TodoService.create] Created todo with ID:", ref.id);
+
 
       // Send notification to partner
       await notifyPartner({
@@ -138,16 +133,7 @@ export const TodoService = {
     const pairId = requirePairId();
     const uid = getCurrentUserId();
 
-    console.log(
-      "✏️ [TodoService.update] Updating todo:",
-      id,
-      "updates:",
-      updates,
-      "uid:",
-      uid,
-      "pairId:",
-      pairId
-    );
+
 
     const ref = doc(db, "todos", id);
 
@@ -160,7 +146,7 @@ export const TodoService = {
       }
 
       const data = snap.data() as any;
-      console.log("📄 [TodoService.update] Current todo data:", data);
+
 
       if (data.pairId !== pairId) {
         console.error(
@@ -181,10 +167,10 @@ export const TodoService = {
         patch.isCompleted = updates.isCompleted;
       if (updates.priority !== undefined) patch.priority = updates.priority;
 
-      console.log("📝 [TodoService.update] Applying patch:", patch);
+
 
       await updateDoc(ref, patch);
-      console.log("✅ [TodoService.update] Successfully updated todo:", id);
+
     } catch (error) {
       console.error("❌ [TodoService.update] Error updating todo:", error);
       throw error;
@@ -195,14 +181,7 @@ export const TodoService = {
     const pairId = requirePairId();
     const uid = getCurrentUserId();
 
-    console.log(
-      "🗑️ [TodoService.remove] Deleting todo:",
-      id,
-      "uid:",
-      uid,
-      "pairId:",
-      pairId
-    );
+
 
     const ref = doc(db, "todos", id);
 
@@ -215,7 +194,7 @@ export const TodoService = {
       }
 
       const data = snap.data() as any;
-      console.log("📄 [TodoService.remove] Current todo data:", data);
+
 
       if (data.pairId !== pairId) {
         console.error(
@@ -228,7 +207,7 @@ export const TodoService = {
       }
 
       await deleteDoc(ref);
-      console.log("✅ [TodoService.remove] Successfully deleted todo:", id);
+
     } catch (error) {
       console.error("❌ [TodoService.remove] Error deleting todo:", error);
       throw error;

@@ -1,4 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import * as logger from "firebase-functions/logger";
 import {
   sendPushToUser,
   createInAppNotification,
@@ -65,11 +66,11 @@ export const onStickerSent = onCall(async (request) => {
       }),
     ]);
 
-    console.log(`✅ Sticker notification sent to partner: ${partnerUid}`);
+    logger.info(`✅ Sticker notification sent to partner: ${partnerUid}`);
 
     return { success: true };
   } catch (error: any) {
-    console.error("❌ Error in onStickerSent:", error);
+    logger.error("❌ Error in onStickerSent:", error);
     if (error instanceof HttpsError) {
       throw error;
     }

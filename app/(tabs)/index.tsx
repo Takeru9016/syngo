@@ -513,7 +513,8 @@ export default function HomeScreen() {
                 >
                   Keep the connection going
                 </Text>
-                <Text
+                {/* For next version to be implemented */}
+                {/* <Text
                   fontFamily="$body"
                   color="$colorMuted"
                   fontSize={13}
@@ -521,7 +522,7 @@ export default function HomeScreen() {
                 >
                   {connectionStreakDays}-day streak of staying in touch. Do one
                   tiny thing today.
-                </Text>
+                </Text> */}
               </YStack>
             </XStack>
 

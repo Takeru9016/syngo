@@ -1,4 +1,5 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 import {
   sendPushToUser,
@@ -18,7 +19,7 @@ export const onTodoCreated = onDocumentCreated(
     const todoId = event.params.todoId;
 
     if (!todoData) {
-      console.log("⚠️ No todo data");
+      logger.info("⚠️ No todo data");
       return;
     }
 
@@ -27,14 +28,14 @@ export const onTodoCreated = onDocumentCreated(
       const pairId = todoData.pairId;
 
       if (!creatorUid || !pairId) {
-        console.log("⚠️ Todo missing creatorUid or pairId");
+        logger.info("⚠️ Todo missing creatorUid or pairId");
         return;
       }
 
       // Get partner UID
       const partnerUid = await getPartnerUid(creatorUid, pairId);
       if (!partnerUid) {
-        console.log("⚠️ Partner not found");
+        logger.info("⚠️ Partner not found");
         return;
       }
 
@@ -65,9 +66,9 @@ export const onTodoCreated = onDocumentCreated(
         }),
       ]);
 
-      console.log(`✅ Todo notification sent to partner: ${partnerUid}`);
+      logger.info(`✅ Todo notification sent to partner: ${partnerUid}`);
     } catch (error) {
-      console.error("❌ Error in onTodoCreated:", error);
+      logger.error("❌ Error in onTodoCreated:", error);
     }
   }
 );

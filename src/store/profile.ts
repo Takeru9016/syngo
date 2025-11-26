@@ -42,7 +42,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
         isLoading: false,
       });
 
-      console.log("✅ Profile loaded:", profile);
+
     } catch (error: any) {
       console.error("❌ Error loading profile:", error.message);
 
@@ -60,7 +60,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
 
       set({ partnerProfile });
 
-      console.log("✅ Partner profile loaded:", partnerProfile);
+
     } catch (error: any) {
       console.error("❌ Error loading partner profile:", error.message);
     }
@@ -81,7 +81,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
         isLoading: false,
       });
 
-      console.log("✅ Profile updated");
+
     } catch (error: any) {
       console.error("❌ Error updating profile:", error.message);
 
@@ -112,7 +112,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
         });
       }
 
-      console.log("✅ Avatar uploaded:", avatarUrl);
+
     } catch (error: any) {
       console.error("❌ Error uploading avatar:", error.message);
 

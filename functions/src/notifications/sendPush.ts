@@ -1,4 +1,5 @@
 import * as admin from "firebase-admin";
+import * as logger from "firebase-functions/logger";
 import { checkNotificationPreferences } from "../utils/preference";
 
 const db = admin.firestore();
@@ -22,7 +23,7 @@ export async function sendPushToUser(
     if (notificationType) {
       const allowed = await checkNotificationPreferences(uid, notificationType);
       if (!allowed) {
-        console.log(
+        logger.info(
           `⏭️ Notification blocked by user preferences: ${uid} - ${notificationType}`
         );
         return;
@@ -33,7 +34,7 @@ export async function sendPushToUser(
     const devicesSnapshot = await db.collection(`users/${uid}/devices`).get();
 
     if (devicesSnapshot.empty) {
-      console.log(`⚠️ No devices found for user: ${uid}`);
+      logger.info(`⚠️ No devices found for user: ${uid}`);
       return;
     }
 
@@ -46,7 +47,7 @@ export async function sendPushToUser(
     });
 
     if (tokens.length === 0) {
-      console.log(`⚠️ No valid tokens for user: ${uid}`);
+      logger.info(`⚠️ No valid tokens for user: ${uid}`);
       return;
     }
 
@@ -62,7 +63,7 @@ export async function sendPushToUser(
 
     const response = await admin.messaging().sendEachForMulticast(message);
 
-    console.log(
+    logger.info(
       `✅ Push sent to ${uid}: ${response.successCount}/${tokens.length} delivered`
     );
 
@@ -78,10 +79,10 @@ export async function sendPushToUser(
         }
       });
       await batch.commit();
-      console.log(`🧹 Cleaned up ${response.failureCount} invalid tokens`);
+      logger.info(`🧹 Cleaned up ${response.failureCount} invalid tokens`);
     }
   } catch (error) {
-    console.error(`❌ Error sending push to ${uid}:`, error);
+    logger.error(`❌ Error sending push to ${uid}:`, error);
   }
 }
 
@@ -110,9 +111,9 @@ export async function createInAppNotification(
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    console.log(`✅ In-app notification created for ${recipientUid}`);
+    logger.info(`✅ In-app notification created for ${recipientUid}`);
   } catch (error) {
-    console.error(`❌ Error creating in-app notification:`, error);
+    logger.error(`❌ Error creating in-app notification:`, error);
   }
 }
 
@@ -132,7 +133,7 @@ export async function getPartnerUid(
     const participants = pairDoc.data()?.participants || [];
     return participants.find((uid: string) => uid !== currentUid) || null;
   } catch (error) {
-    console.error("Error getting partner UID:", error);
+    logger.error("Error getting partner UID:", error);
     return null;
   }
 }

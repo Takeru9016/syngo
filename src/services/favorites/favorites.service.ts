@@ -37,7 +37,7 @@ function nowMs(): number {
 
 function requirePairId(): string {
   const profile = useProfileStore.getState().profile;
-  console.log("🔍 [FavoriteService] Current profile:", profile);
+
 
   const pairId = profile?.pairId;
   if (!pairId) {
@@ -45,7 +45,7 @@ function requirePairId(): string {
     throw new Error("Pair not established");
   }
 
-  console.log("✅ [FavoriteService] Using pairId:", pairId);
+
   return pairId;
 }
 
@@ -54,12 +54,7 @@ export const FavoriteService = {
     const pairId = requirePairId();
     const uid = getCurrentUserId();
 
-    console.log(
-      "📋 [FavoriteService.listByPair] Querying favorites for pairId:",
-      pairId,
-      "uid:",
-      uid
-    );
+
 
     const q = query(
       collection(db, "favorites"),
@@ -69,15 +64,11 @@ export const FavoriteService = {
     );
 
     const snap = await getDocs(q);
-    console.log(
-      "📋 [FavoriteService.listByPair] Found",
-      snap.docs.length,
-      "favorites"
-    );
+
 
     const favorites = snap.docs.map((d) => {
       const data = d.data() as any;
-      console.log("📄 [FavoriteService.listByPair] Favorite doc:", d.id, data);
+
 
       const favorite: Favorite = {
         id: d.id,
@@ -119,17 +110,11 @@ export const FavoriteService = {
       updatedAt: serverTimestamp(),
     };
 
-    console.log(
-      "➕ [FavoriteService.create] Creating favorite with payload:",
-      payload
-    );
+
 
     try {
       const ref = await addDoc(collection(db, "favorites"), payload);
-      console.log(
-        "✅ [FavoriteService.create] Created favorite with ID:",
-        ref.id
-      );
+
 
       // Send notification to partner
       await notifyPartner({
@@ -150,16 +135,7 @@ export const FavoriteService = {
     const pairId = requirePairId();
     const uid = getCurrentUserId();
 
-    console.log(
-      "✏️ [FavoriteService.update] Updating favorite:",
-      id,
-      "updates:",
-      updates,
-      "uid:",
-      uid,
-      "pairId:",
-      pairId
-    );
+
 
     const ref = doc(db, "favorites", id);
 
@@ -172,7 +148,7 @@ export const FavoriteService = {
       }
 
       const data = snap.data() as any;
-      console.log("📄 [FavoriteService.update] Current favorite data:", data);
+
 
       if (data.pairId !== pairId) {
         console.error(
@@ -193,13 +169,10 @@ export const FavoriteService = {
         patch.imageUrl = updates.imageUrl || null;
       if (updates.url !== undefined) patch.url = updates.url || null;
 
-      console.log("📝 [FavoriteService.update] Applying patch:", patch);
+
 
       await updateDoc(ref, patch);
-      console.log(
-        "✅ [FavoriteService.update] Successfully updated favorite:",
-        id
-      );
+
     } catch (error) {
       console.error(
         "❌ [FavoriteService.update] Error updating favorite:",
@@ -213,14 +186,7 @@ export const FavoriteService = {
     const pairId = requirePairId();
     const uid = getCurrentUserId();
 
-    console.log(
-      "🗑️ [FavoriteService.remove] Deleting favorite:",
-      id,
-      "uid:",
-      uid,
-      "pairId:",
-      pairId
-    );
+
 
     const ref = doc(db, "favorites", id);
 
@@ -233,7 +199,7 @@ export const FavoriteService = {
       }
 
       const data = snap.data() as any;
-      console.log("📄 [FavoriteService.remove] Current favorite data:", data);
+
 
       if (data.pairId !== pairId) {
         console.error(
@@ -246,10 +212,7 @@ export const FavoriteService = {
       }
 
       await deleteDoc(ref);
-      console.log(
-        "✅ [FavoriteService.remove] Successfully deleted favorite:",
-        id
-      );
+
     } catch (error) {
       console.error(
         "❌ [FavoriteService.remove] Error deleting favorite:",

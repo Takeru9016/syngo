@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { Modal, Platform, KeyboardAvoidingView } from "react-native";
+import {
+  Modal,
+  Platform,
+  KeyboardAvoidingView,
+  useColorScheme,
+} from "react-native";
 import {
   YStack,
   XStack,
@@ -15,6 +20,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { X, Calendar, Clock, Flag } from "@tamagui/lucide-icons";
 
 import { Todo, TodoPriority } from "@/types";
+import { useThemeStore } from "@/state/theme";
 
 type Props = {
   visible: boolean;
@@ -25,6 +31,13 @@ type Props = {
 
 export function TodoModal({ visible, todo, onClose, onSave }: Props) {
   const insets = useSafeAreaInsets();
+  const systemColorScheme = useColorScheme();
+  const { mode } = useThemeStore();
+
+  // Determine if current theme is dark
+  const isDark =
+    mode === "dark" || (mode === "system" && systemColorScheme === "dark");
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState(
@@ -46,6 +59,9 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
       setDueDate(new Date(Date.now() + 3600000));
       setPriority("medium");
     }
+    // Reset picker visibility when modal opens/closes
+    setShowDatePicker(false);
+    setShowTimePicker(false);
   }, [todo, visible]);
 
   const handleSave = () => {
@@ -97,9 +113,9 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
           >
             <ScrollView
               contentContainerStyle={{
-                paddingBottom: Math.max(insets.bottom, 20) + 80,
+                paddingBottom: Math.max(insets.bottom, 20) + 40,
               }}
-              showsVerticalScrollIndicator={true}
+              showsVerticalScrollIndicator
             >
               <YStack padding="$5" gap="$4">
                 {/* Header */}
@@ -162,11 +178,14 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
                     placeholder="Add details (optional)"
                     backgroundColor="$bgCard"
                     borderColor="$borderColor"
-                    borderRadius="$7"
+                    borderRadius="$8"
                     minHeight={90}
                     fontSize={15}
                     fontFamily="$body"
                     color="$color"
+                    padding="$4"
+                    verticalAlign="top"
+                    multiline
                   />
                 </YStack>
 
@@ -188,7 +207,10 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
                       borderWidth={1}
                       borderRadius="$7"
                       height={44}
-                      onPress={() => setShowDatePicker(true)}
+                      onPress={() => {
+                        setShowDatePicker((prev) => !prev);
+                        setShowTimePicker(false);
+                      }}
                       pressStyle={{ opacity: 0.7 }}
                     >
                       <XStack
@@ -209,7 +231,10 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
                       borderWidth={1}
                       borderRadius="$7"
                       height={44}
-                      onPress={() => setShowTimePicker(true)}
+                      onPress={() => {
+                        setShowTimePicker((prev) => !prev);
+                        setShowDatePicker(false);
+                      }}
                       pressStyle={{ opacity: 0.7 }}
                     >
                       <XStack
@@ -225,6 +250,54 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
                     </Button>
                   </XStack>
                 </YStack>
+
+                {/* Date Picker with theme awareness */}
+                {showDatePicker && (
+                  <YStack
+                    backgroundColor="$bgCard"
+                    borderRadius="$6"
+                    padding="$3"
+                    borderWidth={1}
+                    borderColor="$borderColor"
+                  >
+                    <DateTimePicker
+                      value={dueDate}
+                      mode="date"
+                      display={Platform.OS === "ios" ? "inline" : "default"}
+                      onChange={(_, date) => {
+                        if (Platform.OS !== "ios") {
+                          setShowDatePicker(false);
+                        }
+                        if (date) setDueDate(date);
+                      }}
+                      themeVariant={isDark ? "dark" : "light"}
+                    />
+                  </YStack>
+                )}
+
+                {/* Time Picker with theme awareness */}
+                {showTimePicker && (
+                  <YStack
+                    backgroundColor="$bgCard"
+                    borderRadius="$6"
+                    padding="$3"
+                    borderWidth={1}
+                    borderColor="$borderColor"
+                  >
+                    <DateTimePicker
+                      value={dueDate}
+                      mode="time"
+                      display={Platform.OS === "ios" ? "spinner" : "default"}
+                      onChange={(_, date) => {
+                        if (Platform.OS !== "ios") {
+                          setShowTimePicker(false);
+                        }
+                        if (date) setDueDate(date);
+                      }}
+                      themeVariant={isDark ? "dark" : "light"}
+                    />
+                  </YStack>
+                )}
 
                 {/* Priority */}
                 <YStack gap="$2">
@@ -307,32 +380,6 @@ export function TodoModal({ visible, todo, onClose, onSave }: Props) {
               </YStack>
             </ScrollView>
           </Stack>
-
-          {/* Date Picker */}
-          {showDatePicker && (
-            <DateTimePicker
-              value={dueDate}
-              mode="date"
-              display="default"
-              onChange={(_, date) => {
-                setShowDatePicker(false);
-                if (date) setDueDate(date);
-              }}
-            />
-          )}
-
-          {/* Time Picker */}
-          {showTimePicker && (
-            <DateTimePicker
-              value={dueDate}
-              mode="time"
-              display="default"
-              onChange={(_, date) => {
-                setShowTimePicker(false);
-                if (date) setDueDate(date);
-              }}
-            />
-          )}
         </Stack>
       </KeyboardAvoidingView>
     </Modal>

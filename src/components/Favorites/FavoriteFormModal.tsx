@@ -287,6 +287,9 @@ export function FavoriteFormModal({
                     fontSize={15}
                     fontFamily="$body"
                     color="$color"
+                    padding="$4"
+                    verticalAlign="top" // esp. for Android
+                    multiline
                   />
                 </YStack>
 

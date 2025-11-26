@@ -41,7 +41,7 @@ export async function getProfile(): Promise<UserProfile | null> {
       };
     } else {
       // Create default profile if doesn't exist
-      console.log("📝 Creating default profile...");
+
       const defaultProfile: Omit<UserProfile, "id"> = {
         uid,
         displayName: "User",
@@ -77,7 +77,7 @@ export async function createProfile(
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
-    console.log("✅ Profile created successfully");
+
   } catch (error: any) {
     console.error("❌ Error creating profile:", error.message);
     throw error;
@@ -93,15 +93,19 @@ export async function updateProfile(
   const uid = getCurrentUserId();
   if (!uid) throw new Error("No user ID available");
 
-  console.log("📝 Updating profile with:", updates);
+
 
   try {
     const docRef = doc(db, "users", uid);
-    await updateDoc(docRef, {
-      ...updates,
-      updatedAt: serverTimestamp(),
-    });
-    console.log("✅ Profile updated successfully in Firestore");
+    await setDoc(
+      docRef,
+      {
+        ...updates,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+
   } catch (error: any) {
     console.error("❌ Error updating profile:", error.message);
     throw error;
@@ -139,15 +143,19 @@ export async function updateUserProfile(
   uid: string,
   updates: Partial<Omit<UserProfile, "id" | "uid">>
 ): Promise<void> {
-  console.log(`📝 Updating profile for user ${uid} with:`, updates);
+
 
   try {
     const docRef = doc(db, "users", uid);
-    await updateDoc(docRef, {
-      ...updates,
-      updatedAt: serverTimestamp(),
-    });
-    console.log(`✅ Profile updated successfully for user ${uid}`);
+    await setDoc(
+      docRef,
+      {
+        ...updates,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+
   } catch (error: any) {
     console.error(`❌ Error updating profile for user ${uid}:`, error.message);
     throw error;
@@ -161,7 +169,7 @@ export async function updateUserProfile(
 export async function getPartnerProfile(): Promise<UserProfile | null> {
   const uid = getCurrentUserId();
   if (!uid) {
-    console.log("⚠️ No user authenticated");
+
     return null;
   }
 
@@ -169,14 +177,14 @@ export async function getPartnerProfile(): Promise<UserProfile | null> {
     // Get current user's profile to find pairId
     const myProfile = await getProfile();
     if (!myProfile?.pairId) {
-      console.log("⚠️ User is not paired");
+
       return null;
     }
 
     // Get the pair document
     const pairDoc = await getDoc(doc(db, "pairs", myProfile.pairId));
     if (!pairDoc.exists()) {
-      console.log("⚠️ Pair document not found");
+
       return null;
     }
 
@@ -185,14 +193,14 @@ export async function getPartnerProfile(): Promise<UserProfile | null> {
     const partnerUid = participants.find((id) => id !== uid);
 
     if (!partnerUid) {
-      console.log("⚠️ Partner UID not found");
+
       return null;
     }
 
     // Get partner's profile
     const partnerDoc = await getDoc(doc(db, "users", partnerUid));
     if (!partnerDoc.exists()) {
-      console.log("⚠️ Partner profile not found");
+
       return null;
     }
 
@@ -225,7 +233,7 @@ export function subscribeToProfile(
     return () => {};
   }
 
-  console.log("👂 Subscribing to profile changes for:", uid);
+
 
   const unsubscribe = onSnapshot(
     doc(db, "users", uid),
@@ -241,10 +249,10 @@ export function subscribeToProfile(
           pairId: data.pairId || undefined,
           showOnboardingAfterUnpair: data.showOnboardingAfterUnpair, // ADD THIS LINE
         };
-        console.log("📬 Profile updated:", profile);
+
         callback(profile);
       } else {
-        console.log("⚠️ Profile document does not exist");
+
         callback(null);
       }
     },
@@ -286,7 +294,7 @@ export function subscribeToPartnerProfile(
       const pairId = myProfile.pairId;
 
       if (!pairId) {
-        console.log("⚠️ User is not paired");
+
         callback(null);
         return;
       }
@@ -332,7 +340,7 @@ export function subscribeToPartnerProfile(
                 pairId: data.pairId || undefined,
                 showOnboardingAfterUnpair: data.showOnboardingAfterUnpair, // ADD THIS LINE
               };
-              console.log("📬 Partner profile updated:", partnerProfile);
+
               callback(partnerProfile);
             },
             (error) => {
@@ -355,7 +363,7 @@ export function subscribeToPartnerProfile(
 
   // Return cleanup function that unsubscribes all listeners
   return () => {
-    console.log("🔇 Cleaning up partner profile listener");
+
     profileUnsubscribe();
     if (partnerUnsubscribe) partnerUnsubscribe();
   };
@@ -373,7 +381,7 @@ export async function deleteAccount(): Promise<void> {
     throw new Error("No user authenticated");
   }
 
-  console.log("🚨 Deleting account for:", uid);
+
 
   try {
     // 1. Delete avatar from Cloudinary (if exists)
@@ -385,7 +393,7 @@ export async function deleteAccount(): Promise<void> {
     // 2. Remove from pairing (if paired)
     const profile = await getProfile();
     if (profile?.pairId) {
-      console.log("💔 Removing from pair...");
+
       // We can use the existing unpair logic or just let the partner know
       // For simplicity, we'll just delete our reference.
       // Ideally, trigger an unpair action first.
@@ -415,14 +423,14 @@ export async function deleteAccount(): Promise<void> {
     }
 
     // 3. Delete Firestore User Document
-    console.log("🔥 Deleting Firestore document...");
+
     await deleteDoc(doc(db, "users", uid));
 
     // 4. Delete Auth Account
-    console.log("👋 Deleting Auth account...");
+
     await deleteUser(user);
 
-    console.log("✅ Account deleted successfully");
+
   } catch (error: any) {
     console.error("❌ Error deleting account:", error);
     if (error.code === "auth/requires-recent-login") {

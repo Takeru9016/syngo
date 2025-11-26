@@ -22,8 +22,6 @@ export default function TabsLayout() {
           backgroundColor: theme.bgCard.val,
           borderTopColor: theme.borderColor.val,
           borderTopWidth: 1,
-          // Remove fixed height; use padding + safe area instead
-          // height: 60,
           paddingTop: 8,
           paddingBottom: Math.max(insets.bottom, 8), // respect home indicator
         },
