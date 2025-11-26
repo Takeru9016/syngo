@@ -5,7 +5,7 @@ const EAS_PROJECT_ID = "0f6d9962-45d9-4648-bc14-54362c3f999e";
 
 const config: ExpoConfig = {
   name: "Syngo",
-  slug: "syngo",
+  slug: "notify",
   version: "1.0.0",
   orientation: "portrait",
   scheme: "syngo",
@@ -191,7 +191,6 @@ const config: ExpoConfig = {
     firebaseMessagingSenderId:
       process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
     firebaseAppId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
-    firebaseMeasurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID, // Optional: for Analytics
 
     // Cloudinary
     cloudinaryCloudName: process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME,
