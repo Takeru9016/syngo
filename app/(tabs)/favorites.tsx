@@ -173,6 +173,8 @@ export default function FavoritesScreen() {
                   unstyled
                   onPress={() => setCategoryFilter(chip.value)}
                   pressStyle={{ opacity: 0.85, scale: 0.98 }}
+                  height={44}
+                  justifyContent="center"
                 >
                   <XStack
                     paddingHorizontal="$3"

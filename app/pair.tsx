@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Share, Alert } from "react-native";
 import { router } from "expo-router";
 import * as Clipboard from "expo-clipboard";
@@ -40,11 +40,9 @@ export default function PairScreen() {
 
   // Listen for profile changes (pairing updates)
   useEffect(() => {
-    console.log("👂 Setting up profile listener...");
 
     const unsubscribe = subscribeToProfile((profile) => {
       if (profile?.pairId) {
-        console.log("🎉 Pair detected! pairId:", profile.pairId);
         setPairId(profile.pairId);
       } else {
         setPairId(null);
@@ -52,7 +50,6 @@ export default function PairScreen() {
     });
 
     return () => {
-      console.log("🔇 Cleaning up profile listener");
       unsubscribe();
     };
   }, [setPairId]);
@@ -72,7 +69,6 @@ export default function PairScreen() {
   // Redirect if paired
   useEffect(() => {
     if (isPaired && pairId) {
-      console.log("✅ Paired! Redirecting to home...");
       router.replace("/(tabs)");
     }
   }, [isPaired, pairId]);
@@ -118,9 +114,6 @@ export default function PairScreen() {
     // Clean the input (remove non-alphanumeric)
     const cleanInput = input.replace(/[^A-Z0-9]/gi, "");
 
-    console.log("🔍 Input:", input);
-    console.log("🔍 Clean input:", cleanInput);
-    console.log("🔍 Length:", cleanInput.length);
 
     // Validate input
     if (!cleanInput || cleanInput.length !== 8) {
@@ -130,7 +123,6 @@ export default function PairScreen() {
 
     // Format code (uppercase and clean)
     const formattedCode = unformatCode(input);
-    console.log("🚀 Redeeming code:", formattedCode);
 
     triggerSelectionHaptic();
 
@@ -142,7 +134,7 @@ export default function PairScreen() {
   const displayCode = myCode ? formatCode(unformatCode(myCode)) : "----·----";
 
   return (
-    <ScreenContainer title="Pair with your partner">
+    <ScreenContainer title="Pair with your partner" keyboardOffset={100}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} backgroundColor="$bg">
         <YStack flex={1} padding="$5" paddingTop="$6" gap="$4">
           {/* Subtitle */}
@@ -290,7 +282,7 @@ export default function PairScreen() {
                 backgroundColor="transparent"
                 borderWidth={1}
                 borderColor="$primary"
-                height={36}
+                height={44}
                 paddingHorizontal="$3"
                 onPress={handleGenerate}
                 disabled={isLoading}

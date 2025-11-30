@@ -89,33 +89,37 @@ export const NotificationService = {
       importance: Notifications.AndroidImportance;
       sound?: string;
     }> = [
-      {
-        id: "default",
-        name: "General",
-        importance: Notifications.AndroidImportance.DEFAULT,
-      },
-      {
-        id: "reminders",
-        name: "Reminders",
-        importance: Notifications.AndroidImportance.HIGH,
-        sound: "default",
-      },
-      {
-        id: "stickers",
-        name: "Stickers",
-        importance: Notifications.AndroidImportance.DEFAULT,
-      },
-      {
-        id: "favorites",
-        name: "Favorites",
-        importance: Notifications.AndroidImportance.LOW,
-      },
-      {
-        id: "system",
-        name: "System",
-        importance: Notifications.AndroidImportance.DEFAULT,
-      },
-    ];
+        {
+          id: "default",
+          name: "General",
+          importance: Notifications.AndroidImportance.DEFAULT,
+          sound: "notification.mp3",
+        },
+        {
+          id: "reminders",
+          name: "Reminders",
+          importance: Notifications.AndroidImportance.HIGH,
+          sound: "notification.mp3",
+        },
+        {
+          id: "stickers",
+          name: "Stickers",
+          importance: Notifications.AndroidImportance.DEFAULT,
+          sound: "notification.mp3",
+        },
+        {
+          id: "favorites",
+          name: "Favorites",
+          importance: Notifications.AndroidImportance.LOW,
+          sound: "notification.mp3",
+        },
+        {
+          id: "system",
+          name: "System",
+          importance: Notifications.AndroidImportance.DEFAULT,
+          sound: "notification.mp3",
+        },
+      ];
 
     for (const ch of channels) {
       await Notifications.setNotificationChannelAsync(ch.id, {

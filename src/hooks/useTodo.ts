@@ -32,19 +32,11 @@ export function useTodos() {
   const pairId = useProfileStore((s) => s.profile?.pairId);
   const qc = useQueryClient();
 
-  console.log("🔄 [useTodos] Hook called with pairId:", pairId);
-
   // Set up real-time listener
   useEffect(() => {
     if (!pairId) {
-      console.log("⚠️ [useTodos] No pairId, skipping listener");
       return;
     }
-
-    console.log(
-      "👂 [useTodos] Setting up real-time listener for pairId:",
-      pairId
-    );
 
     const q = query(
       collection(db, "todos"),
@@ -56,12 +48,6 @@ export function useTodos() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        console.log(
-          "🔔 [useTodos] Real-time update received:",
-          snapshot.docs.length,
-          "todos"
-        );
-
         const todos: Todo[] = snapshot.docs.map((d) => {
           const data = d.data() as any;
           return {
@@ -85,7 +71,6 @@ export function useTodos() {
     );
 
     return () => {
-      console.log("🔌 [useTodos] Unsubscribing from real-time listener");
       unsubscribe();
     };
   }, [pairId, qc]);
@@ -93,7 +78,6 @@ export function useTodos() {
   return useQuery({
     queryKey: key(pairId),
     queryFn: () => {
-      console.log("🔄 [useTodos] Query function executing for pairId:", pairId);
       return TodoService.listByPair();
     },
     enabled: !!pairId,
@@ -108,11 +92,9 @@ export function useCreateTodo() {
 
   return useMutation({
     mutationFn: (payload: CreatePayload) => {
-      console.log("➕ [useCreateTodo] Mutation called with:", payload);
       return TodoService.create(payload);
     },
     onSuccess: async (newId) => {
-      console.log("✅ [useCreateTodo] Success, created ID:", newId);
       // Real-time listener will handle the update automatically
     },
     onError: (error) => {
@@ -127,13 +109,6 @@ export function useUpdateTodo() {
 
   return useMutation({
     mutationFn: ({ id, updates }: UpdatePayload) => {
-      console.log(
-        "✏️ [useUpdateTodo] Mutation called for id:",
-        id,
-        "updates:",
-        updates
-      );
-
       // Reject optimistic IDs immediately
       if (id.startsWith("optimistic-")) {
         console.error(
@@ -146,11 +121,9 @@ export function useUpdateTodo() {
       // Strip forbidden fields defensively
       const { createdAt, createdBy, id: _ignore, ...safe } = updates as any;
 
-      console.log("✏️ [useUpdateTodo] Safe updates after stripping:", safe);
       return TodoService.update(id, safe);
     },
     onMutate: async ({ id, updates }) => {
-      console.log("⏳ [useUpdateTodo] onMutate for id:", id, "pairId:", pairId);
       if (!pairId) return;
 
       // Don't optimistically update if it's an optimistic ID
@@ -175,7 +148,6 @@ export function useUpdateTodo() {
       if (ctx?.prev) qc.setQueryData<Todo[]>(key(pairId), ctx.prev);
     },
     onSuccess: (_, vars) => {
-      console.log("✅ [useUpdateTodo] Success for id:", vars.id);
       // Real-time listener will handle the update automatically
     },
   });
@@ -187,7 +159,6 @@ export function useDeleteTodo() {
 
   return useMutation({
     mutationFn: (id: string) => {
-      console.log("🗑️ [useDeleteTodo] Mutation called for id:", id);
 
       // Reject optimistic IDs immediately
       if (id.startsWith("optimistic-")) {
@@ -201,7 +172,6 @@ export function useDeleteTodo() {
       return TodoService.remove(id);
     },
     onMutate: async (id) => {
-      console.log("⏳ [useDeleteTodo] onMutate for id:", id, "pairId:", pairId);
       if (!pairId) return;
 
       // Don't optimistically delete if it's an optimistic ID
@@ -226,7 +196,6 @@ export function useDeleteTodo() {
       if (ctx?.prev) qc.setQueryData<Todo[]>(key(pairId), ctx.prev);
     },
     onSuccess: (_, id) => {
-      console.log("✅ [useDeleteTodo] Success for id:", id);
       // Real-time listener will handle the update automatically
     },
   });

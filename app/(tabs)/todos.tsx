@@ -18,7 +18,7 @@ import {
   useDeleteTodo,
 } from "@/hooks/useTodo";
 import { ScreenContainer, TodoItem, TodoModal } from "@/components";
-import { Todo } from "@/types";
+import { Todo, TodoPriority } from "@/types";
 import {
   triggerLightHaptic,
   triggerMediumHaptic,
@@ -458,7 +458,13 @@ type SegmentChipProps = {
 };
 
 const SegmentChip = ({ label, isActive, onPress, small }: SegmentChipProps) => (
-  <Button unstyled onPress={onPress} pressStyle={{ opacity: 0.8, scale: 0.98 }}>
+  <Button
+    unstyled
+    onPress={onPress}
+    pressStyle={{ opacity: 0.8, scale: 0.98 }}
+    height={44}
+    justifyContent="center"
+  >
     <XStack
       paddingHorizontal={small ? "$2" : "$3"}
       paddingVertical={small ? "$1" : "$2"}

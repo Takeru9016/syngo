@@ -133,8 +133,8 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
           {/* Checkbox */}
           <Button
             unstyled
-            width={26}
-            height={26}
+            width={44}
+            height={44}
             borderRadius={13}
             alignItems="center"
             justifyContent="center"

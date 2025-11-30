@@ -54,7 +54,7 @@ function ThemeOptionButton({ label, value }: ThemeOptionButtonProps) {
   return (
     <Button
       flex={1}
-      height={40}
+      height={44}
       backgroundColor={isActive ? "$primary" : "$bgSoft"}
       borderRadius="$6"
       borderWidth={0}
@@ -97,13 +97,13 @@ function AccentChip({ label, value }: AccentChipProps) {
     mocha: "#C87A4A",
     ocean: "#1F9A88",
     sunset: "#FF8A5C",
-    sky: "#3B82F6"
+    sky: "#3B82F6",
   };
   const dotColor = previewColorMap[value];
 
   return (
     <Button
-      height={34}
+      height={44}
       borderRadius="$8"
       paddingHorizontal="$3"
       backgroundColor={background}
@@ -289,7 +289,7 @@ export default function SettingsScreen() {
   const switchAccentColor = theme.primary?.val || "#ff8a80";
 
   return (
-    <ScreenContainer>
+    <ScreenContainer keyboardOffset={100}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <YStack flex={1} padding="$4" paddingTop="$6" gap="$5">
           {/* Top intro */}
@@ -400,7 +400,7 @@ export default function SettingsScreen() {
               <Button
                 backgroundColor="$primary"
                 borderRadius="$6"
-                height={40}
+                height={44}
                 paddingHorizontal="$5"
                 onPress={handleChangeAvatar}
                 disabled={uploading}
@@ -442,7 +442,7 @@ export default function SettingsScreen() {
                       flex={1}
                       backgroundColor="$primary"
                       borderRadius="$6"
-                      height={40}
+                      height={44}
                       onPress={handleSaveName}
                       pressStyle={{ opacity: 0.9, scale: 0.97 }}
                     >
@@ -457,7 +457,7 @@ export default function SettingsScreen() {
                       borderColor="$borderColor"
                       borderWidth={1}
                       borderRadius="$6"
-                      height={40}
+                      height={44}
                       onPress={() => {
                         setEditingName(false);
                         setTempName(profile?.displayName || "");
@@ -479,7 +479,7 @@ export default function SettingsScreen() {
                   <Button
                     backgroundColor="transparent"
                     paddingHorizontal="$2"
-                    height={32}
+                    height={44}
                     onPress={() => {
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                       setTempName(profile?.displayName || "");
@@ -524,7 +524,7 @@ export default function SettingsScreen() {
                       flex={1}
                       backgroundColor="$primary"
                       borderRadius="$6"
-                      height={40}
+                      height={44}
                       onPress={handleSaveBio}
                       pressStyle={{ opacity: 0.9, scale: 0.97 }}
                     >
@@ -539,7 +539,7 @@ export default function SettingsScreen() {
                       borderColor="$borderColor"
                       borderWidth={1}
                       borderRadius="$6"
-                      height={40}
+                      height={44}
                       onPress={() => {
                         setEditingBio(false);
                         setTempBio(profile?.bio || "");
@@ -565,7 +565,7 @@ export default function SettingsScreen() {
                   <Button
                     backgroundColor="transparent"
                     paddingHorizontal="$2"
-                    height={32}
+                    height={44}
                     onPress={() => {
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                       setTempBio(profile?.bio || "");
@@ -885,9 +885,7 @@ export default function SettingsScreen() {
                 justifyContent="flex-start"
                 paddingHorizontal="$4"
                 onPress={() => {
-                  Linking.openURL(
-                    "https://syngo.vercel.app/privacy"
-                  );
+                  Linking.openURL("https://syngo.vercel.app/privacy");
                 }}
                 pressStyle={{ opacity: 0.7, backgroundColor: "$bg" }}
               >
@@ -905,10 +903,7 @@ export default function SettingsScreen() {
                 justifyContent="flex-start"
                 paddingHorizontal="$4"
                 onPress={() => {
-                  // TODO: Replace with actual URL when hosted
-                  Linking.openURL(
-                    "https://syngo.vercel.app/terms"
-                  );
+                  Linking.openURL("https://syngo.vercel.app/terms");
                 }}
                 pressStyle={{ opacity: 0.7, backgroundColor: "$bg" }}
               >
@@ -989,7 +984,9 @@ function ToggleRow({
       </XStack>
       <Switch
         value={value}
-        onValueChange={onToggle}
+        onValueChange={(val) => {
+          onToggle(val);
+        }}
         trackColor={{
           false: "#99999940",
           true: trackColorActive,

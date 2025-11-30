@@ -32,7 +32,7 @@
         "simulator": false
       },
       "android": {
-        "buildType": "app-bundle"
+        "buildTypes": ["apk", "app-bundle"]
       }
     }
   },

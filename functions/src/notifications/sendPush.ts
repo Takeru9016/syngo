@@ -41,8 +41,8 @@ export async function sendPushToUser(
     const tokens: string[] = [];
     devicesSnapshot.forEach((doc) => {
       const data = doc.data();
-      if (data.token) {
-        tokens.push(data.token);
+      if (data.pushToken) {
+        tokens.push(data.pushToken);
       }
     });
 
@@ -51,8 +51,29 @@ export async function sendPushToUser(
       return;
     }
 
+    // Determine Android channel based on notification type (preference key)
+    let channelId = "default";
+    if (notificationType === "stickerNotifications") channelId = "stickers";
+    else if (notificationType === "todoReminders") channelId = "reminders";
+    else if (notificationType === "favoriteUpdates") channelId = "favorites";
+
     // Send FCM message
     const message: admin.messaging.MulticastMessage = {
+      // Android config
+      android: {
+        notification: {
+          sound: "notification.mp3",
+          channelId,
+        },
+      },
+      // iOS config
+      apns: {
+        payload: {
+          aps: {
+            sound: "notification.mp3",
+          },
+        },
+      },
       notification: {
         title: payload.title,
         body: payload.body,

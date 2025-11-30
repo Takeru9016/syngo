@@ -225,7 +225,6 @@ function RootLayout() {
     (async () => {
       try {
         await NotificationService.init();
-        console.log("🔔 Notifications initialized");
       } catch (e) {
         console.warn("⚠️ Notification init failed:", e);
       }
@@ -234,7 +233,6 @@ function RootLayout() {
     (async () => {
       try {
         const token = await registerDevicePushToken();
-        if (token) console.log("🔑 Push token:", token);
       } catch (e) {
         console.warn("⚠️ Push token registration failed:", e);
       }

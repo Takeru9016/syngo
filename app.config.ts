@@ -6,7 +6,7 @@ const EAS_PROJECT_ID = "0f6d9962-45d9-4648-bc14-54362c3f999e";
 const config: ExpoConfig = {
   name: "Syngo",
   slug: "notify",
-  version: "1.0.0",
+  version: "1.0.1",
   orientation: "portrait",
   scheme: "syngo",
   userInterfaceStyle: "automatic",

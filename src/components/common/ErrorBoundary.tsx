@@ -55,7 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <Text fontSize="$4" color="$muted" textAlign="center">
             {this.state.error?.message || "An unexpected error occurred"}
           </Text>
-          <Button onPress={this.handleReset} backgroundColor="$primary">
+          <Button onPress={this.handleReset} backgroundColor="$primary" size="$4">
             <Text color="white" fontWeight="600">
               Try Again
             </Text>

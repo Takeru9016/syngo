@@ -33,19 +33,11 @@ export function useFavorites() {
   const pairId = useProfileStore((s) => s.profile?.pairId);
   const qc = useQueryClient();
 
-  console.log("🔄 [useFavorites] Hook called with pairId:", pairId);
-
   // Set up real-time listener
   useEffect(() => {
     if (!pairId) {
-      console.log("⚠️ [useFavorites] No pairId, skipping listener");
       return;
     }
-
-    console.log(
-      "👂 [useFavorites] Setting up real-time listener for pairId:",
-      pairId
-    );
 
     const q = query(
       collection(db, "favorites"),
@@ -57,12 +49,6 @@ export function useFavorites() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        console.log(
-          "🔔 [useFavorites] Real-time update received:",
-          snapshot.docs.length,
-          "favorites"
-        );
-
         const favorites: Favorite[] = snapshot.docs.map((d) => {
           const data = d.data() as any;
           return {
@@ -86,7 +72,6 @@ export function useFavorites() {
     );
 
     return () => {
-      console.log("🔌 [useFavorites] Unsubscribing from real-time listener");
       unsubscribe();
     };
   }, [pairId, qc]);
@@ -94,10 +79,6 @@ export function useFavorites() {
   return useQuery({
     queryKey: key(pairId),
     queryFn: () => {
-      console.log(
-        "🔄 [useFavorites] Query function executing for pairId:",
-        pairId
-      );
       return FavoriteService.listByPair();
     },
     enabled: !!pairId,
@@ -109,12 +90,9 @@ export function useFavorites() {
 export function useCreateFavorite() {
   return useMutation({
     mutationFn: (payload: CreatePayload) => {
-      console.log("➕ [useCreateFavorite] Mutation called with:", payload);
       return FavoriteService.create(payload);
     },
-    onSuccess: async (newId) => {
-      console.log("✅ [useCreateFavorite] Success, created ID:", newId);
-    },
+    onSuccess: async (newId) => {},
     onError: (error) => {
       console.error("❌ [useCreateFavorite] Error:", error);
     },
@@ -124,38 +102,25 @@ export function useCreateFavorite() {
 export function useUpdateFavorite() {
   return useMutation({
     mutationFn: ({ id, updates }: UpdatePayload) => {
-      console.log(
-        "✏️ [useUpdateFavorite] Mutation called for id:",
-        id,
-        "updates:",
-        updates
-      );
-
       const { createdAt, createdBy, id: _ignore, ...safe } = updates as any;
 
-      console.log("✏️ [useUpdateFavorite] Safe updates after stripping:", safe);
       return FavoriteService.update(id, safe);
     },
     onError: (error) => {
       console.error("❌ [useUpdateFavorite] Error:", error);
     },
-    onSuccess: (_, vars) => {
-      console.log("✅ [useUpdateFavorite] Success for id:", vars.id);
-    },
+    onSuccess: (_, vars) => {},
   });
 }
 
 export function useDeleteFavorite() {
   return useMutation({
     mutationFn: (id: string) => {
-      console.log("🗑️ [useDeleteFavorite] Mutation called for id:", id);
       return FavoriteService.remove(id);
     },
     onError: (error) => {
       console.error("❌ [useDeleteFavorite] Error:", error);
     },
-    onSuccess: (_, id) => {
-      console.log("✅ [useDeleteFavorite] Success for id:", id);
-    },
+    onSuccess: (_, id) => {},
   });
 }

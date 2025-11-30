@@ -156,7 +156,7 @@ export default function NotificationsScreen() {
                 backgroundColor="$bgSoft"
                 borderRadius="$7"
                 paddingHorizontal="$3"
-                height={40}
+                height={44}
                 onPress={handleMarkAllAsRead}
                 pressStyle={{ opacity: 0.9, scale: 0.97 }}
               >
@@ -174,7 +174,7 @@ export default function NotificationsScreen() {
               backgroundColor="$bgSoft"
               borderRadius="$7"
               paddingHorizontal="$3"
-              height={40}
+              height={44}
               onPress={handleClearAll}
               pressStyle={{ opacity: 0.9, scale: 0.97 }}
             >
@@ -306,7 +306,7 @@ function FilterChip({ label, active, onPress }: FilterChipProps) {
       size="$2"
       borderRadius="$8"
       paddingHorizontal="$3"
-      height="$7"
+      height={44}
       backgroundColor={active ? "$primarySoft" : "$bgSoft"}
       onPress={onPress}
       pressStyle={{ opacity: 0.9, scale: 0.97 }}

@@ -23,28 +23,14 @@ export function useAppNotifications() {
 
   const isPaired = !!profile?.pairId; // ADD THIS LINE
 
-  console.log(
-    "🔄 [useAppNotifications] Hook called with uid:",
-    uid,
-    "isPaired:",
-    isPaired
-  );
-
   // Set up real-time listener ONLY when paired
   useEffect(() => {
     if (!uid || !isPaired) {
-      console.log(
-        "⚠️ [useAppNotifications] Not subscribed: no uid or not paired"
-      );
+
       // Clear notifications when unpaired
       qc.setQueryData<AppNotification[]>(key(uid), []);
       return;
     }
-
-    console.log(
-      "👂 [useAppNotifications] Setting up real-time listener for uid:",
-      uid
-    );
 
     const q = query(
       collection(db, "notifications"),
@@ -56,12 +42,6 @@ export function useAppNotifications() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        console.log(
-          "🔔 [useAppNotifications] Real-time update received:",
-          snapshot.docs.length,
-          "notifications"
-        );
-
         const notifications: AppNotification[] = snapshot.docs.map((d) => {
           const data = d.data() as any;
           return {
@@ -87,9 +67,6 @@ export function useAppNotifications() {
     );
 
     return () => {
-      console.log(
-        "🔌 [useAppNotifications] Unsubscribing from real-time listener"
-      );
       unsubscribe();
     };
   }, [uid, isPaired, qc]); // ADD isPaired TO DEPS
@@ -97,10 +74,6 @@ export function useAppNotifications() {
   return useQuery({
     queryKey: key(uid),
     queryFn: () => {
-      console.log(
-        "🔄 [useAppNotifications] Query function executing for uid:",
-        uid
-      );
       return AppNotificationService.listForCurrentUser();
     },
     enabled: !!uid && isPaired, // ADD isPaired CHECK
@@ -112,14 +85,12 @@ export function useAppNotifications() {
 export function useMarkAsRead() {
   return useMutation({
     mutationFn: (id: string) => {
-      console.log("✏️ [useMarkAsRead] Mutation called for id:", id);
       return AppNotificationService.markAsRead(id);
     },
     onError: (error) => {
       console.error("❌ [useMarkAsRead] Error:", error);
     },
     onSuccess: (_, id) => {
-      console.log("✅ [useMarkAsRead] Success for id:", id);
     },
   });
 }
@@ -127,14 +98,12 @@ export function useMarkAsRead() {
 export function useMarkAllAsRead() {
   return useMutation({
     mutationFn: () => {
-      console.log("✏️ [useMarkAllAsRead] Mutation called");
       return AppNotificationService.markAllAsRead();
     },
     onError: (error) => {
       console.error("❌ [useMarkAllAsRead] Error:", error);
     },
     onSuccess: () => {
-      console.log("✅ [useMarkAllAsRead] Success");
     },
   });
 }
@@ -142,14 +111,12 @@ export function useMarkAllAsRead() {
 export function useDeleteNotification() {
   return useMutation({
     mutationFn: (id: string) => {
-      console.log("🗑️ [useDeleteNotification] Mutation called for id:", id);
       return AppNotificationService.remove(id);
     },
     onError: (error) => {
       console.error("❌ [useDeleteNotification] Error:", error);
     },
     onSuccess: (_, id) => {
-      console.log("✅ [useDeleteNotification] Success for id:", id);
     },
   });
 }
@@ -157,14 +124,12 @@ export function useDeleteNotification() {
 export function useClearAllNotifications() {
   return useMutation({
     mutationFn: () => {
-      console.log("🗑️ [useClearAllNotifications] Mutation called");
       return AppNotificationService.clearAll();
     },
     onError: (error) => {
       console.error("❌ [useClearAllNotifications] Error:", error);
     },
     onSuccess: () => {
-      console.log("✅ [useClearAllNotifications] Success");
     },
   });
 }

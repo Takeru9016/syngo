@@ -15,5 +15,6 @@ export * from "./pairing/generateCode";
 export * from "./notifications/onTodoCreated";
 export * from "./notifications/onStickerSent";
 export * from "./notifications/onFavoriteAdded";
+export * from "./notifications/onNotificationCreated";
 export * from "./scheduled/cleanup";
 export * from "./scheduled/todoDueReminders";

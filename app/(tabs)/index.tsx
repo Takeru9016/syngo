@@ -550,10 +550,11 @@ export default function HomeScreen() {
               </XStack>
             </Button>
 
-            <XStack marginTop="$1" gap="$6" alignSelf="center">
+            <XStack marginTop="$1" gap="$4" alignSelf="center">
               <XStack
                 alignItems="center"
                 gap="$1"
+                padding="$2"
                 onPress={() => {
                   triggerSelectionHaptic();
                   router.push("/(tabs)/stickers");
@@ -568,6 +569,7 @@ export default function HomeScreen() {
               <XStack
                 alignItems="center"
                 gap="$1"
+                padding="$2"
                 onPress={() => {
                   triggerSelectionHaptic();
                   router.push("/(tabs)/favorites");

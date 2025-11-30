@@ -22,6 +22,10 @@ interface ScreenContainerProps {
    * Override horizontal padding for the content section (default is $4).
    */
   contentPaddingHorizontal?: number;
+  /**
+   * Extra height to add to the keyboard offset (default 60).
+   */
+  keyboardOffset?: number;
 }
 
 export function ScreenContainer({
@@ -31,6 +35,7 @@ export function ScreenContainer({
   scroll = true,
   keyboardAware = true,
   contentPaddingHorizontal,
+  keyboardOffset = 60,
 }: ScreenContainerProps) {
   const insets = useSafeAreaInsets();
 
@@ -92,8 +97,8 @@ export function ScreenContainer({
         ]}
         keyboardShouldPersistTaps="handled"
         enableOnAndroid={keyboardAware}
-        extraScrollHeight={keyboardAware ? 60 : 0}
-        extraHeight={keyboardAware ? 80 : 0}
+        extraScrollHeight={keyboardAware ? keyboardOffset : 0}
+        extraHeight={keyboardAware ? keyboardOffset + 20 : 0}
       >
         {children}
       </ScrollComponent>
