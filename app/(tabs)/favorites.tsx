@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { RefreshControl, FlatList } from "react-native";
+import { RefreshControl, FlatList, useWindowDimensions } from "react-native";
 import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
 import { Star, BookmarkPlus, HeartHandshake } from "@tamagui/lucide-icons";
 
@@ -106,12 +106,15 @@ export default function FavoritesScreen() {
     { label: "Other", value: "other" },
   ];
 
+  const { width } = useWindowDimensions();
+  const numColumns = width > 600 ? 3 : 2;
+
   return (
     <ScreenContainer scroll={false}>
       {/* Header */}
       <YStack padding="$5" paddingTop="$6" gap="$4">
         <YStack gap="$2">
-          <XStack alignItems="center" justifyContent="center" gap="$2">
+          <XStack alignItems="center" justifyContent="space-between">
             <YStack gap="$1">
               <Text
                 fontFamily="$heading"
@@ -319,9 +322,10 @@ export default function FavoritesScreen() {
         </Stack>
       ) : (
         <FlatList
+          key={numColumns}
           data={filteredFavorites}
           keyExtractor={(item) => item.id}
-          numColumns={2}
+          numColumns={numColumns}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24 }}
           columnWrapperStyle={{ gap: 12 }}
           ItemSeparatorComponent={() => <Stack height={12} />}

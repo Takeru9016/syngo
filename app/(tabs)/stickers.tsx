@@ -1,5 +1,11 @@
 import { useState, useMemo } from "react";
-import { RefreshControl, FlatList, Alert, ListRenderItem } from "react-native";
+import {
+  RefreshControl,
+  FlatList,
+  Alert,
+  ListRenderItem,
+  useWindowDimensions,
+} from "react-native";
 import * as Haptics from "expo-haptics";
 import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
 import { ImagePlus, Sparkles } from "@tamagui/lucide-icons";
@@ -81,6 +87,9 @@ export default function StickersScreen() {
       />
     </Stack>
   );
+
+  const { width } = useWindowDimensions();
+  const numColumns = width > 600 ? 4 : 2;
 
   return (
     <ScreenContainer scroll={false}>
@@ -230,11 +239,12 @@ export default function StickersScreen() {
           </Button>
         </Stack>
       ) : (
-        /* 2-column gallery grid */
+        /* Gallery grid */
         <FlatList
+          key={numColumns}
           data={sortedStickers}
           keyExtractor={(item) => item.id}
-          numColumns={2}
+          numColumns={numColumns}
           contentContainerStyle={{
             paddingBottom: 24,
           }}

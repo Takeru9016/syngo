@@ -40,95 +40,109 @@ export default function OnboardingScreen() {
     <Theme name={activeTheme}>
       <YStack
         flex={1}
-        padding="$5"
-        paddingTop="$10"
         backgroundColor="$bg"
-        justifyContent="space-between"
+        alignItems="center"
+        justifyContent="center"
       >
-        {/* Top brand */}
-        <YStack gap="$2">
-          <Text
-            fontFamily="$heading"
-            fontSize={36}
-            lineHeight={44}
-            color="$color"
-          >
-            Syngo
-          </Text>
-          <Paragraph fontFamily="$body" size="$3" color="$colorMuted">
-            A cozy little space for just the two of you.
-          </Paragraph>
-        </YStack>
-
-        {/* Hero 3D illustration */}
-        <YStack alignItems="center" paddingVertical="$4" gap="$1">
-          <Image
-            source={require("../assets/illustrations/onboarding-3d-hero.png")}
-            style={{
-              width: 350, // adjust it
-              height: 350, // keep aspect ratio roughly square
-            }}
-            objectFit="contain"
-          />
-
-          <Paragraph
-            fontFamily="$body"
-            size="$2"
-            color="$colorMuted"
-            textAlign="center"
-            maxWidth={320}
-            bottom="$10"
-          >
-            Tiny reminders, shared todos, and pinned moments that keep you
-            gently in sync—without the noise of other apps.
-          </Paragraph>
-        </YStack>
-
-        {/* Bottom copy + CTA */}
-        <YStack gap="$4" marginBottom="$4">
+        <YStack
+          flex={1}
+          width="100%"
+          padding="$5"
+          paddingTop="$10"
+          justifyContent="space-between"
+        >
+          {/* Top brand */}
           <YStack gap="$2">
             <Text
               fontFamily="$heading"
-              fontSize={24}
-              lineHeight={30}
+              fontSize={36}
+              lineHeight={44}
               color="$color"
-              textAlign="center"
             >
-              Stay close, even on busy days.
+              Syngo
             </Text>
-
-            <Paragraph
-              fontFamily="$body"
-              size="$3"
-              color="$colorMuted"
-              textAlign="center"
-            >
-              Set little nudges, track shared tasks, and save moments that
-              matter—to both of you.
+            <Paragraph fontFamily="$body" size="$3" color="$colorMuted">
+              A cozy little space for just the two of you.
             </Paragraph>
           </YStack>
 
-          <Button
-            backgroundColor="$primary"
-            color="white"
-            borderRadius="$5"
-            size="$5"
-            onPress={handleGetStarted}
-            fontFamily="$body"
-            fontWeight="600"
-            height={75}
+          {/* Hero 3D illustration */}
+          <YStack
+            alignItems="center"
+            paddingVertical="$4"
+            gap="$1"
+            flex={1}
+            justifyContent="center"
           >
-            Get started together
-          </Button>
+            <Image
+              source={require("../assets/illustrations/onboarding-3d-hero.png")}
+              style={{
+                width: "100%",
+                maxWidth: 500,
+                aspectRatio: 1,
+              }}
+              objectFit="contain"
+            />
 
-          <Paragraph
-            size="$2"
-            color="$colorMuted"
-            textAlign="center"
-            marginTop="$1"
-          >
-            You&apos;ll only see this when you&apos;re not paired.
-          </Paragraph>
+            <Paragraph
+              fontFamily="$body"
+              size="$2"
+              color="$colorMuted"
+              textAlign="center"
+              maxWidth={500}
+              bottom="$10"
+            >
+              Tiny reminders, shared todos, and pinned moments that keep you
+              gently in sync — without the noise of other apps.
+            </Paragraph>
+          </YStack>
+
+          {/* Bottom copy + CTA */}
+          <YStack gap="$4" marginBottom="$4">
+            <YStack gap="$2">
+              <Text
+                fontFamily="$heading"
+                fontSize={24}
+                lineHeight={30}
+                color="$color"
+                textAlign="center"
+              >
+                Stay close, even on busy days.
+              </Text>
+
+              <Paragraph
+                fontFamily="$body"
+                size="$3"
+                color="$colorMuted"
+                textAlign="center"
+              >
+                Set little nudges, track shared tasks, and save moments that
+                matter — to both of you.
+              </Paragraph>
+            </YStack>
+
+            <Button
+              backgroundColor="$primary"
+              color="white"
+              borderRadius="$5"
+              size="$5"
+              onPress={handleGetStarted}
+              fontFamily="$body"
+              fontWeight="600"
+              height={60}
+            >
+              Get started together
+            </Button>
+
+            <Paragraph
+              size="$2"
+              color="$colorMuted"
+              textAlign="center"
+              marginTop="$1"
+            >
+              You&apos;ll only see this when you&apos;re not paired.
+            </Paragraph>
+          </YStack>
         </YStack>
       </YStack>
     </Theme>

@@ -197,7 +197,7 @@ const config: ExpoConfig = {
     cloudinaryUploadPreset: process.env.EXPO_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
 
     // App metadata (accessible via Constants.expoConfig.extra)
-    appVersion: "1.0.0",
+    appVersion: "1.0.1",
     appBuildNumber: "1",
     supportEmail: "timetocode22@gmail.com",
     privacyPolicyUrl: "https://syngo.vercel.app/privacy",

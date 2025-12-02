@@ -73,8 +73,15 @@ export function ScreenContainer({
     return (
       <YStack flex={1} backgroundColor="$bg">
         {Header}
-        <YStack flex={1} paddingHorizontal={contentPaddingX} paddingBottom="$6">
-          {children}
+        <YStack flex={1} width="100%">
+          <YStack
+            flex={1}
+            width="100%"
+            paddingHorizontal={contentPaddingX}
+            paddingBottom="$6"
+          >
+            {children}
+          </YStack>
         </YStack>
       </YStack>
     );
@@ -89,19 +96,23 @@ export function ScreenContainer({
     <YStack flex={1} backgroundColor="$bg">
       {Header}
 
-      <ScrollComponent
-        style={styles.flex}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingHorizontal: contentPaddingX, paddingBottom: 24 },
-        ]}
-        keyboardShouldPersistTaps="handled"
-        enableOnAndroid={keyboardAware}
-        extraScrollHeight={keyboardAware ? keyboardOffset : 0}
-        extraHeight={keyboardAware ? keyboardOffset + 20 : 0}
-      >
-        {children}
-      </ScrollComponent>
+      <YStack flex={1} width="100%">
+        <YStack flex={1} width="100%">
+          <ScrollComponent
+            style={styles.flex}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingHorizontal: contentPaddingX, paddingBottom: 24 },
+            ]}
+            keyboardShouldPersistTaps="handled"
+            enableOnAndroid={keyboardAware}
+            extraScrollHeight={keyboardAware ? keyboardOffset : 0}
+            extraHeight={keyboardAware ? keyboardOffset + 20 : 0}
+          >
+            {children}
+          </ScrollComponent>
+        </YStack>
+      </YStack>
     </YStack>
   );
 }

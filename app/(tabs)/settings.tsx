@@ -289,7 +289,7 @@ export default function SettingsScreen() {
   const switchAccentColor = theme.primary?.val || "#ff8a80";
 
   return (
-    <ScreenContainer keyboardOffset={100}>
+    <ScreenContainer keyboardOffset={100} scroll={false}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <YStack flex={1} padding="$4" paddingTop="$6" gap="$5">
           {/* Top intro */}

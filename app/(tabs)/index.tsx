@@ -123,14 +123,26 @@ export default function HomeScreen() {
   // const connectionStreakDays = Math.max(1, Math.min(7, unreadCount ? 2 : 3));
 
   return (
-    <ScreenContainer title="Home">
+    <ScreenContainer scroll={false}>
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        <YStack flex={1} padding="$5" paddingTop="$6" gap="$5">
+        <YStack flex={1} padding="$5" paddingTop="$2" gap="$5">
+          {/* Header */}
+          <YStack marginTop="$4" marginBottom="$2">
+            <Text
+              fontFamily="$heading"
+              color="$color"
+              fontSize={30}
+              fontWeight="800"
+            >
+              Home
+            </Text>
+          </YStack>
+
           {/* Hero Couple Card  */}
           <Stack
             borderRadius="$8"
@@ -473,8 +485,8 @@ export default function HomeScreen() {
                       fontSize={14}
                       textAlign="center"
                     >
-                      You&apos;ll see reminders, stickers, and favorites from your
-                      partner here.
+                      You&apos;ll see reminders, stickers, and favorites from
+                      your partner here.
                     </Text>
                   </YStack>
                 </Stack>

@@ -196,7 +196,7 @@ export default function TodosScreen() {
   };
 
   return (
-    <ScreenContainer>
+    <ScreenContainer scroll={false}>
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={

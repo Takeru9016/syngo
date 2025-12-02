@@ -40,7 +40,6 @@ export default function PairScreen() {
 
   // Listen for profile changes (pairing updates)
   useEffect(() => {
-
     const unsubscribe = subscribeToProfile((profile) => {
       if (profile?.pairId) {
         setPairId(profile.pairId);
@@ -114,7 +113,6 @@ export default function PairScreen() {
     // Clean the input (remove non-alphanumeric)
     const cleanInput = input.replace(/[^A-Z0-9]/gi, "");
 
-
     // Validate input
     if (!cleanInput || cleanInput.length !== 8) {
       Alert.alert("Invalid Code", "Please enter a valid 8-character code.");
@@ -134,9 +132,21 @@ export default function PairScreen() {
   const displayCode = myCode ? formatCode(unformatCode(myCode)) : "----·----";
 
   return (
-    <ScreenContainer title="Pair with your partner" keyboardOffset={100}>
+    <ScreenContainer keyboardOffset={100} scroll={false}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} backgroundColor="$bg">
-        <YStack flex={1} padding="$5" paddingTop="$6" gap="$4">
+        <YStack flex={1} padding="$5" paddingTop="$2" gap="$4">
+          {/* Header */}
+          <YStack marginTop="$4" marginBottom="$2">
+            <Text
+              fontFamily="$heading"
+              color="$color"
+              fontSize={30}
+              fontWeight="800"
+              lineHeight={36}
+            >
+              Pair with your partner
+            </Text>
+          </YStack>
           {/* Subtitle */}
           <Text
             fontFamily="$body"
@@ -352,13 +362,15 @@ export default function PairScreen() {
               Enter your partner&apos;s code
             </Text>
 
-            <CodeInput
-              length={8}
-              group={4}
-              value={input}
-              onChange={handleInputChange}
-              error={error}
-            />
+            <YStack alignItems="center">
+              <CodeInput
+                length={8}
+                group={4}
+                value={input}
+                onChange={handleInputChange}
+                error={error}
+              />
+            </YStack>
 
             {error ? (
               <Stack
