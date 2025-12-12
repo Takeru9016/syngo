@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { RefreshControl, Alert, FlatList, ListRenderItem } from "react-native";
-import * as Haptics from "expo-haptics";
 import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
 import {
   Bell,
@@ -25,6 +24,12 @@ import {
 } from "@/hooks/useAppNotification";
 import { AppNotification, AppNotificationType } from "@/types";
 import { ScreenContainer } from "@/components";
+import {
+  triggerLightHaptic,
+  triggerMediumHaptic,
+  triggerSuccessHaptic,
+  triggerWarningHaptic,
+} from "@/state/haptics";
 
 type FilterKey = "all" | "unread";
 
@@ -44,13 +49,13 @@ export default function NotificationsScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    triggerLightHaptic();
     await refetch();
     setRefreshing(false);
   };
 
   const handlePress = async (notif: AppNotification) => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    triggerLightHaptic();
     if (!notif.read) {
       markAsRead.mutate(notif.id);
     }
@@ -79,12 +84,12 @@ export default function NotificationsScreen() {
   };
 
   const handleDelete = async (id: string) => {
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    triggerWarningHaptic();
     deleteNotification.mutate(id);
   };
 
   const handleMarkAllAsRead = async () => {
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    triggerSuccessHaptic();
     markAllAsRead.mutate();
   };
 
@@ -98,9 +103,7 @@ export default function NotificationsScreen() {
           text: "Clear all",
           style: "destructive",
           onPress: async () => {
-            await Haptics.notificationAsync(
-              Haptics.NotificationFeedbackType.Warning
-            );
+            triggerWarningHaptic();
             clearAll.mutate();
           },
         },
@@ -310,6 +313,7 @@ function FilterChip({ label, active, onPress }: FilterChipProps) {
       backgroundColor={active ? "$primarySoft" : "$bgSoft"}
       onPress={onPress}
       pressStyle={{ opacity: 0.9, scale: 0.97 }}
+      overflow="hidden"
     >
       <Text
         fontSize={12}
@@ -332,7 +336,7 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
   const { icon, iconBg, iconColor } = getNotificationVisual(notif.type);
 
   const handleLongPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    triggerMediumHaptic();
     Alert.alert(
       "Notification options",
       undefined,

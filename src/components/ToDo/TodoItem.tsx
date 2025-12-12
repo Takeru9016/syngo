@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Animated } from "react-native";
 import { XStack, YStack, Text, Stack, Button } from "tamagui";
 import { Swipeable } from "react-native-gesture-handler";
 import {
@@ -13,16 +13,29 @@ import {
 
 import { Todo } from "@/types";
 import { triggerSelectionHaptic } from "@/state/haptics";
+import { useSlideIn, useBounce, getStaggerDelay } from "@/utils/animations";
 
 type Props = {
   todo: Todo;
   onToggle: (id: string) => void;
   onEdit: (todo: Todo) => void;
   onDelete: (id: string) => void;
+  index?: number;
 };
 
-export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
+export function TodoItem({
+  todo,
+  onToggle,
+  onEdit,
+  onDelete,
+  index = 0,
+}: Props) {
   const [swiping, setSwiping] = useState(false);
+  const { opacity, transform } = useSlideIn(
+    "left",
+    getStaggerDelay(index, 50, 250)
+  );
+  const { bounce, transform: bounceTransform } = useBounce();
 
   const formatDate = (ts: number) => {
     if (!ts) return "No date";
@@ -115,107 +128,119 @@ export function TodoItem({ todo, onToggle, onEdit, onDelete }: Props) {
   );
 
   return (
-    <Swipeable
-      renderRightActions={renderRightActions}
-      onSwipeableWillOpen={() => setSwiping(true)}
-      onSwipeableClose={() => setSwiping(false)}
-    >
-      <Stack
-        backgroundColor="$bgCard"
-        borderRadius="$8"
-        padding="$4"
-        marginBottom="$2"
-        borderWidth={1}
-        borderColor="$borderColor"
-        opacity={todo.isCompleted ? 0.55 : 1}
+    <Animated.View style={{ opacity, transform }}>
+      <Swipeable
+        renderRightActions={renderRightActions}
+        onSwipeableWillOpen={() => setSwiping(true)}
+        onSwipeableClose={() => setSwiping(false)}
       >
-        <XStack gap="$3" alignItems="flex-start">
-          {/* Checkbox */}
-          <Button
-            unstyled
-            width={44}
-            height={44}
-            borderRadius={13}
-            alignItems="center"
-            justifyContent="center"
-            onPress={() => {
-              triggerSelectionHaptic();
-              onToggle(todo.id);
-            }}
-            marginTop={2}
-          >
-            {todo.isCompleted ? (
-              <CheckCircle2 size={22} color="$primary" />
-            ) : (
-              <Circle size={22} color="$borderColor" />
-            )}
-          </Button>
+        <Stack
+          backgroundColor="$bgCard"
+          borderRadius="$8"
+          padding="$4"
+          marginBottom="$2"
+          borderWidth={1}
+          borderColor="$borderColor"
+          opacity={todo.isCompleted ? 0.55 : 1}
+        >
+          <XStack gap="$3" alignItems="flex-start">
+            {/* Checkbox with bounce animation */}
+            <Animated.View style={{ transform: bounceTransform }}>
+              <Button
+                unstyled
+                width={44}
+                height={44}
+                borderRadius={13}
+                alignItems="center"
+                justifyContent="center"
+                onPress={() => {
+                  bounce();
+                  triggerSelectionHaptic();
+                  onToggle(todo.id);
+                }}
+                marginTop={2}
+              >
+                {todo.isCompleted ? (
+                  <CheckCircle2 size={22} color="$primary" />
+                ) : (
+                  <Circle size={22} color="$borderColor" />
+                )}
+              </Button>
+            </Animated.View>
 
-          {/* Content */}
-          <YStack flex={1} gap="$1">
-            <Text
-              fontFamily="$body"
-              color="$color"
-              fontSize={16}
-              fontWeight="700"
-              textDecorationLine={todo.isCompleted ? "line-through" : "none"}
-            >
-              {todo.title}
-            </Text>
-
-            {todo.description ? (
+            {/* Content */}
+            <YStack flex={1} gap="$1">
               <Text
                 fontFamily="$body"
-                color="$colorMuted"
-                fontSize={14}
-                numberOfLines={2}
+                color="$color"
+                fontSize={16}
+                fontWeight="700"
                 textDecorationLine={todo.isCompleted ? "line-through" : "none"}
               >
-                {todo.description}
+                {todo.title}
               </Text>
-            ) : null}
 
-            <XStack gap="$2" alignItems="center" marginTop="$2" flexWrap="wrap">
-              <XStack alignItems="center" gap="$2">
-                <CalendarClock size={14} color="$colorMuted" />
-                <Text fontFamily="$body" color="$colorMuted" fontSize={12}>
-                  {formatDate(todo.dueDate)}
-                </Text>
-              </XStack>
-
-              {isOverdue && (
-                <XStack
-                  paddingHorizontal="$2"
-                  paddingVertical="$1"
-                  borderRadius="$5"
-                  backgroundColor="$primarySoft"
-                  alignItems="center"
-                  gap="$1"
+              {todo.description ? (
+                <Text
+                  fontFamily="$body"
+                  color="$colorMuted"
+                  fontSize={14}
+                  numberOfLines={2}
+                  textDecorationLine={
+                    todo.isCompleted ? "line-through" : "none"
+                  }
                 >
-                  <Text
-                    fontFamily="$body"
-                    color="$primary"
-                    fontSize={11}
-                    fontWeight="700"
-                  >
-                    Overdue
+                  {todo.description}
+                </Text>
+              ) : null}
+
+              <XStack
+                gap="$2"
+                alignItems="center"
+                marginTop="$2"
+                flexWrap="wrap"
+              >
+                <XStack alignItems="center" gap="$2">
+                  <CalendarClock size={14} color="$colorMuted" />
+                  <Text fontFamily="$body" color="$colorMuted" fontSize={12}>
+                    {formatDate(todo.dueDate)}
                   </Text>
                 </XStack>
-              )}
 
-              <XStack alignItems="center" gap="$2">
-                <Flag size={13} color="$colorMuted" />
-                <Stack
-                  width={10}
-                  height={10}
-                  borderRadius={5}
-                  backgroundColor={getPriorityColor()}
-                />
+                {isOverdue && (
+                  <XStack
+                    paddingHorizontal="$2"
+                    paddingVertical="$1"
+                    borderRadius="$5"
+                    backgroundColor="$primarySoft"
+                    alignItems="center"
+                    gap="$1"
+                  >
+                    <Text
+                      fontFamily="$body"
+                      color="$primary"
+                      fontSize={11}
+                      fontWeight="700"
+                    >
+                      Overdue
+                    </Text>
+                  </XStack>
+                )}
+
+                <XStack alignItems="center" gap="$2">
+                  <Flag size={13} color="$colorMuted" />
+                  <Stack
+                    width={10}
+                    height={10}
+                    borderRadius={5}
+                    backgroundColor={getPriorityColor()}
+                  />
+                </XStack>
               </XStack>
-            </XStack>
-          </YStack>
-        </XStack>
-      </Stack>
-    </Swipeable>
+            </YStack>
+          </XStack>
+        </Stack>
+      </Swipeable>
+    </Animated.View>
   );
 }

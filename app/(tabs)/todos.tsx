@@ -386,13 +386,14 @@ export default function TodosScreen() {
             </Stack>
           ) : (
             <YStack gap="$3" marginTop="$2">
-              {filteredTodos.map((todo) => (
+              {filteredTodos.map((todo, index) => (
                 <TodoItem
                   key={todo.id}
                   todo={todo}
                   onToggle={handleToggle}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  index={index}
                 />
               ))}
 
@@ -472,6 +473,7 @@ const SegmentChip = ({ label, isActive, onPress, small }: SegmentChipProps) => (
       backgroundColor={isActive ? "$primarySoft" : "transparent"}
       alignItems="center"
       justifyContent="center"
+      overflow="hidden"
     >
       <Text
         fontFamily="$body"

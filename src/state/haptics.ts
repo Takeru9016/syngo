@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { useNotificationPreferences } from "@/store/notificationPreference";
 
 // Centralized toggle in case you ever want to disable in builds / tests
 const HAPTICS_ENABLED = true;
@@ -6,6 +7,11 @@ const HAPTICS_ENABLED = true;
 /* Fire-and-forget helper with global enable flag + error guard. */
 async function runHaptic(fn: () => Promise<void>) {
   if (!HAPTICS_ENABLED) return;
+
+  // Check user preference for vibration
+  const { preferences } = useNotificationPreferences.getState();
+  if (!preferences.vibration) return;
+
   try {
     await fn();
   } catch (e) {

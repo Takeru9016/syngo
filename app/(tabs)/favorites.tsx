@@ -188,6 +188,7 @@ export default function FavoritesScreen() {
                     borderColor={isActive ? "$primary" : "transparent"}
                     alignItems="center"
                     justifyContent="center"
+                    overflow="hidden"
                   >
                     <Text
                       fontFamily="$body"
@@ -332,9 +333,13 @@ export default function FavoritesScreen() {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <Stack flex={1}>
-              <FavoriteCard favorite={item} onPress={handlePress} />
+              <FavoriteCard
+                favorite={item}
+                onPress={handlePress}
+                index={index}
+              />
             </Stack>
           )}
         />

@@ -6,7 +6,6 @@ import {
   StyleSheet,
   useColorScheme,
 } from "react-native";
-import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import {
   YStack,
@@ -41,6 +40,11 @@ import {
 } from "@/store/notificationPreference";
 import { useThemeStore, ThemeMode, ColorScheme } from "@/state/theme";
 import { ScreenContainer } from "@/components";
+import {
+  triggerLightHaptic,
+  triggerSuccessHaptic,
+  triggerWarningHaptic,
+} from "@/state/haptics";
 
 interface ThemeOptionButtonProps {
   label: string;
@@ -59,10 +63,11 @@ function ThemeOptionButton({ label, value }: ThemeOptionButtonProps) {
       borderRadius="$6"
       borderWidth={0}
       onPress={async () => {
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        triggerLightHaptic();
         setMode(value);
       }}
       pressStyle={{ opacity: 0.9, scale: 0.97 }}
+      overflow="hidden"
     >
       <Text
         fontSize={14}
@@ -110,10 +115,11 @@ function AccentChip({ label, value }: AccentChipProps) {
       borderWidth={1}
       borderColor={borderColor}
       onPress={async () => {
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        triggerLightHaptic();
         setColorScheme(value);
       }}
       pressStyle={{ opacity: 0.9, scale: 0.97 }}
+      overflow="hidden"
     >
       <XStack alignItems="center" gap="$2">
         <Stack
@@ -154,7 +160,7 @@ export default function SettingsScreen() {
   const [uploading, setUploading] = useState(false);
 
   const handleChangeAvatar = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    triggerLightHaptic();
 
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -173,9 +179,7 @@ export default function SettingsScreen() {
       setUploading(true);
       try {
         await uploadAvatar(result.assets[0].uri);
-        await Haptics.notificationAsync(
-          Haptics.NotificationFeedbackType.Success
-        );
+        triggerSuccessHaptic();
       } catch (error) {
         console.error("Avatar upload failed:", error);
         Alert.alert("Upload Failed", "Could not upload avatar");
@@ -191,7 +195,7 @@ export default function SettingsScreen() {
       return;
     }
     try {
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      triggerSuccessHaptic();
       await updateProfile({ displayName: tempName.trim() });
       setEditingName(false);
     } catch (error) {
@@ -201,7 +205,7 @@ export default function SettingsScreen() {
 
   const handleSaveBio = async () => {
     try {
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      triggerSuccessHaptic();
       await updateProfile({ bio: tempBio.trim() });
       setEditingBio(false);
     } catch (error) {
@@ -221,9 +225,7 @@ export default function SettingsScreen() {
           text: "Unpair",
           style: "destructive",
           onPress: async () => {
-            await Haptics.notificationAsync(
-              Haptics.NotificationFeedbackType.Warning
-            );
+            triggerWarningHaptic();
             await unpair();
             // No need to call setHasSeenOnboarding - Firestore flag handles it
             // Gate will automatically redirect to /onboarding
@@ -237,7 +239,7 @@ export default function SettingsScreen() {
     key: keyof NotificationPreferences,
     value: boolean
   ) => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    triggerLightHaptic();
     await updatePreferences({ [key]: value });
   };
 
@@ -251,9 +253,7 @@ export default function SettingsScreen() {
           text: "Reset",
           style: "destructive",
           onPress: async () => {
-            await Haptics.notificationAsync(
-              Haptics.NotificationFeedbackType.Warning
-            );
+            triggerWarningHaptic();
             await resetPreferences();
           },
         },
@@ -481,7 +481,7 @@ export default function SettingsScreen() {
                     paddingHorizontal="$2"
                     height={44}
                     onPress={() => {
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      triggerLightHaptic();
                       setTempName(profile?.displayName || "");
                       setEditingName(true);
                     }}
@@ -567,7 +567,7 @@ export default function SettingsScreen() {
                     paddingHorizontal="$2"
                     height={44}
                     onPress={() => {
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      triggerLightHaptic();
                       setTempBio(profile?.bio || "");
                       setEditingBio(true);
                     }}
@@ -835,9 +835,7 @@ export default function SettingsScreen() {
                       style: "destructive",
                       onPress: async () => {
                         try {
-                          await Haptics.notificationAsync(
-                            Haptics.NotificationFeedbackType.Warning
-                          );
+                          triggerWarningHaptic();
                           // Import dynamically to avoid circular deps if any, or just use direct import
                           const {
                             deleteAccount,

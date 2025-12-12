@@ -6,7 +6,6 @@ import {
   ListRenderItem,
   useWindowDimensions,
 } from "react-native";
-import * as Haptics from "expo-haptics";
 import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
 import { ImagePlus, Sparkles } from "@tamagui/lucide-icons";
 
@@ -18,6 +17,12 @@ import {
 import { StickerCard, AddStickerModal, ScreenContainer } from "@/components";
 import { Sticker } from "@/types";
 import { AppNotificationService } from "@/services/notification/notification.service";
+import {
+  triggerLightHaptic,
+  triggerMediumHaptic,
+  triggerSuccessHaptic,
+  triggerWarningHaptic,
+} from "@/state/haptics";
 
 export default function StickersScreen() {
   const { data: stickers = [], isLoading, refetch } = useStickers();
@@ -29,13 +34,13 @@ export default function StickersScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    triggerLightHaptic();
     await refetch();
     setRefreshing(false);
   };
 
   const handleSend = async (sticker: Sticker) => {
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    triggerSuccessHaptic();
 
     try {
       await AppNotificationService.sendToPartner({
@@ -52,17 +57,17 @@ export default function StickersScreen() {
   };
 
   const handleDelete = async (id: string) => {
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    triggerWarningHaptic();
     deleteSticker.mutate(id);
   };
 
   const handleLongPress = (sticker: Sticker) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    triggerMediumHaptic();
     // Alert logic is inside StickerCard
   };
 
   const handleSave = async (name: string, imageUrl: string) => {
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    triggerSuccessHaptic();
     createSticker.mutate({ name, imageUrl });
   };
 
@@ -84,6 +89,7 @@ export default function StickersScreen() {
         onSend={handleSend}
         onDelete={handleDelete}
         onLongPress={handleLongPress}
+        index={index}
       />
     </Stack>
   );
@@ -117,7 +123,7 @@ export default function StickersScreen() {
             height={46}
             padding={0}
             onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              triggerLightHaptic();
               setModalVisible(true);
             }}
             pressStyle={{ opacity: 0.9, scale: 0.98 }}
@@ -225,7 +231,7 @@ export default function StickersScreen() {
             height={46}
             paddingHorizontal="$6"
             onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              triggerLightHaptic();
               setModalVisible(true);
             }}
             pressStyle={{ opacity: 0.9, scale: 0.98 }}

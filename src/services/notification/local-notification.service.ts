@@ -5,15 +5,19 @@ import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 import { db } from "@/config/firebase";
 import { getCurrentUserId } from "@/services/auth/auth.service";
+import { useNotificationPreferences } from "@/store/notificationPreference";
 
-// Foreground behavior
+// Foreground behavior - dynamically checks user preferences
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
+  handleNotification: async () => {
+    const { preferences } = useNotificationPreferences.getState();
+    return {
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: preferences.sound,
+      shouldSetBadge: false,
+    };
+  },
 });
 
 export type NotificationCategory =
