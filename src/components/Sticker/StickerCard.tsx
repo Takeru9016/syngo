@@ -8,15 +8,42 @@ import { useScaleIn, getStaggerDelay } from "@/utils/animations";
 type Props = {
   sticker: Sticker;
   onSend: (sticker: Sticker) => void;
-  onDelete: (id: string) => void;
-  onLongPress: (sticker: Sticker) => void;
+  onDelete?: (id: string) => void; // Optional for predefined stickers
+  onLongPress?: (sticker: Sticker) => void; // Optional for predefined stickers
   index?: number;
+  isPredefined?: boolean; // Flag to indicate predefined sticker
 };
 
-export function StickerCard({ sticker, onSend, onDelete, index = 0 }: Props) {
+export function StickerCard({
+  sticker,
+  onSend,
+  onDelete,
+  index = 0,
+  isPredefined = false,
+}: Props) {
   const { opacity, transform } = useScaleIn(getStaggerDelay(index, 40, 200));
 
   const handleLongPress = () => {
+    // Don't allow delete for predefined stickers
+    if (isPredefined || !onDelete) {
+      Alert.alert(
+        sticker.name,
+        "Tap to send this sticker to your partner!",
+        [
+          {
+            text: "Send",
+            onPress: () => onSend(sticker),
+          },
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+        ],
+        { cancelable: true }
+      );
+      return;
+    }
+
     Alert.alert(
       sticker.name,
       "What would you like to do?",
@@ -72,11 +99,33 @@ export function StickerCard({ sticker, onSend, onDelete, index = 0 }: Props) {
             backgroundColor="$bg"
           >
             <Image
-              source={{ uri: sticker.imageUrl }}
+              source={
+                typeof sticker.imageUrl === "string"
+                  ? { uri: sticker.imageUrl }
+                  : sticker.imageUrl
+              }
               width="100%"
               height="100%"
               objectFit="cover"
             />
+
+            {/* Predefined badge */}
+            {isPredefined && (
+              <Stack
+                position="absolute"
+                top="$2"
+                left="$2"
+                backgroundColor="$primary"
+                borderRadius="$4"
+                paddingHorizontal="$2"
+                paddingVertical="$1"
+                zIndex={10}
+              >
+                <Text color="white" fontSize={9} fontWeight="700">
+                  PRE-DEFINED
+                </Text>
+              </Stack>
+            )}
 
             {/* Send hint icon */}
             <Stack

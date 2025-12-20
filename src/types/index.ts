@@ -36,6 +36,9 @@ export type Sticker = {
   imageUrl: string;
   createdBy: string;
   createdAt: number;
+  isPredefined?: boolean; // Flag for pre-defined stickers
+  category?: string; // Category for organization
+  tags?: string[]; // Tags for search/filtering
 };
 
 export type NotificationType = "sticker" | "todo" | "favorite" | "note";
@@ -115,3 +118,22 @@ export type HomeWidgetType =
   | "recent_todos"
   | "recent_favorites"
   | "recent_stickers";
+
+export type PredefinedStickerCategory = {
+  id: string;
+  name: string;
+  icon: string;
+};
+
+export type PredefinedStickerManifest = {
+  version: string;
+  stickers: Array<{
+    id: string;
+    name: string;
+    category: string;
+    tags: string[];
+    filename: string;
+  }>;
+  categories: PredefinedStickerCategory[];
+};
+

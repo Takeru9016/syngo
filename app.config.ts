@@ -6,7 +6,7 @@ const EAS_PROJECT_ID = "0f6d9962-45d9-4648-bc14-54362c3f999e";
 const config: ExpoConfig = {
   name: "Syngo",
   slug: "notify",
-  version: "1.0.2",
+  version: "1.0.3",
   orientation: "portrait",
   scheme: "syngo",
   userInterfaceStyle: "automatic",
@@ -197,7 +197,7 @@ const config: ExpoConfig = {
     cloudinaryUploadPreset: process.env.EXPO_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
 
     // App metadata (accessible via Constants.expoConfig.extra)
-    appVersion: "1.0.2",
+    appVersion: "1.0.3",
     appBuildNumber: "1",
     supportEmail: "timetocode22@gmail.com",
     privacyPolicyUrl: "https://syngo.vercel.app/privacy",
