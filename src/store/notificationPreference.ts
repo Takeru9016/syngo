@@ -10,6 +10,7 @@ export interface NotificationPreferences {
   enabled: boolean;
   todoReminders: boolean;
   stickerNotifications: boolean;
+  nudgeNotifications: boolean;
   favoriteUpdates: boolean;
   pairEvents: boolean;
   quietHoursEnabled: boolean;
@@ -23,6 +24,7 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
   enabled: true,
   todoReminders: true,
   stickerNotifications: true,
+  nudgeNotifications: true,
   favoriteUpdates: true,
   pairEvents: true,
   quietHoursEnabled: false,

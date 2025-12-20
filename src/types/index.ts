@@ -59,6 +59,7 @@ export type AppNotificationType =
   | "todo_due_soon" // Cloud Function: todoDueReminders
   | "favorite_added" // Cloud Function: onFavoriteAdded
   | "sticker_sent" // Cloud Function: onStickerSent
+  | "nudge" // Client-side: Thinking of you nudges
   | "pair_success" // Cloud Function: redeemPairingCode
   | "pair_connected" // Client-side (alias for pair_success)
   | "pair_request" // Client-side

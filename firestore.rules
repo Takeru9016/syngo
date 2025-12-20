@@ -132,6 +132,21 @@ service cloud.firestore {
       // Pair members can delete their pair (unpair)
       allow delete: if isAuthenticated() && 
                        request.auth.uid in resource.data.participants;
+      
+      // Nudges subcollection
+      match /nudges/{nudgeId} {
+        // Pair members can read nudges
+        allow read: if isAuthenticated() && 
+                       isPairMember(pairId);
+        
+        // Pair members can create nudges
+        allow create: if isAuthenticated() && 
+                         isPairMember(pairId) &&
+                         request.resource.data.senderUid == request.auth.uid;
+        
+        // No updates or deletes needed for nudges (they're immutable)
+        allow update, delete: if false;
+      }
     }
     
     // Todos collection

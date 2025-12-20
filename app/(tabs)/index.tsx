@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { RefreshControl } from "react-native";
 import { router } from "expo-router";
 import {
@@ -23,7 +23,11 @@ import {
 import { useProfileStore } from "@/store/profile";
 import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
 import { AppNotification } from "@/types";
-import { ScreenContainer } from "@/components";
+import {
+  ScreenContainer,
+  NudgeButton,
+  NudgeReceiveAnimation,
+} from "@/components";
 import { triggerLightHaptic, triggerSelectionHaptic } from "@/state/haptics";
 
 const getGreeting = () => {
@@ -54,6 +58,7 @@ const getNotifIcon = (type: AppNotification["type"]) => {
   if (type === "todo_reminder") return CheckSquare;
   if (type === "sticker_sent") return Smile;
   if (type === "favorite_added") return Star;
+  if (type === "nudge") return Heart;
   return Bell;
 };
 
@@ -67,6 +72,8 @@ export default function HomeScreen() {
   } = useAppNotifications();
   const markAsRead = useMarkAsRead();
   const [refreshing, setRefreshing] = useState(false);
+  const [showNudgeAnimation, setShowNudgeAnimation] = useState(false);
+  const [nudgeSender, setNudgeSender] = useState("");
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const latestNotifications = notifications.slice(0, 3);
@@ -115,6 +122,31 @@ export default function HomeScreen() {
       router.push("/(tabs)/favorites");
     }
   };
+
+  // Listen for new nudge notifications and show animation
+  useEffect(() => {
+    if (!notifications.length) return;
+
+    // Get the latest unread nudge notification
+    const latestNudge = notifications.find(
+      (n) => n.type === "nudge" && !n.read
+    );
+
+    if (latestNudge && latestNudge.data?.senderName) {
+      // Check if this is a new nudge (created within last 10 seconds)
+      const isRecent = Date.now() - latestNudge.createdAt < 10000;
+
+      if (isRecent && !showNudgeAnimation) {
+        setNudgeSender(latestNudge.data.senderName as string);
+        setShowNudgeAnimation(true);
+
+        // Auto-mark as read after showing animation
+        setTimeout(() => {
+          markAsRead.mutate(latestNudge.id);
+        }, 3000);
+      }
+    }
+  }, [notifications]);
 
   const greeting = getGreeting();
   const displayName = profile?.displayName || "you";
@@ -596,6 +628,17 @@ export default function HomeScreen() {
           </Stack>
         </YStack>
       </ScrollView>
+
+      {/* Floating Nudge Button */}
+      <NudgeButton />
+
+      {/* Nudge Receive Animation */}
+      {showNudgeAnimation && (
+        <NudgeReceiveAnimation
+          senderName={nudgeSender}
+          onComplete={() => setShowNudgeAnimation(false)}
+        />
+      )}
     </ScreenContainer>
   );
 }

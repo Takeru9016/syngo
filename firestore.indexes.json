@@ -103,6 +103,14 @@
       ]
     },
     {
+      "collectionGroup": "nudges",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "senderUid", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "pairCodes",
       "queryScope": "COLLECTION",
       "fields": [

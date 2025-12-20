@@ -15,6 +15,9 @@ export { ProfileEditModal } from "./Settings/ProfileEditModal";
 
 export { ThemeSelectorModal } from "./Theme/ThemeSelectorModal";
 
+export { NudgeButton } from "./NudgeButton";
+export { NudgeReceiveAnimation } from "./NudgeReceiveAnimation";
+
 export { ErrorBoundary } from "./common/ErrorBoundary";
 export { EmptyState } from "./common/EmptyState";
 export { ScreenContainer } from "./common/ScreenContainer";

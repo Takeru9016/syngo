@@ -24,6 +24,7 @@ export type NotificationCategory =
   | "reminders"
   | "stickers"
   | "favorites"
+  | "nudges"
   | "system";
 
 export type BaseScheduleOptions = {
@@ -115,6 +116,12 @@ export const NotificationService = {
           id: "favorites",
           name: "Favorites",
           importance: Notifications.AndroidImportance.LOW,
+          sound: "notification.mp3",
+        },
+        {
+          id: "nudges",
+          name: "Nudges",
+          importance: Notifications.AndroidImportance.HIGH,
           sound: "notification.mp3",
         },
         {
@@ -284,6 +291,8 @@ function categoryToChannel(category?: NotificationCategory): string {
       return "stickers";
     case "favorites":
       return "favorites";
+    case "nudges":
+      return "nudges";
     case "system":
     default:
       return "default";

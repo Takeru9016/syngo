@@ -42,6 +42,7 @@ export const onNotificationCreated = onDocumentCreated(
       // Map notification type to preference key
       let preferenceKey = "system";
       if (type === "sticker_sent") preferenceKey = "stickerNotifications";
+      else if (type === "nudge") preferenceKey = "nudgeNotifications";
       else if (type === "pair_request" || type === "pair_success") preferenceKey = "pairEvents";
 
       await sendPushToUser(
