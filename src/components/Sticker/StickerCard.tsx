@@ -109,24 +109,6 @@ export function StickerCard({
               objectFit="cover"
             />
 
-            {/* Predefined badge */}
-            {isPredefined && (
-              <Stack
-                position="absolute"
-                top="$2"
-                left="$2"
-                backgroundColor="$primary"
-                borderRadius="$4"
-                paddingHorizontal="$2"
-                paddingVertical="$1"
-                zIndex={10}
-              >
-                <Text color="white" fontSize={9} fontWeight="700">
-                  PRE-DEFINED
-                </Text>
-              </Stack>
-            )}
-
             {/* Send hint icon */}
             <Stack
               position="absolute"

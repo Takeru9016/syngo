@@ -23,6 +23,7 @@ import {
 } from "@tamagui/lucide-icons";
 
 import { Favorite, FavoriteCategory } from "@/types";
+import { useToast } from "@/hooks/useToast";
 
 type Props = {
   visible: boolean;
@@ -58,6 +59,7 @@ export function FavoriteDetailModal({
   onDelete,
 }: Props) {
   const insets = useSafeAreaInsets();
+  const { error: toastError } = useToast();
 
   if (!favorite) return null;
 
@@ -93,10 +95,10 @@ export function FavoriteDetailModal({
     if (canOpen) {
       Linking.openURL(urlToOpen).catch((err) => {
         console.error("Failed to open URL:", err);
-        Alert.alert("Error", "Could not open this link");
+        toastError("Error", "Could not open this link");
       });
     } else {
-      Alert.alert("Invalid URL", "This link cannot be opened");
+      toastError("Invalid URL", "This link cannot be opened");
     }
   };
 

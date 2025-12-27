@@ -33,7 +33,14 @@ function nowMs(): number {
 export type SendToPartnerInput = {
   type: Extract<
     AppNotificationType,
-    "sticker_sent" | "favorite_added" | "todo_created" | "todo_reminder"
+    | "sticker_sent"
+    | "favorite_added"
+    | "todo_created"
+    | "todo_completed"
+    | "todo_updated"
+    | "todo_deleted"
+    | "todo_reminder"
+    | "nudge"
   >;
   title: string;
   body: string;

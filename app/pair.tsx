@@ -19,6 +19,7 @@ import { usePairingStore } from "@/store/pairing";
 import { formatCode, unformatCode } from "@/utils/code-generator";
 import { subscribeToProfile } from "@/services/profile/profile.service";
 import { triggerSelectionHaptic } from "@/state/haptics";
+import { useToast } from "@/hooks/useToast";
 
 export default function PairScreen() {
   const {
@@ -34,6 +35,7 @@ export default function PairScreen() {
     setPairId,
     clearError,
   } = usePairingStore();
+  const { success, error: toastError } = useToast();
 
   const [input, setInput] = useState<string>("");
   const [secure, setSecure] = useState<boolean>(true);
@@ -89,7 +91,7 @@ export default function PairScreen() {
     if (myCode) {
       triggerSelectionHaptic();
       await Clipboard.setStringAsync(unformatCode(myCode));
-      Alert.alert("Copied!", "Code copied to clipboard");
+      success("Copied!", "Code copied to clipboard");
     }
   };
 
@@ -115,7 +117,7 @@ export default function PairScreen() {
 
     // Validate input
     if (!cleanInput || cleanInput.length !== 8) {
-      Alert.alert("Invalid Code", "Please enter a valid 8-character code.");
+      toastError("Invalid Code", "Please enter a valid 8-character code.");
       return;
     }
 

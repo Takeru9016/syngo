@@ -4,6 +4,7 @@ import { Stack, Text, XStack, YStack } from "tamagui";
 import { Heart } from "@tamagui/lucide-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNudge } from "@/hooks/useNudge";
+import { useToast } from "@/hooks/useToast";
 import { triggerLightHaptic, triggerSuccessHaptic } from "@/state/haptics";
 
 export function NudgeButton() {
@@ -15,6 +16,7 @@ export function NudgeButton() {
     hasPartner,
     error,
   } = useNudge();
+  const { success, error: toastError } = useToast();
 
   // Animation values
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -167,19 +169,17 @@ export function NudgeButton() {
     triggerLightHaptic();
     sendNudge();
 
-    // Show success feedback
+    // Show success feedback with toast
     setTimeout(() => {
       triggerSuccessHaptic();
-      Alert.alert("Nudge Sent!", "Your partner will feel the love", [
-        { text: "Sweet!", style: "default" },
-      ]);
+      success("Nudge Sent!", "Your partner will feel the love");
     }, 300);
   };
 
   // Show error if any
   useEffect(() => {
     if (error) {
-      Alert.alert("Oops!", error.message);
+      toastError("Oops!", error.message);
     }
   }, [error]);
 

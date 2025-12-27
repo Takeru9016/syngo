@@ -1,11 +1,40 @@
 import manifest from "../../../assets/stickers/predefined/manifest.json";
-import { PredefinedStickerManifest, Sticker, PredefinedStickerCategory } from "@/types";
+import {
+    PredefinedStickerManifest,
+    Sticker,
+    PredefinedStickerCategory,
+} from "@/types";
 
-// Use require for the placeholder image since it's a local asset
+// Static requires for all sticker images (React Native requires static paths)
+const stickerImages: Record<string, any> = {
+    "hearts.png": require("../../../assets/stickers/predefined/hearts.png"),
+    "kisses.png": require("../../../assets/stickers/predefined/kisses.png"),
+    "hugs.png": require("../../../assets/stickers/predefined/hugs.png"),
+    "thinking-of-you.png": require("../../../assets/stickers/predefined/thinking-of-you.png"),
+    "good-morning.png": require("../../../assets/stickers/predefined/good-morning.png"),
+    "good-night.png": require("../../../assets/stickers/predefined/good-night.png"),
+    "missing-you.png": require("../../../assets/stickers/predefined/missing-you.png"),
+    "love-you.png": require("../../../assets/stickers/predefined/love-you.png"),
+    "happy.png": require("../../../assets/stickers/predefined/happy.png"),
+    "excited.png": require("../../../assets/stickers/predefined/excited.png"),
+    "laughing.png": require("../../../assets/stickers/predefined/laughing.png"),
+    "sad.png": require("../../../assets/stickers/predefined/sad.png"),
+    "congratulations.png": require("../../../assets/stickers/predefined/congratulations.png"),
+    "happy-birthday.png": require("../../../assets/stickers/predefined/happy-birthday.png"),
+    "thank-you.png": require("../../../assets/stickers/predefined/thank-you.png"),
+    "sorry.png": require("../../../assets/stickers/predefined/sorry.png"),
+    "here-for-you.png": require("../../../assets/stickers/predefined/here-for-you.png"),
+    "proud.png": require("../../../assets/stickers/predefined/proud.png"),
+    "cutie.png": require("../../../assets/stickers/predefined/cutie.png"),
+    "amazing.png": require("../../../assets/stickers/predefined/amazing.png"),
+};
+
+// Fallback placeholder image
 const placeholderImage = require("../../../assets/stickers/predefined/placeholder.png");
 
 class PredefinedStickersService {
-    private manifest: PredefinedStickerManifest = manifest as PredefinedStickerManifest;
+    private manifest: PredefinedStickerManifest =
+        manifest as PredefinedStickerManifest;
     private cachedStickers: Sticker[] | null = null;
 
     /**
@@ -17,10 +46,13 @@ class PredefinedStickersService {
         }
 
         const stickers: Sticker[] = this.manifest.stickers.map((item) => {
+            // Get the image from our static requires map, fallback to placeholder
+            const imageSource = stickerImages[item.filename] || placeholderImage;
+
             return {
                 id: item.id,
                 name: item.name,
-                imageUrl: placeholderImage, // Using local require, React Native will handle it
+                imageUrl: imageSource,
                 createdBy: "system",
                 createdAt: 0,
                 isPredefined: true,

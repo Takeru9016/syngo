@@ -24,6 +24,7 @@ import {
   triggerSuccessHaptic,
   triggerWarningHaptic,
 } from "@/state/haptics";
+import { useToast } from "@/hooks/useToast";
 
 export default function StickersScreen() {
   const { data: stickers = [], isLoading, refetch } = useStickers();
@@ -32,6 +33,7 @@ export default function StickersScreen() {
   const createSticker = useCreateSticker();
   const deleteSticker = useDeleteSticker();
 
+  const { success, error: toastError } = useToast();
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<"custom" | "predefined">("custom");
@@ -50,13 +52,13 @@ export default function StickersScreen() {
       await AppNotificationService.sendToPartner({
         type: "sticker_sent",
         title: "Sticker from your partner",
-        body: `${sticker.name} 🎨`,
-        data: { stickerId: sticker.id, stickerUrl: sticker.imageUrl },
+        body: sticker.name,
+        data: { stickerId: sticker.id, imageUrl: sticker.imageUrl },
       });
-      Alert.alert("Sent!", `${sticker.name} sent to your partner`);
-    } catch (error) {
-      console.error("Failed to send sticker:", error);
-      Alert.alert("Error", "Failed to send sticker");
+      success("Sticker Sent!", `${sticker.name} sent to your partner`);
+    } catch (err) {
+      console.error("Failed to send sticker:", err);
+      toastError("Failed to Send", "Something went wrong. Please try again.");
     }
   };
 

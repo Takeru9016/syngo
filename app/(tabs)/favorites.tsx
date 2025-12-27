@@ -1,7 +1,12 @@
 import { useMemo, useState } from "react";
 import { RefreshControl, FlatList, useWindowDimensions } from "react-native";
 import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
-import { Star, BookmarkPlus, HeartHandshake } from "@tamagui/lucide-icons";
+import {
+  Star,
+  BookmarkPlus,
+  HeartHandshake,
+  Sparkles,
+} from "@tamagui/lucide-icons";
 
 import {
   useFavorites,
@@ -300,7 +305,16 @@ export default function FavoritesScreen() {
           paddingHorizontal="$5"
           gap="$3"
         >
-          <Text fontSize={40}>✨</Text>
+          <Stack
+            width={64}
+            height={64}
+            borderRadius={32}
+            backgroundColor="$primarySoft"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Sparkles size={28} color="$primary" />
+          </Stack>
           <YStack gap="$2" alignItems="center">
             <Text
               fontFamily="$heading"

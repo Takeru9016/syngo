@@ -29,8 +29,11 @@ import {
   Sticker,
   Heart,
   ExternalLink,
+  Paintbrush,
+  ChevronRight,
 } from "@tamagui/lucide-icons";
 import * as Linking from "expo-linking";
+import { useRouter } from "expo-router";
 
 import { useProfileStore } from "@/store/profile";
 import { usePairingStore } from "@/store/pairing";
@@ -45,6 +48,7 @@ import {
   triggerSuccessHaptic,
   triggerWarningHaptic,
 } from "@/state/haptics";
+import { useToast } from "@/hooks/useToast";
 
 interface ThemeOptionButtonProps {
   label: string;
@@ -143,7 +147,7 @@ function AccentChip({ label, value }: AccentChipProps) {
 export default function SettingsScreen() {
   const theme = useTheme();
   const rnColorScheme = useColorScheme();
-
+  const router = useRouter();
   const profile = useProfileStore((s) => s.profile);
   const partner = useProfileStore((s) => s.partnerProfile);
   const updateProfile = useProfileStore((s) => s.updateProfileData);
@@ -158,13 +162,14 @@ export default function SettingsScreen() {
   const [tempName, setTempName] = useState(profile?.displayName || "");
   const [tempBio, setTempBio] = useState(profile?.bio || "");
   const [uploading, setUploading] = useState(false);
+  const { success, error: toastError } = useToast();
 
   const handleChangeAvatar = async () => {
     triggerLightHaptic();
 
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission Required", "Please grant photo library access");
+      toastError("Permission Required", "Please grant photo library access");
       return;
     }
 
@@ -180,9 +185,10 @@ export default function SettingsScreen() {
       try {
         await uploadAvatar(result.assets[0].uri);
         triggerSuccessHaptic();
-      } catch (error) {
-        console.error("Avatar upload failed:", error);
-        Alert.alert("Upload Failed", "Could not upload avatar");
+        success("Avatar Updated", "Looking great!");
+      } catch (err) {
+        console.error("Avatar upload failed:", err);
+        toastError("Upload Failed", "Could not upload avatar");
       } finally {
         setUploading(false);
       }
@@ -191,15 +197,16 @@ export default function SettingsScreen() {
 
   const handleSaveName = async () => {
     if (!tempName.trim()) {
-      Alert.alert("Invalid Name", "Name cannot be empty");
+      toastError("Invalid Name", "Name cannot be empty");
       return;
     }
     try {
       triggerSuccessHaptic();
       await updateProfile({ displayName: tempName.trim() });
       setEditingName(false);
-    } catch (error) {
-      Alert.alert("Error", "Failed to update name");
+      success("Name Updated", "Your display name has been changed");
+    } catch (err) {
+      toastError("Error", "Failed to update name");
     }
   };
 
@@ -208,8 +215,9 @@ export default function SettingsScreen() {
       triggerSuccessHaptic();
       await updateProfile({ bio: tempBio.trim() });
       setEditingBio(false);
-    } catch (error) {
-      Alert.alert("Error", "Failed to update bio");
+      success("Bio Updated", "Your bio has been saved");
+    } catch (err) {
+      toastError("Error", "Failed to update bio");
     }
   };
 
@@ -719,6 +727,47 @@ export default function SettingsScreen() {
                   onToggle={(v) => handleToggle("vibration", v)}
                   trackColorActive={switchAccentColor}
                 />
+
+                {/* Customize Appearance Button */}
+                <Button
+                  backgroundColor="$bgSoft"
+                  borderRadius="$8"
+                  height={56}
+                  paddingHorizontal="$4"
+                  onPress={() => {
+                    triggerLightHaptic();
+                    router.push("/notification-customization" as any);
+                  }}
+                  pressStyle={{ opacity: 0.9, scale: 0.98 }}
+                >
+                  <XStack
+                    flex={1}
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <XStack gap="$3" alignItems="center">
+                      <Stack
+                        width={32}
+                        height={32}
+                        borderRadius="$5"
+                        backgroundColor="$bg"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Paintbrush size={16} color={switchAccentColor} />
+                      </Stack>
+                      <YStack>
+                        <Text color="$color" fontSize={15} fontWeight="600">
+                          Customize Appearance
+                        </Text>
+                        <Text color="$muted" fontSize={12}>
+                          Colors, themes & styles
+                        </Text>
+                      </YStack>
+                    </XStack>
+                    <ChevronRight size={18} color="$muted" />
+                  </XStack>
+                </Button>
               </>
             )}
           </YStack>

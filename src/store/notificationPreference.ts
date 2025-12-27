@@ -5,6 +5,15 @@ import { doc, setDoc } from "firebase/firestore";
 
 import { db } from "@/config/firebase";
 import { useAuthStore } from "./auth";
+import {
+  NotificationCustomization,
+  NotificationCategory,
+  NotificationColorScheme,
+  NotificationVisualStyle,
+  VibrationPatternName,
+  DEFAULT_NOTIFICATION_CUSTOMIZATION,
+  NOTIFICATION_THEME_PRESETS,
+} from "@/types/notification-theme.types";
 
 export interface NotificationPreferences {
   enabled: boolean;
@@ -36,10 +45,22 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
 
 interface NotificationPreferencesStore {
   preferences: NotificationPreferences;
+  customization: NotificationCustomization;
   updatePreferences: (
     updates: Partial<NotificationPreferences>
   ) => Promise<void>;
   resetPreferences: () => Promise<void>;
+  // Customization methods
+  updateCustomization: (
+    updates: Partial<NotificationCustomization>
+  ) => Promise<void>;
+  updateCategoryColors: (
+    category: NotificationCategory,
+    colors: Partial<NotificationColorScheme>
+  ) => Promise<void>;
+  applyPreset: (presetId: string) => Promise<void>;
+  resetCustomization: () => Promise<void>;
+  getColorsForCategory: (category: NotificationCategory) => NotificationColorScheme;
 }
 
 export const useNotificationPreferences =
@@ -47,6 +68,7 @@ export const useNotificationPreferences =
     persist(
       (set, get) => ({
         preferences: DEFAULT_PREFERENCES,
+        customization: DEFAULT_NOTIFICATION_CUSTOMIZATION,
 
         updatePreferences: async (updates) => {
           const newPreferences = { ...get().preferences, ...updates };
@@ -61,7 +83,6 @@ export const useNotificationPreferences =
                 { notificationPreferences: newPreferences },
                 { merge: true }
               );
-
             } catch (error) {
               console.error(
                 "❌ Failed to sync notification preferences:",
@@ -82,7 +103,6 @@ export const useNotificationPreferences =
                 { notificationPreferences: DEFAULT_PREFERENCES },
                 { merge: true }
               );
-
             } catch (error) {
               console.error(
                 "❌ Failed to reset notification preferences:",
@@ -90,6 +110,118 @@ export const useNotificationPreferences =
               );
             }
           }
+        },
+
+        updateCustomization: async (updates) => {
+          const newCustomization = {
+            ...get().customization,
+            ...updates,
+            activePreset: null, // Mark as custom when manually updated
+          };
+          set({ customization: newCustomization });
+
+          const uid = useAuthStore.getState().uid;
+          if (uid) {
+            try {
+              await setDoc(
+                doc(db, "users", uid),
+                { notificationCustomization: newCustomization },
+                { merge: true }
+              );
+            } catch (error) {
+              console.error(
+                "❌ Failed to sync notification customization:",
+                error
+              );
+            }
+          }
+        },
+
+        updateCategoryColors: async (category, colors) => {
+          const currentColors = get().customization.colors;
+          const newColors = {
+            ...currentColors,
+            [category]: { ...currentColors[category], ...colors },
+          };
+          const newCustomization = {
+            ...get().customization,
+            colors: newColors,
+            activePreset: null,
+          };
+          set({ customization: newCustomization });
+
+          const uid = useAuthStore.getState().uid;
+          if (uid) {
+            try {
+              await setDoc(
+                doc(db, "users", uid),
+                { notificationCustomization: newCustomization },
+                { merge: true }
+              );
+            } catch (error) {
+              console.error(
+                "❌ Failed to sync category colors:",
+                error
+              );
+            }
+          }
+        },
+
+        applyPreset: async (presetId) => {
+          const preset = NOTIFICATION_THEME_PRESETS.find(
+            (p) => p.id === presetId
+          );
+          if (!preset) return;
+
+          const newCustomization: NotificationCustomization = {
+            activePreset: presetId,
+            colors: preset.colors,
+            visualStyle: preset.visualStyle,
+            vibrationPattern: preset.vibrationPattern,
+            borderRadius: get().customization.borderRadius,
+            shadowIntensity: get().customization.shadowIntensity,
+          };
+          set({ customization: newCustomization });
+
+          const uid = useAuthStore.getState().uid;
+          if (uid) {
+            try {
+              await setDoc(
+                doc(db, "users", uid),
+                { notificationCustomization: newCustomization },
+                { merge: true }
+              );
+            } catch (error) {
+              console.error(
+                "❌ Failed to apply preset:",
+                error
+              );
+            }
+          }
+        },
+
+        resetCustomization: async () => {
+          set({ customization: DEFAULT_NOTIFICATION_CUSTOMIZATION });
+
+          const uid = useAuthStore.getState().uid;
+          if (uid) {
+            try {
+              await setDoc(
+                doc(db, "users", uid),
+                { notificationCustomization: DEFAULT_NOTIFICATION_CUSTOMIZATION },
+                { merge: true }
+              );
+            } catch (error) {
+              console.error(
+                "❌ Failed to reset customization:",
+                error
+              );
+            }
+          }
+        },
+
+        getColorsForCategory: (category) => {
+          return get().customization.colors[category];
         },
       }),
       {

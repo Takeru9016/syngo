@@ -12,8 +12,10 @@ import {
   HeartHandshake,
   HeartCrack,
   User,
+  Heart,
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 
 import {
   useAppNotifications,
@@ -30,6 +32,8 @@ import {
   triggerSuccessHaptic,
   triggerWarningHaptic,
 } from "@/state/haptics";
+import { useNotificationPreferences } from "@/store/notificationPreference";
+import { NotificationCategory } from "@/types/notification-theme.types";
 
 type FilterKey = "all" | "unread";
 
@@ -332,8 +336,31 @@ type NotificationCardProps = {
   onDelete: (id: string) => void;
 };
 
+// Map notification types to categories
+function getCategory(type: AppNotificationType): NotificationCategory {
+  switch (type) {
+    case "nudge":
+      return "nudges";
+    case "sticker_sent":
+      return "stickers";
+    case "todo_reminder":
+    case "todo_created":
+    case "todo_completed":
+    case "todo_due_soon":
+      return "todos";
+    case "favorite_added":
+      return "favorites";
+    default:
+      return "system";
+  }
+}
+
 function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
-  const { icon, iconBg, iconColor } = getNotificationVisual(notif.type);
+  const { customization } = useNotificationPreferences();
+  const category = getCategory(notif.type);
+  const colors = customization.colors[category];
+  const visualStyle = customization.visualStyle;
+  const { icon } = getNotificationVisual(notif.type);
 
   const handleLongPress = () => {
     triggerMediumHaptic();
@@ -354,6 +381,74 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
 
   const createdAtLabel = new Date(notif.createdAt).toLocaleString();
 
+  // Only apply custom styling to unread notifications
+  const useCustomStyle = !notif.read;
+
+  const renderBackground = () => {
+    if (!useCustomStyle) return null;
+
+    switch (visualStyle) {
+      case "gradient":
+        return (
+          <LinearGradient
+            colors={[
+              colors.background,
+              colors.backgroundSecondary || colors.background,
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              borderRadius: 16,
+            }}
+          />
+        );
+
+      case "glassmorphic":
+        return (
+          <>
+            <Stack
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              backgroundColor={colors.background}
+              opacity={0.9}
+              borderRadius={16}
+            />
+            <Stack
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              borderWidth={1}
+              borderColor={`${colors.accent}40`}
+              borderRadius={16}
+            />
+          </>
+        );
+
+      default: // solid
+        return (
+          <Stack
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            backgroundColor={colors.background}
+            borderRadius={16}
+          />
+        );
+    }
+  };
+
   return (
     <Button
       unstyled
@@ -362,53 +457,91 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
       pressStyle={{ opacity: 0.9, scale: 0.97 }}
     >
       <Stack
-        backgroundColor={notif.read ? "$bg" : "$bgSoft"}
+        backgroundColor={notif.read ? "$bg" : "transparent"}
         borderRadius="$7"
         padding="$3"
-        borderWidth={notif.read ? 0 : 1}
-        borderColor={notif.read ? "transparent" : "$primarySoft"}
+        overflow="hidden"
+        style={
+          useCustomStyle
+            ? {
+                shadowColor: colors.accent,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.15,
+                shadowRadius: 8,
+                elevation: 4,
+              }
+            : undefined
+        }
       >
-        <XStack alignItems="flex-start" gap="$3">
+        {renderBackground()}
+
+        <XStack alignItems="flex-start" gap="$3" zIndex={1}>
           {/* Icon bubble */}
           <Stack
-            width={32}
-            height={32}
-            borderRadius="$8"
-            backgroundColor={iconBg}
+            width={36}
+            height={36}
+            borderRadius={10}
+            backgroundColor={useCustomStyle ? `${colors.icon}20` : "$bgSoft"}
             alignItems="center"
             justifyContent="center"
           >
-            {icon({ size: 18, color: iconColor })}
+            {icon({
+              size: 18,
+              color: useCustomStyle ? colors.icon : "$primary",
+            })}
           </Stack>
 
           {/* Text content */}
           <YStack flex={1} gap="$1">
             <Text
-              color="$color"
+              color={useCustomStyle ? colors.text : "$color"}
               fontSize={14}
               fontWeight={notif.read ? "600" : "700"}
             >
               {notif.title}
             </Text>
-            <Text color="$muted" fontSize={13} numberOfLines={2}>
+            <Text
+              color={useCustomStyle ? colors.text : "$muted"}
+              opacity={useCustomStyle ? 0.85 : 1}
+              fontSize={13}
+              numberOfLines={2}
+            >
               {notif.body}
             </Text>
-            <Text color="$muted" fontSize={11}>
+            <Text
+              color={useCustomStyle ? colors.text : "$muted"}
+              opacity={useCustomStyle ? 0.6 : 1}
+              fontSize={11}
+            >
               {createdAtLabel}
             </Text>
           </YStack>
 
-          {/* Unread dot */}
+          {/* Unread indicator */}
           {!notif.read && (
             <Stack
               width={8}
               height={8}
               borderRadius={999}
-              backgroundColor="$primary"
+              backgroundColor={colors.accent}
               marginTop="$1"
             />
           )}
         </XStack>
+
+        {/* Accent bar for unread */}
+        {useCustomStyle && (
+          <Stack
+            position="absolute"
+            left={0}
+            top={0}
+            bottom={0}
+            width={3}
+            backgroundColor={colors.accent}
+            borderTopLeftRadius={16}
+            borderBottomLeftRadius={16}
+          />
+        )}
       </Stack>
     </Button>
   );

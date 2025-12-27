@@ -1,5 +1,13 @@
 import { Animated } from "react-native";
 import { Image, YStack, XStack, Text, Stack, Button } from "tamagui";
+import {
+  Film,
+  UtensilsCrossed,
+  MapPin,
+  MessageSquareQuote,
+  Link2,
+  Star,
+} from "@tamagui/lucide-icons";
 import { Favorite, FavoriteCategory } from "@/types";
 import { useScaleIn, getStaggerDelay } from "@/utils/animations";
 
@@ -9,13 +17,16 @@ type Props = {
   index?: number;
 };
 
-const categoryEmojis: Record<FavoriteCategory, string> = {
-  movie: "🎬",
-  food: "🍕",
-  place: "📍",
-  quote: "💭",
-  link: "🔗",
-  other: "⭐",
+const categoryIcons: Record<
+  FavoriteCategory,
+  React.ComponentType<{ size?: number; color?: string }>
+> = {
+  movie: Film,
+  food: UtensilsCrossed,
+  place: MapPin,
+  quote: MessageSquareQuote,
+  link: Link2,
+  other: Star,
 };
 
 const categoryColors: Record<FavoriteCategory, string> = {
@@ -28,7 +39,7 @@ const categoryColors: Record<FavoriteCategory, string> = {
 };
 
 export function FavoriteCard({ favorite, onPress, index = 0 }: Props) {
-  const emoji = categoryEmojis[favorite.category];
+  const Icon = categoryIcons[favorite.category];
   const color = categoryColors[favorite.category];
   const { opacity, transform } = useScaleIn(getStaggerDelay(index, 40, 200));
 
@@ -63,14 +74,14 @@ export function FavoriteCard({ favorite, onPress, index = 0 }: Props) {
               alignItems="center"
               justifyContent="center"
             >
-              <Text fontSize={40}>{emoji}</Text>
+              <Icon size={40} color="white" />
             </Stack>
           )}
 
           {/* Content */}
           <YStack padding="$3" gap="$2">
             <XStack alignItems="center" gap="$2">
-              <Text fontSize={16}>{emoji}</Text>
+              <Icon size={16} color={color} />
               <Text
                 fontFamily="$body"
                 color="$colorMuted"

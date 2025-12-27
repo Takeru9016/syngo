@@ -17,6 +17,7 @@ import * as ImagePicker from "expo-image-picker";
 
 import { UserProfile } from "@/types";
 import { uploadAvatar } from "@/services/profile/profile.service";
+import { useToast } from "@/hooks/useToast";
 
 type Props = {
   visible: boolean;
@@ -31,6 +32,7 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const { success, error: toastError } = useToast();
 
   useEffect(() => {
     if (profile) {
@@ -42,7 +44,7 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
 
   const handleSave = () => {
     if (!displayName.trim()) {
-      Alert.alert("Missing Name", "Please enter a display name");
+      toastError("Missing Name", "Please enter a display name");
       return;
     }
 
@@ -62,7 +64,7 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission needed", "Please grant photo library access");
+        toastError("Permission Needed", "Please grant photo library access");
         return;
       }
 
@@ -98,11 +100,11 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
       // Update local state with Cloudinary URL for preview
       setAvatarUrl(cloudinaryUrl);
 
-      Alert.alert("Success", "Avatar uploaded successfully!");
-    } catch (error: any) {
-      console.error("❌ Avatar upload error:", error);
-      console.error("❌ Error stack:", error.stack);
-      Alert.alert("Upload failed", error.message || "Please try again.");
+      success("Avatar Updated", "Looking great!");
+    } catch (err: any) {
+      console.error("❌ Avatar upload error:", err);
+      console.error("❌ Error stack:", err.stack);
+      toastError("Upload Failed", err.message || "Please try again.");
     } finally {
       setUploadingAvatar(false);
     }

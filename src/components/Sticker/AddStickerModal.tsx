@@ -16,6 +16,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Image as LucideImage, Camera, X } from "@tamagui/lucide-icons";
 
 import { CloudinaryStorage } from "@/services/storage/cloudinary.adapter";
+import { useToast } from "@/hooks/useToast";
 
 type Props = {
   visible: boolean;
@@ -29,6 +30,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const { success, error: toastError, info } = useToast();
 
   const handleClose = () => {
     setName("");
@@ -39,20 +41,17 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
 
   const handleSave = () => {
     if (!name.trim()) {
-      Alert.alert("Missing Name", "Please provide a name for your sticker");
+      toastError("Missing Name", "Please provide a name for your sticker");
       return;
     }
 
     if (!imageUrl) {
-      Alert.alert("Missing Image", "Please select an image");
+      toastError("Missing Image", "Please select an image");
       return;
     }
 
     if (uploading) {
-      Alert.alert(
-        "Upload in progress",
-        "Please wait for image upload to complete"
-      );
+      info("Upload in progress", "Please wait for image upload to complete");
       return;
     }
 
@@ -71,10 +70,10 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
 
       setImageUrl(result.url);
       setLocalPreview(result.url);
-      Alert.alert("Success", "Image uploaded successfully!");
-    } catch (error) {
-      console.error("Upload failed:", error);
-      Alert.alert("Upload failed", "Could not upload image. Please try again.");
+      success("Image Uploaded", "Ready to add sticker!");
+    } catch (err) {
+      console.error("Upload failed:", err);
+      toastError("Upload Failed", "Could not upload image. Please try again.");
       setLocalPreview(null);
     } finally {
       setUploading(false);
@@ -84,7 +83,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Please grant photo library access");
+      toastError("Permission Needed", "Please grant photo library access");
       return;
     }
 
@@ -105,7 +104,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Please grant camera access");
+      toastError("Permission Needed", "Please grant camera access");
       return;
     }
 

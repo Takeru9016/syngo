@@ -30,7 +30,7 @@ const config: ExpoConfig = {
     supportsTablet: false, // Portrait-only app
 
     // App Store metadata
-    appStoreUrl: "https://apps.apple.com/app/syngo/idXXXXXXXXXX", // Will be filled after app is live
+    appStoreUrl: "https://apps.apple.com/in/app/syngo/id6755762478", // Will be filled after app is live
 
     infoPlist: {
       // Background modes for notifications

@@ -23,6 +23,9 @@ import { testFirebaseConnection } from "@/utils/test/testFirebase";
 import { NotificationService } from "@/services/notification/local-notification.service";
 import { registerDevicePushToken } from "@/services/notification/push.registry";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import { InAppNotificationProvider, NudgeReceiveAnimation } from "@/components";
+import { useForegroundNotification } from "@/hooks/useForegroundNotification";
+import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -73,6 +76,38 @@ function Gate() {
   const [mounted, setMounted] = useState(false);
   const [pairingChecked, setPairingChecked] = useState(false);
   const firstRun = useRef(true);
+
+  // Nudge animation state
+  const [showNudgeAnimation, setShowNudgeAnimation] = useState(false);
+  const [nudgeSender, setNudgeSender] = useState("");
+
+  // Notification hooks for nudge detection
+  const { data: notifications = [] } = useAppNotifications();
+  const markAsRead = useMarkAsRead();
+
+  // Enable in-app notification banner for foreground notifications
+  useForegroundNotification();
+
+  // Listen for new nudge notifications and show animation globally
+  useEffect(() => {
+    if (!notifications.length) return;
+
+    // Get the latest unread nudge notification
+    const latestNudge = notifications.find(
+      (n) => n.type === "nudge" && !n.read
+    );
+
+    // Show animation for any unread nudge (even if user opens app hours later)
+    if (latestNudge && latestNudge.data?.senderName && !showNudgeAnimation) {
+      setNudgeSender(latestNudge.data.senderName as string);
+      setShowNudgeAnimation(true);
+
+      // Auto-mark as read after showing animation
+      setTimeout(() => {
+        markAsRead.mutate(latestNudge.id);
+      }, 3000);
+    }
+  }, [notifications]);
 
   // Mark as mounted
   useEffect(() => {
@@ -182,7 +217,18 @@ function Gate() {
     return <LoadingScreen />;
   }
 
-  return <Slot />;
+  return (
+    <>
+      <Slot />
+      {/* Global Nudge Receive Animation */}
+      {showNudgeAnimation && (
+        <NudgeReceiveAnimation
+          senderName={nudgeSender}
+          onComplete={() => setShowNudgeAnimation(false)}
+        />
+      )}
+    </>
+  );
 }
 
 function RootLayout() {
@@ -261,7 +307,9 @@ function RootLayout() {
               animated
             />
             <ErrorBoundary>
-              <Gate />
+              <InAppNotificationProvider>
+                <Gate />
+              </InAppNotificationProvider>
             </ErrorBoundary>
           </Theme>
         </TamaguiProvider>

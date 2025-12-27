@@ -27,6 +27,7 @@ import {
 
 import { Favorite, FavoriteCategory } from "@/types";
 import { CloudinaryStorage } from "@/services/storage/cloudinary.adapter";
+import { useToast } from "@/hooks/useToast";
 
 type Props = {
   visible: boolean;
@@ -62,6 +63,7 @@ export function FavoriteFormModal({
   const [url, setUrl] = useState<string | undefined>();
   const [uploading, setUploading] = useState(false);
   const [localPreview, setLocalPreview] = useState<string | undefined>();
+  const { success, error: toastError, info } = useToast();
 
   useEffect(() => {
     if (favorite) {
@@ -83,14 +85,11 @@ export function FavoriteFormModal({
 
   const handleSave = () => {
     if (!title.trim()) {
-      Alert.alert("Title required", "Please enter a title for your favorite");
+      toastError("Title Required", "Please enter a title for your favorite");
       return;
     }
     if (uploading) {
-      Alert.alert(
-        "Upload in progress",
-        "Please wait for image upload to complete"
-      );
+      info("Upload in Progress", "Please wait for image upload to complete");
       return;
     }
 
@@ -107,7 +106,7 @@ export function FavoriteFormModal({
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Please grant photo library access");
+      toastError("Permission Needed", "Please grant photo library access");
       return;
     }
 
@@ -131,10 +130,10 @@ export function FavoriteFormModal({
 
       setImageUrl(uploadResult.url);
       setLocalPreview(uploadResult.url);
-      Alert.alert("Success", "Image uploaded successfully!");
-    } catch (error) {
-      console.error("Upload failed:", error);
-      Alert.alert("Upload failed", "Could not upload image. Please try again.");
+      success("Image Uploaded", "Ready to save!");
+    } catch (err) {
+      console.error("Upload failed:", err);
+      toastError("Upload Failed", "Could not upload image. Please try again.");
       setLocalPreview(undefined);
     } finally {
       setUploading(false);

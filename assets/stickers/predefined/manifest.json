@@ -3,143 +3,143 @@
   "stickers": [
     {
       "id": "predefined_heart",
-      "name": "Heart",
+      "name": "Hearts",
       "category": "love",
       "tags": ["love", "romance", "heart"],
-      "filename": "placeholder.png"
+      "filename": "hearts.png"
     },
     {
       "id": "predefined_kiss",
-      "name": "Kiss",
+      "name": "Kisses",
       "category": "love",
       "tags": ["kiss", "love", "romance"],
-      "filename": "placeholder.png"
+      "filename": "kisses.png"
     },
     {
       "id": "predefined_hug",
-      "name": "Hug",
+      "name": "Hugs",
       "category": "affection",
       "tags": ["hug", "comfort", "support"],
-      "filename": "placeholder.png"
+      "filename": "hugs.png"
     },
     {
       "id": "predefined_thinking",
       "name": "Thinking of You",
       "category": "thinking",
       "tags": ["thinking", "miss", "remember"],
-      "filename": "placeholder.png"
+      "filename": "thinking-of-you.png"
     },
     {
       "id": "predefined_good_morning",
       "name": "Good Morning",
       "category": "greetings",
       "tags": ["morning", "greeting", "hello"],
-      "filename": "placeholder.png"
+      "filename": "good-morning.png"
     },
     {
       "id": "predefined_good_night",
       "name": "Good Night",
       "category": "greetings",
       "tags": ["night", "sleep", "goodbye"],
-      "filename": "placeholder.png"
+      "filename": "good-night.png"
     },
     {
       "id": "predefined_miss_you",
-      "name": "Miss You",
+      "name": "Missing You",
       "category": "thinking",
       "tags": ["miss", "longing", "love"],
-      "filename": "placeholder.png"
+      "filename": "missing-you.png"
     },
     {
       "id": "predefined_love_you",
       "name": "Love You",
       "category": "love",
       "tags": ["love", "affection", "romance"],
-      "filename": "placeholder.png"
+      "filename": "love-you.png"
     },
     {
       "id": "predefined_happy",
       "name": "Happy",
       "category": "emotions",
       "tags": ["happy", "joy", "smile"],
-      "filename": "placeholder.png"
+      "filename": "happy.png"
     },
     {
       "id": "predefined_excited",
       "name": "Excited",
       "category": "emotions",
       "tags": ["excited", "enthusiasm", "energy"],
-      "filename": "placeholder.png"
+      "filename": "excited.png"
     },
     {
       "id": "predefined_laughing",
       "name": "Laughing",
       "category": "emotions",
       "tags": ["laugh", "funny", "joy"],
-      "filename": "placeholder.png"
+      "filename": "laughing.png"
     },
     {
       "id": "predefined_sad",
       "name": "Sad",
       "category": "emotions",
       "tags": ["sad", "down", "blue"],
-      "filename": "placeholder.png"
+      "filename": "sad.png"
     },
     {
       "id": "predefined_congrats",
       "name": "Congratulations",
       "category": "celebrations",
       "tags": ["congrats", "celebration", "achievement"],
-      "filename": "placeholder.png"
+      "filename": "congratulations.png"
     },
     {
       "id": "predefined_birthday",
       "name": "Happy Birthday",
       "category": "celebrations",
       "tags": ["birthday", "celebration", "party"],
-      "filename": "placeholder.png"
+      "filename": "happy-birthday.png"
     },
     {
       "id": "predefined_thank_you",
       "name": "Thank You",
       "category": "gratitude",
       "tags": ["thanks", "grateful", "appreciation"],
-      "filename": "placeholder.png"
+      "filename": "thank-you.png"
     },
     {
       "id": "predefined_sorry",
       "name": "Sorry",
       "category": "apology",
       "tags": ["sorry", "apology", "regret"],
-      "filename": "placeholder.png"
+      "filename": "sorry.png"
     },
     {
       "id": "predefined_support",
       "name": "I'm Here For You",
       "category": "support",
       "tags": ["support", "care", "comfort"],
-      "filename": "placeholder.png"
+      "filename": "here-for-you.png"
     },
     {
       "id": "predefined_proud",
       "name": "Proud of You",
       "category": "encouragement",
       "tags": ["proud", "encouragement", "support"],
-      "filename": "placeholder.png"
+      "filename": "proud.png"
     },
     {
       "id": "predefined_cute",
       "name": "You're Cute",
       "category": "compliments",
       "tags": ["cute", "compliment", "sweet"],
-      "filename": "placeholder.png"
+      "filename": "cutie.png"
     },
     {
       "id": "predefined_amazing",
       "name": "You're Amazing",
       "category": "compliments",
       "tags": ["amazing", "compliment", "awesome"],
-      "filename": "placeholder.png"
+      "filename": "amazing.png"
     }
   ],
   "categories": [

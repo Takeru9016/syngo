@@ -88,47 +88,69 @@ export const NotificationService = {
   async configureAndroidChannels(): Promise<void> {
     if (Platform.OS !== "android") return;
 
+    // Get vibration pattern from customization
+    const { customization } = useNotificationPreferences.getState();
+    const { VIBRATION_PATTERNS } = await import("@/types/notification-theme.types");
+    const vibrationPattern = VIBRATION_PATTERNS[customization.vibrationPattern] || [0, 200, 150, 200];
+
+    // Get accent colors for LED from customization
+    const nudgeColor = customization.colors.nudges.accent;
+
     const channels: Array<{
       id: string;
       name: string;
       importance: Notifications.AndroidImportance;
       sound?: string;
+      lightColor?: string;
+      vibrationPattern?: number[];
     }> = [
         {
           id: "default",
           name: "General",
           importance: Notifications.AndroidImportance.DEFAULT,
           sound: "notification.mp3",
+          lightColor: customization.colors.system.accent,
+          vibrationPattern,
         },
         {
           id: "reminders",
           name: "Reminders",
           importance: Notifications.AndroidImportance.HIGH,
           sound: "notification.mp3",
+          lightColor: customization.colors.todos.accent,
+          vibrationPattern,
         },
         {
           id: "stickers",
           name: "Stickers",
           importance: Notifications.AndroidImportance.DEFAULT,
           sound: "notification.mp3",
+          lightColor: customization.colors.stickers.accent,
+          vibrationPattern,
         },
         {
           id: "favorites",
           name: "Favorites",
           importance: Notifications.AndroidImportance.LOW,
           sound: "notification.mp3",
+          lightColor: customization.colors.favorites.accent,
+          vibrationPattern,
         },
         {
           id: "nudges",
           name: "Nudges",
           importance: Notifications.AndroidImportance.HIGH,
           sound: "notification.mp3",
+          lightColor: nudgeColor,
+          vibrationPattern,
         },
         {
           id: "system",
           name: "System",
           importance: Notifications.AndroidImportance.DEFAULT,
           sound: "notification.mp3",
+          lightColor: customization.colors.system.accent,
+          vibrationPattern,
         },
       ];
 
@@ -136,8 +158,8 @@ export const NotificationService = {
       await Notifications.setNotificationChannelAsync(ch.id, {
         name: ch.name,
         importance: ch.importance,
-        lightColor: "#4F46E5",
-        vibrationPattern: [0, 200, 150, 200],
+        lightColor: ch.lightColor,
+        vibrationPattern: ch.vibrationPattern,
         lockscreenVisibility:
           Notifications.AndroidNotificationVisibility.PUBLIC,
         sound: ch.sound,

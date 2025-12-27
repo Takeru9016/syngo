@@ -19,16 +19,15 @@ import {
   Smile,
   Flame,
 } from "@tamagui/lucide-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 import { useProfileStore } from "@/store/profile";
 import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
-import { AppNotification } from "@/types";
-import {
-  ScreenContainer,
-  NudgeButton,
-  NudgeReceiveAnimation,
-} from "@/components";
+import { AppNotification, AppNotificationType } from "@/types";
+import { ScreenContainer, NudgeButton } from "@/components";
 import { triggerLightHaptic, triggerSelectionHaptic } from "@/state/haptics";
+import { useNotificationPreferences } from "@/store/notificationPreference";
+import { NotificationCategory } from "@/types/notification-theme.types";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -62,6 +61,25 @@ const getNotifIcon = (type: AppNotification["type"]) => {
   return Bell;
 };
 
+// Map notification types to categories for customization
+const getCategory = (type: AppNotificationType): NotificationCategory => {
+  switch (type) {
+    case "nudge":
+      return "nudges";
+    case "sticker_sent":
+      return "stickers";
+    case "todo_reminder":
+    case "todo_created":
+    case "todo_completed":
+    case "todo_due_soon":
+      return "todos";
+    case "favorite_added":
+      return "favorites";
+    default:
+      return "system";
+  }
+};
+
 export default function HomeScreen() {
   const profile = useProfileStore((s) => s.profile);
   const partner = useProfileStore((s) => s.partnerProfile);
@@ -71,9 +89,8 @@ export default function HomeScreen() {
     refetch,
   } = useAppNotifications();
   const markAsRead = useMarkAsRead();
+  const { customization } = useNotificationPreferences();
   const [refreshing, setRefreshing] = useState(false);
-  const [showNudgeAnimation, setShowNudgeAnimation] = useState(false);
-  const [nudgeSender, setNudgeSender] = useState("");
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const latestNotifications = notifications.slice(0, 3);
@@ -122,31 +139,6 @@ export default function HomeScreen() {
       router.push("/(tabs)/favorites");
     }
   };
-
-  // Listen for new nudge notifications and show animation
-  useEffect(() => {
-    if (!notifications.length) return;
-
-    // Get the latest unread nudge notification
-    const latestNudge = notifications.find(
-      (n) => n.type === "nudge" && !n.read
-    );
-
-    if (latestNudge && latestNudge.data?.senderName) {
-      // Check if this is a new nudge (created within last 10 seconds)
-      const isRecent = Date.now() - latestNudge.createdAt < 10000;
-
-      if (isRecent && !showNudgeAnimation) {
-        setNudgeSender(latestNudge.data.senderName as string);
-        setShowNudgeAnimation(true);
-
-        // Auto-mark as read after showing animation
-        setTimeout(() => {
-          markAsRead.mutate(latestNudge.id);
-        }, 3000);
-      }
-    }
-  }, [notifications]);
 
   const greeting = getGreeting();
   const displayName = profile?.displayName || "you";
@@ -362,6 +354,75 @@ export default function HomeScreen() {
                     const relativeTime = formatRelativeTime(createdAt);
                     const isLast = index === latestNotifications.length - 1;
                     const Icon = getNotifIcon(notif.type);
+                    const category = getCategory(notif.type);
+                    const colors = customization.colors[category];
+                    const visualStyle = customization.visualStyle;
+                    const useCustomStyle = !notif.read;
+
+                    const renderBackground = () => {
+                      if (!useCustomStyle) return null;
+
+                      switch (visualStyle) {
+                        case "gradient":
+                          return (
+                            <LinearGradient
+                              colors={[
+                                colors.background,
+                                colors.backgroundSecondary || colors.background,
+                              ]}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 1, y: 1 }}
+                              style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                borderRadius: 16,
+                              }}
+                            />
+                          );
+
+                        case "glassmorphic":
+                          return (
+                            <>
+                              <Stack
+                                position="absolute"
+                                top={0}
+                                left={0}
+                                right={0}
+                                bottom={0}
+                                backgroundColor={colors.background}
+                                opacity={0.9}
+                                borderRadius={16}
+                              />
+                              <Stack
+                                position="absolute"
+                                top={0}
+                                left={0}
+                                right={0}
+                                bottom={0}
+                                borderWidth={1}
+                                borderColor={`${colors.accent}40`}
+                                borderRadius={16}
+                              />
+                            </>
+                          );
+
+                        default: // solid
+                          return (
+                            <Stack
+                              position="absolute"
+                              top={0}
+                              left={0}
+                              right={0}
+                              bottom={0}
+                              backgroundColor={colors.background}
+                              borderRadius={16}
+                            />
+                          );
+                      }
+                    };
 
                     return (
                       <Button
@@ -378,7 +439,7 @@ export default function HomeScreen() {
                               height={10}
                               borderRadius={5}
                               backgroundColor={
-                                notif.read ? "$borderColor" : "$primary"
+                                notif.read ? "$borderColor" : colors.accent
                               }
                             />
                             {!isLast && (
@@ -395,32 +456,57 @@ export default function HomeScreen() {
                           {/* Content card */}
                           <Stack
                             flex={1}
-                            backgroundColor="$bgCard"
+                            backgroundColor={
+                              notif.read ? "$bgCard" : "transparent"
+                            }
                             borderRadius="$7"
                             padding="$3"
-                            borderWidth={1}
-                            borderColor="$borderColor"
+                            overflow="hidden"
                             margin="$1"
-                            opacity={notif.read ? 0.7 : 1}
+                            style={
+                              useCustomStyle
+                                ? {
+                                    shadowColor: colors.accent,
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.15,
+                                    shadowRadius: 6,
+                                    elevation: 3,
+                                  }
+                                : undefined
+                            }
                           >
-                            <XStack gap="$2" alignItems="flex-start">
+                            {renderBackground()}
+
+                            <XStack gap="$2" alignItems="flex-start" zIndex={1}>
                               <Stack
-                                width={28}
-                                height={28}
-                                borderRadius={14}
-                                backgroundColor="$primarySoft"
+                                width={30}
+                                height={30}
+                                borderRadius={10}
+                                backgroundColor={
+                                  useCustomStyle
+                                    ? `${colors.icon}25`
+                                    : "$primarySoft"
+                                }
                                 alignItems="center"
                                 justifyContent="center"
                               >
                                 <Icon
                                   size={16}
-                                  color={notif.read ? "#A28A82" : "$primary"}
+                                  color={
+                                    useCustomStyle
+                                      ? colors.icon
+                                      : notif.read
+                                      ? "#A28A82"
+                                      : "$primary"
+                                  }
                                 />
                               </Stack>
                               <YStack flex={1} gap="$1">
                                 <Text
                                   fontFamily="$body"
-                                  color="$color"
+                                  color={
+                                    useCustomStyle ? colors.text : "$color"
+                                  }
                                   fontSize={15}
                                   fontWeight="700"
                                   numberOfLines={1}
@@ -429,7 +515,10 @@ export default function HomeScreen() {
                                 </Text>
                                 <Text
                                   fontFamily="$body"
-                                  color="$colorMuted"
+                                  color={
+                                    useCustomStyle ? colors.text : "$colorMuted"
+                                  }
+                                  opacity={useCustomStyle ? 0.85 : 1}
                                   fontSize={13}
                                   numberOfLines={2}
                                   lineHeight={18}
@@ -438,7 +527,10 @@ export default function HomeScreen() {
                                 </Text>
                                 <Text
                                   fontFamily="$body"
-                                  color="$colorMuted"
+                                  color={
+                                    useCustomStyle ? colors.text : "$colorMuted"
+                                  }
+                                  opacity={useCustomStyle ? 0.6 : 1}
                                   fontSize={11}
                                   marginTop="$0.5"
                                 >
@@ -446,6 +538,20 @@ export default function HomeScreen() {
                                 </Text>
                               </YStack>
                             </XStack>
+
+                            {/* Accent bar for unread */}
+                            {useCustomStyle && (
+                              <Stack
+                                position="absolute"
+                                left={0}
+                                top={0}
+                                bottom={0}
+                                width={3}
+                                backgroundColor={colors.accent}
+                                borderTopLeftRadius={16}
+                                borderBottomLeftRadius={16}
+                              />
+                            )}
                           </Stack>
                         </XStack>
                       </Button>
@@ -631,14 +737,6 @@ export default function HomeScreen() {
 
       {/* Floating Nudge Button */}
       <NudgeButton />
-
-      {/* Nudge Receive Animation */}
-      {showNudgeAnimation && (
-        <NudgeReceiveAnimation
-          senderName={nudgeSender}
-          onComplete={() => setShowNudgeAnimation(false)}
-        />
-      )}
     </ScreenContainer>
   );
 }

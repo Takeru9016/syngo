@@ -59,6 +59,8 @@ export type AppNotificationType =
   | "todo_reminder" // Cloud Function: onTodoCreated, todoDueReminders
   | "todo_created" // Client-side
   | "todo_completed" // Client-side
+  | "todo_updated" // Client-side
+  | "todo_deleted" // Client-side
   | "todo_due_soon" // Cloud Function: todoDueReminders
   | "favorite_added" // Cloud Function: onFavoriteAdded
   | "sticker_sent" // Cloud Function: onStickerSent

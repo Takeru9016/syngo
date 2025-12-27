@@ -9,7 +9,12 @@ import {
   Stack,
   Spinner,
 } from "tamagui";
-import { Plus, CheckCircle2, ListChecks } from "@tamagui/lucide-icons";
+import {
+  Plus,
+  CheckCircle2,
+  ListChecks,
+  Sparkles,
+} from "@tamagui/lucide-icons";
 
 import {
   useTodos,
@@ -25,6 +30,8 @@ import {
   triggerSuccessHaptic,
   triggerWarningHaptic,
 } from "@/state/haptics";
+import { useToast } from "@/hooks/useToast";
+import { AppNotificationService } from "@/services/notification/notification.service";
 
 type ViewMode = "today" | "upcoming" | "someday";
 type StatusFilter = "all" | "active" | "completed";
@@ -53,6 +60,7 @@ export default function TodosScreen() {
   const createTodo = useCreateTodo();
   const updateTodo = useUpdateTodo();
   const deleteTodo = useDeleteTodo();
+  const { success, info } = useToast();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
@@ -72,7 +80,23 @@ export default function TodosScreen() {
     triggerMediumHaptic();
     const todo = todos.find((t) => t.id === id);
     if (!todo) return;
-    updateTodo.mutate({ id, updates: { isCompleted: !todo.isCompleted } });
+
+    const newCompletedState = !todo.isCompleted;
+    updateTodo.mutate({ id, updates: { isCompleted: newCompletedState } });
+
+    // Show toast and send notification to partner
+    if (newCompletedState) {
+      success("Todo Completed!", todo.title);
+      // Notify partner about completion
+      AppNotificationService.sendToPartner({
+        type: "todo_completed",
+        title: "Todo completed",
+        body: `"${todo.title}" was marked as done!`,
+        data: { todoId: id },
+      }).catch(console.error);
+    } else {
+      info("Todo Reopened", todo.title);
+    }
   };
 
   const handleEdit = (todo: Todo) => {
@@ -83,13 +107,19 @@ export default function TodosScreen() {
 
   const handleDelete = (id: string) => {
     triggerWarningHaptic();
+    const todo = todos.find((t) => t.id === id);
     deleteTodo.mutate(id);
+
+    if (todo) {
+      info("Todo Deleted", todo.title);
+    }
   };
 
   const handleSave = (data: Omit<Todo, "id" | "createdAt" | "createdBy">) => {
     triggerSuccessHaptic();
     if (editingTodo) {
       updateTodo.mutate({ id: editingTodo.id, updates: data });
+      success("Todo Updated", data.title);
     } else {
       createTodo.mutate({
         title: data.title,
@@ -97,6 +127,15 @@ export default function TodosScreen() {
         dueDate: data.dueDate,
         priority: data.priority,
       });
+      success("Todo Created", data.title);
+
+      // Notify partner about new todo
+      AppNotificationService.sendToPartner({
+        type: "todo_created",
+        title: "New todo added",
+        body: `"${data.title}" was added to your shared list`,
+        data: { todoTitle: data.title },
+      }).catch(console.error);
     }
     setEditingTodo(null);
   };
@@ -341,7 +380,16 @@ export default function TodosScreen() {
               paddingVertical="$10"
               gap="$4"
             >
-              <Text fontSize={56}>✨</Text>
+              <Stack
+                width={80}
+                height={80}
+                borderRadius={40}
+                backgroundColor="$primarySoft"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Sparkles size={36} color="$primary" />
+              </Stack>
               <YStack gap="$2" alignItems="center">
                 <Text
                   fontFamily="$heading"
