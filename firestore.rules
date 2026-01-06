@@ -147,6 +147,42 @@ service cloud.firestore {
         // No updates or deletes needed for nudges (they're immutable)
         allow update, delete: if false;
       }
+      
+      // Moods subcollection
+      match /moods/{moodId} {
+        // Helper to check if mood is private
+        function isMoodPrivate() {
+          return resource.data.isPrivate == true;
+        }
+        
+        // Helper to check if user is mood owner
+        function isMoodOwner() {
+          return resource.data.userId == request.auth.uid;
+        }
+        
+        // Pair members can read moods (but only shared ones from partner, or their own)
+        allow read: if isAuthenticated() && 
+                       isPairMember(pairId) &&
+                       (isMoodOwner() || !isMoodPrivate());
+        
+        // Pair members can create moods
+        allow create: if isAuthenticated() && 
+                         isPairMember(pairId) &&
+                         request.resource.data.userId == request.auth.uid &&
+                         request.resource.data.pairId == pairId;
+        
+        // Only mood owner can update their mood
+        allow update: if isAuthenticated() && 
+                         isPairMember(pairId) &&
+                         resource.data.userId == request.auth.uid &&
+                         request.resource.data.userId == request.auth.uid &&
+                         request.resource.data.pairId == pairId;
+        
+        // Only mood owner can delete their mood
+        allow delete: if isAuthenticated() && 
+                         isPairMember(pairId) &&
+                         resource.data.userId == request.auth.uid;
+      }
     }
     
     // Todos collection

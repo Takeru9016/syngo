@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Animated, Easing, Dimensions, Platform } from "react-native";
+import { Animated, Easing } from "react-native";
 import { Stack, Text, XStack, YStack, Image } from "tamagui";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,15 +15,8 @@ import {
 import * as Haptics from "expo-haptics";
 
 import { useNotificationPreferences } from "@/store/notificationPreference";
-import {
-  NotificationCategory,
-  NotificationVisualStyle,
-  NotificationColorScheme,
-  VIBRATION_PATTERNS,
-} from "@/types/notification-theme.types";
+import { NotificationCategory } from "@/types/notification-theme.types";
 import { AppNotificationType } from "@/types";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 interface InAppNotificationBannerProps {
   visible: boolean;

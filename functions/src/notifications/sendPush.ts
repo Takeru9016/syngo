@@ -4,14 +4,35 @@ import { checkNotificationPreferences } from "../utils/preference";
 
 const db = admin.firestore();
 
+// Expo Push API endpoint
+const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
+
 export interface PushPayload {
   title: string;
   body: string;
   data?: Record<string, string>;
 }
 
+interface ExpoPushMessage {
+  to: string;
+  title: string;
+  body: string;
+  data?: Record<string, string>;
+  sound?: "default" | null;
+  channelId?: string;
+  priority?: "default" | "normal" | "high";
+  badge?: number;
+}
+
+interface ExpoPushTicket {
+  status: "ok" | "error";
+  id?: string;
+  message?: string;
+  details?: { error?: string };
+}
+
 /**
- * Send push notification to a user's devices
+ * Send push notification to a user's devices using Expo Push API
  */
 export async function sendPushToUser(
   uid: string,
@@ -38,11 +59,11 @@ export async function sendPushToUser(
       return;
     }
 
-    const tokens: string[] = [];
+    const tokens: { token: string; docId: string }[] = [];
     devicesSnapshot.forEach((doc) => {
       const data = doc.data();
       if (data.pushToken) {
-        tokens.push(data.pushToken);
+        tokens.push({ token: data.pushToken, docId: doc.id });
       }
     });
 
@@ -51,56 +72,83 @@ export async function sendPushToUser(
       return;
     }
 
-    // Determine Android channel based on notification type (preference key)
+    // Determine Android channel based on notification type
     let channelId = "default";
     if (notificationType === "stickerNotifications") channelId = "stickers";
     else if (notificationType === "todoReminders") channelId = "reminders";
     else if (notificationType === "favoriteUpdates") channelId = "favorites";
+    else if (notificationType === "nudgeNotifications") channelId = "nudges";
 
-    // Send FCM message
-    const message: admin.messaging.MulticastMessage = {
-      // Android config
-      android: {
-        notification: {
-          sound: "notification.mp3",
-          channelId,
-        },
-      },
-      // iOS config
-      apns: {
-        payload: {
-          aps: {
-            sound: "notification.mp3",
-          },
-        },
-      },
-      notification: {
-        title: payload.title,
-        body: payload.body,
-      },
+    // Build Expo push messages
+    const messages: ExpoPushMessage[] = tokens.map(({ token }) => ({
+      to: token,
+      title: payload.title,
+      body: payload.body,
       data: payload.data || {},
-      tokens,
-    };
+      sound: "default",
+      channelId,
+      priority: "high",
+    }));
 
-    const response = await admin.messaging().sendEachForMulticast(message);
+    // Send via Expo Push API
+    const response = await fetch(EXPO_PUSH_URL, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(messages),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Expo push failed: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result = await response.json();
+    const tickets: ExpoPushTicket[] = result.data || [];
+
+    let successCount = 0;
+    let failureCount = 0;
+    const tokensToRemove: string[] = [];
+
+    // Process response tickets
+    tickets.forEach((ticket, idx) => {
+      if (ticket.status === "ok") {
+        successCount++;
+      } else {
+        failureCount++;
+        const errorType = ticket.details?.error;
+
+        // Remove invalid tokens
+        if (
+          errorType === "DeviceNotRegistered" ||
+          errorType === "InvalidCredentials"
+        ) {
+          tokensToRemove.push(tokens[idx].docId);
+          logger.warn(`🗑️ Token expired for device: ${tokens[idx].docId}`);
+        } else {
+          logger.warn(
+            `⚠️ Push failed for device ${tokens[idx].docId}: ${ticket.message}`
+          );
+        }
+      }
+    });
 
     logger.info(
-      `✅ Push sent to ${uid}: ${response.successCount}/${tokens.length} delivered`
+      `✅ Push sent to ${uid}: ${successCount}/${tokens.length} delivered`
     );
 
     // Clean up invalid tokens
-    if (response.failureCount > 0) {
+    if (tokensToRemove.length > 0) {
       const batch = db.batch();
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          const deviceDoc = devicesSnapshot.docs[idx];
-          if (deviceDoc) {
-            batch.delete(deviceDoc.ref);
-          }
-        }
+      tokensToRemove.forEach((docId) => {
+        batch.delete(db.doc(`users/${uid}/devices/${docId}`));
       });
       await batch.commit();
-      logger.info(`🧹 Cleaned up ${response.failureCount} invalid tokens`);
+      logger.info(`🧹 Cleaned up ${tokensToRemove.length} invalid tokens`);
     }
   } catch (error) {
     logger.error(`❌ Error sending push to ${uid}:`, error);

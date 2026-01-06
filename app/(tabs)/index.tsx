@@ -23,8 +23,15 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { useProfileStore } from "@/store/profile";
 import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
+import { usePartnerMood, useTodayMood } from "@/hooks/useMood";
 import { AppNotification, AppNotificationType } from "@/types";
-import { ScreenContainer, NudgeButton } from "@/components";
+import {
+  ScreenContainer,
+  NudgeButton,
+  NotificationBell,
+  NotificationPanel,
+  MoodWidget,
+} from "@/components";
 import { triggerLightHaptic, triggerSelectionHaptic } from "@/state/haptics";
 import { useNotificationPreferences } from "@/store/notificationPreference";
 import { NotificationCategory } from "@/types/notification-theme.types";
@@ -89,8 +96,11 @@ export default function HomeScreen() {
     refetch,
   } = useAppNotifications();
   const markAsRead = useMarkAsRead();
+  const { data: partnerMood } = usePartnerMood();
+  const { data: todayMood } = useTodayMood();
   const { customization } = useNotificationPreferences();
   const [refreshing, setRefreshing] = useState(false);
+  const [notifPanelVisible, setNotifPanelVisible] = useState(false);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const latestNotifications = notifications.slice(0, 3);
@@ -133,10 +143,11 @@ export default function HomeScreen() {
     }
     if (notif.type === "todo_reminder") {
       router.push("/(tabs)/todos");
-    } else if (notif.type === "sticker_sent") {
-      router.push("/(tabs)/stickers");
-    } else if (notif.type === "favorite_added") {
-      router.push("/(tabs)/favorites");
+    } else if (
+      notif.type === "sticker_sent" ||
+      notif.type === "favorite_added"
+    ) {
+      router.push("/(tabs)/moments");
     }
   };
 
@@ -156,7 +167,12 @@ export default function HomeScreen() {
       >
         <YStack flex={1} padding="$5" paddingTop="$2" gap="$5">
           {/* Header */}
-          <YStack marginTop="$4" marginBottom="$2">
+          <XStack
+            marginTop="$4"
+            marginBottom="$2"
+            alignItems="center"
+            justifyContent="space-between"
+          >
             <Text
               fontFamily="$heading"
               color="$color"
@@ -165,7 +181,8 @@ export default function HomeScreen() {
             >
               Home
             </Text>
-          </YStack>
+            <NotificationBell onPress={() => setNotifPanelVisible(true)} />
+          </XStack>
 
           {/* Hero Couple Card  */}
           <Stack
@@ -269,6 +286,14 @@ export default function HomeScreen() {
               </Stack>
             </XStack>
           </Stack>
+
+          {/* Mood Widget */}
+          <MoodWidget
+            myMood={todayMood}
+            partnerMood={partnerMood}
+            partnerName={partner?.displayName}
+            onPress={() => router.push("/(tabs)/mood")}
+          />
 
           {/* Today at a glance */}
           <YStack gap="$2">
@@ -567,7 +592,7 @@ export default function HomeScreen() {
                     height={46}
                     onPress={() => {
                       triggerSelectionHaptic();
-                      router.push("/(tabs)/notification");
+                      setNotifPanelVisible(true);
                     }}
                     pressStyle={{ opacity: 0.8, scale: 0.98 }}
                   >
@@ -707,7 +732,7 @@ export default function HomeScreen() {
                 padding="$2"
                 onPress={() => {
                   triggerSelectionHaptic();
-                  router.push("/(tabs)/stickers");
+                  router.push("/(tabs)/moments");
                 }}
               >
                 <Smile size={16} color="$primary" />
@@ -722,7 +747,7 @@ export default function HomeScreen() {
                 padding="$2"
                 onPress={() => {
                   triggerSelectionHaptic();
-                  router.push("/(tabs)/favorites");
+                  router.push("/(tabs)/moments");
                 }}
               >
                 <Star size={16} color="$primary" />
@@ -737,6 +762,12 @@ export default function HomeScreen() {
 
       {/* Floating Nudge Button */}
       <NudgeButton />
+
+      {/* Notification Panel */}
+      <NotificationPanel
+        visible={notifPanelVisible}
+        onClose={() => setNotifPanelVisible(false)}
+      />
     </ScreenContainer>
   );
 }

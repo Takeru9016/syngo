@@ -3,6 +3,7 @@ import { Animated, Easing, Alert } from "react-native";
 import { Stack, Text, XStack, YStack } from "tamagui";
 import { Heart } from "@tamagui/lucide-icons";
 import { LinearGradient } from "expo-linear-gradient";
+
 import { useNudge } from "@/hooks/useNudge";
 import { useToast } from "@/hooks/useToast";
 import { triggerLightHaptic, triggerSuccessHaptic } from "@/state/haptics";
@@ -151,6 +152,7 @@ export function NudgeButton() {
     }
   }, [canSendNudge]);
 
+  // Tap to send nudge
   const handlePress = () => {
     if (!hasPartner) {
       Alert.alert(
@@ -167,7 +169,7 @@ export function NudgeButton() {
     }
 
     triggerLightHaptic();
-    sendNudge();
+    sendNudge(undefined);
 
     // Show success feedback with toast
     setTimeout(() => {
@@ -374,7 +376,6 @@ export function NudgeButton() {
           paddingHorizontal="$3.5"
           paddingVertical="$2.5"
           borderRadius="$5"
-          minWidth={150}
           style={{
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },
@@ -390,7 +391,7 @@ export function NudgeButton() {
               fontSize={13}
               fontWeight="600"
             >
-              Send a nudge
+              Tap to nudge
             </Text>
           </XStack>
           {/* Arrow pointing down */}

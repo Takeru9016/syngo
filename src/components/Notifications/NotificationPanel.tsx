@@ -1,6 +1,22 @@
 import { useMemo, useState } from "react";
-import { RefreshControl, Alert, FlatList, ListRenderItem } from "react-native";
-import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
+import {
+  RefreshControl,
+  Alert,
+  FlatList,
+  ListRenderItem,
+  Modal,
+  Platform,
+  KeyboardAvoidingView,
+  Dimensions,
+} from "react-native";
+import {
+  YStack,
+  XStack,
+  Text,
+  Button,
+  Stack,
+  Spinner
+} from "tamagui";
 import {
   Bell,
   CheckCheck,
@@ -12,10 +28,11 @@ import {
   HeartHandshake,
   HeartCrack,
   User,
-  Heart,
+  X,
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   useAppNotifications,
@@ -25,7 +42,6 @@ import {
   useClearAllNotifications,
 } from "@/hooks/useAppNotification";
 import { AppNotification, AppNotificationType } from "@/types";
-import { ScreenContainer } from "@/components";
 import {
   triggerLightHaptic,
   triggerMediumHaptic,
@@ -34,11 +50,18 @@ import {
 } from "@/state/haptics";
 import { useNotificationPreferences } from "@/store/notificationPreference";
 import { NotificationCategory } from "@/types/notification-theme.types";
-import { formatRelativeTime } from "@/utils/dateFormat";
+
+type Props = {
+  visible: boolean;
+  onClose: () => void;
+};
 
 type FilterKey = "all" | "unread";
 
-export default function NotificationsScreen() {
+export function NotificationPanel({ visible, onClose }: Props) {
+  const insets = useSafeAreaInsets();
+  const screenHeight = Dimensions.get("window").height;
+  const panelHeight = screenHeight * 0.7;
   const {
     data: notifications = [],
     isLoading,
@@ -64,6 +87,7 @@ export default function NotificationsScreen() {
     if (!notif.read) {
       markAsRead.mutate(notif.id);
     }
+    onClose(); // Close panel first
     switch (notif.type) {
       case "todo_reminder":
       case "todo_completed":
@@ -71,10 +95,8 @@ export default function NotificationsScreen() {
         router.push("/(tabs)/todos");
         break;
       case "sticker_sent":
-        router.push("/(tabs)/stickers");
-        break;
       case "favorite_added":
-        router.push("/(tabs)/favorites");
+        router.push("/(tabs)/moments");
         break;
       case "pair_success":
       case "pair_request":
@@ -134,174 +156,210 @@ export default function NotificationsScreen() {
   );
 
   return (
-    <ScreenContainer scroll={false}>
-      <YStack flex={1} paddingTop="$4" gap="$3">
-        {/* Hero header */}
-        <YStack gap="$2">
-          <XStack alignItems="center" gap="$2">
-            <Bell size={18} color="$primary" />
-            <Text
-              color="$color"
-              fontSize={18}
-              fontFamily="$heading"
-              fontWeight="800"
-            >
-              Activity inbox
-            </Text>
-          </XStack>
-          <Text color="$muted" fontSize={13}>
-            Little pings about todos, stickers, and favorites.
-          </Text>
-        </YStack>
-
-        {/* Primary actions row (now directly under header, full-width) */}
-        {notifications.length > 0 && (
-          <XStack gap="$2">
-            {unreadCount > 0 && (
-              <Button
-                flex={1}
-                size="$3"
-                backgroundColor="$bgSoft"
-                borderRadius="$7"
-                paddingHorizontal="$3"
-                height={44}
-                onPress={handleMarkAllAsRead}
-                pressStyle={{ opacity: 0.9, scale: 0.97 }}
-              >
-                <XStack alignItems="center" justifyContent="center" gap="$2">
-                  <CheckCheck size={16} color="$primary" />
-                  <Text color="$primary" fontSize={13} fontWeight="700">
-                    Mark all read
-                  </Text>
-                </XStack>
-              </Button>
-            )}
-            <Button
-              flex={1}
-              size="$3"
-              backgroundColor="$bgSoft"
-              borderRadius="$7"
-              paddingHorizontal="$3"
-              height={44}
-              onPress={handleClearAll}
-              pressStyle={{ opacity: 0.9, scale: 0.97 }}
-            >
-              <XStack alignItems="center" justifyContent="center" gap="$2">
-                <Trash2 size={16} color="#f44336" />
-                <Text color="#f44336" fontSize={13} fontWeight="700">
-                  Clear all
-                </Text>
-              </XStack>
-            </Button>
-          </XStack>
-        )}
-
-        {/* Filter row + summary */}
-        <XStack
-          alignItems="center"
-          justifyContent="space-between"
-          gap="$3"
-          marginTop="$1"
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <Stack
+          flex={1}
+          backgroundColor="rgba(0,0,0,0.5)"
+          justifyContent="flex-end"
         >
-          <XStack gap="$2">
-            <FilterChip
-              label="All"
-              active={filter === "all"}
-              onPress={() => setFilter("all")}
-            />
-            <FilterChip
-              label={`Unread${unreadCount ? ` (${unreadCount})` : ""}`}
-              active={filter === "unread"}
-              onPress={() => setFilter("unread")}
-            />
-          </XStack>
-
-          {notifications.length > 0 && (
-            <Text color="$muted" fontSize={12}>
-              {notifications.length} total
-            </Text>
-          )}
-        </XStack>
-
-        {/* Content */}
-        {isLoading ? (
-          <YStack flex={1} paddingTop="$3" gap="$2">
-            {[1, 2, 3, 4].map((i) => (
-              <Stack
-                key={i}
-                backgroundColor="$bgSoft"
-                borderRadius="$7"
-                padding="$3"
-                height={72}
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Spinner size="small" color="$muted" />
-              </Stack>
-            ))}
-          </YStack>
-        ) : filteredNotifications.length === 0 ? (
           <Stack
-            flex={1}
-            alignItems="center"
-            justifyContent="center"
-            paddingVertical="$8"
-            gap="$4"
+            backgroundColor="$bg"
+            borderTopLeftRadius="$8"
+            borderTopRightRadius="$8"
+            height={panelHeight}
+            paddingBottom={Math.max(insets.bottom, 20)}
           >
-            <Stack
-              width={96}
-              height={96}
-              borderRadius="$8"
-              backgroundColor="$bgSoft"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Bell size={40} color="$primary" />
-            </Stack>
+            <YStack padding="$5" gap="$3" flex={1}>
+              {/* Header */}
+              <XStack alignItems="center" justifyContent="space-between">
+                <XStack alignItems="center" gap="$2">
+                  <Bell size={18} color="$primary" />
+                  <Text
+                    color="$color"
+                    fontSize={18}
+                    fontFamily="$heading"
+                    fontWeight="800"
+                  >
+                    Notifications
+                  </Text>
+                  {unreadCount > 0 && (
+                    <Stack
+                      backgroundColor="$primary"
+                      paddingHorizontal="$2"
+                      paddingVertical="$1"
+                      borderRadius="$4"
+                    >
+                      <Text fontSize={11} fontWeight="700" color="white">
+                        {unreadCount}
+                      </Text>
+                    </Stack>
+                  )}
+                </XStack>
 
-            <YStack gap="$2" alignItems="center" paddingHorizontal="$6">
-              <Text
-                color="$color"
-                fontSize={18}
-                fontWeight="700"
-                fontFamily="$heading"
-                textAlign="center"
+                <Button
+                  unstyled
+                  width={36}
+                  height={36}
+                  borderRadius={18}
+                  backgroundColor="$bgSoft"
+                  alignItems="center"
+                  justifyContent="center"
+                  onPress={onClose}
+                  pressStyle={{ opacity: 0.8 }}
+                >
+                  <X size={20} color="$colorMuted" />
+                </Button>
+              </XStack>
+
+              {/* Actions */}
+              {notifications.length > 0 && (
+                <XStack gap="$2">
+                  {unreadCount > 0 && (
+                    <Button
+                      flex={1}
+                      size="$3"
+                      backgroundColor="$bgSoft"
+                      borderRadius="$7"
+                      paddingHorizontal="$3"
+                      height={40}
+                      onPress={handleMarkAllAsRead}
+                      pressStyle={{ opacity: 0.9, scale: 0.97 }}
+                    >
+                      <XStack
+                        alignItems="center"
+                        justifyContent="center"
+                        gap="$2"
+                      >
+                        <CheckCheck size={14} color="$primary" />
+                        <Text color="$primary" fontSize={12} fontWeight="700">
+                          Mark all read
+                        </Text>
+                      </XStack>
+                    </Button>
+                  )}
+                  <Button
+                    flex={1}
+                    size="$3"
+                    backgroundColor="$bgSoft"
+                    borderRadius="$7"
+                    paddingHorizontal="$3"
+                    height={40}
+                    onPress={handleClearAll}
+                    pressStyle={{ opacity: 0.9, scale: 0.97 }}
+                  >
+                    <XStack
+                      alignItems="center"
+                      justifyContent="center"
+                      gap="$2"
+                    >
+                      <Trash2 size={14} color="#f44336" />
+                      <Text color="#f44336" fontSize={12} fontWeight="700">
+                        Clear all
+                      </Text>
+                    </XStack>
+                  </Button>
+                </XStack>
+              )}
+
+              {/* Filter */}
+              <XStack
+                alignItems="center"
+                justifyContent="space-between"
+                gap="$3"
               >
-                {notifications.length === 0
-                  ? "You're all caught up"
-                  : "No unread notifications"}
-              </Text>
-              <Text
-                color="$muted"
-                fontSize={14}
-                textAlign="center"
-                maxWidth={280}
-              >
-                When todos, stickers, or favorites change, they’ll show up here.
-              </Text>
+                <XStack gap="$2">
+                  <FilterChip
+                    label="All"
+                    active={filter === "all"}
+                    onPress={() => setFilter("all")}
+                  />
+                  <FilterChip
+                    label={`Unread${unreadCount ? ` (${unreadCount})` : ""}`}
+                    active={filter === "unread"}
+                    onPress={() => setFilter("unread")}
+                  />
+                </XStack>
+              </XStack>
+
+              {/* Content */}
+              {isLoading ? (
+                <YStack flex={1} alignItems="center" justifyContent="center">
+                  <Spinner size="large" color="$primary" />
+                </YStack>
+              ) : filteredNotifications.length === 0 ? (
+                <Stack
+                  flex={1}
+                  alignItems="center"
+                  justifyContent="center"
+                  paddingVertical="$8"
+                  gap="$4"
+                >
+                  <Stack
+                    width={80}
+                    height={80}
+                    borderRadius="$8"
+                    backgroundColor="$bgSoft"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Bell size={36} color="$primary" />
+                  </Stack>
+                  <YStack gap="$2" alignItems="center">
+                    <Text
+                      color="$color"
+                      fontSize={16}
+                      fontWeight="700"
+                      fontFamily="$heading"
+                      textAlign="center"
+                    >
+                      {notifications.length === 0
+                        ? "You're all caught up"
+                        : "No unread notifications"}
+                    </Text>
+                    <Text
+                      color="$muted"
+                      fontSize={13}
+                      textAlign="center"
+                      maxWidth={260}
+                    >
+                      Notifications will show up here
+                    </Text>
+                  </YStack>
+                </Stack>
+              ) : (
+                <FlatList
+                  data={filteredNotifications}
+                  keyExtractor={(item) => item.id}
+                  ItemSeparatorComponent={() => <Stack height={10} />}
+                  contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={handleRefresh}
+                    />
+                  }
+                  showsVerticalScrollIndicator={false}
+                  renderItem={renderItem}
+                />
+              )}
             </YStack>
           </Stack>
-        ) : (
-          <FlatList
-            data={filteredNotifications}
-            keyExtractor={(item) => item.id}
-            ItemSeparatorComponent={() => <Stack height={10} />}
-            contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-              />
-            }
-            showsVerticalScrollIndicator={false}
-            renderItem={renderItem}
-          />
-        )}
-      </YStack>
-    </ScreenContainer>
+        </Stack>
+      </KeyboardAvoidingView>
+    </Modal>
   );
 }
 
+// Filter chip component
 type FilterChipProps = {
   label: string;
   active: boolean;
@@ -314,7 +372,7 @@ function FilterChip({ label, active, onPress }: FilterChipProps) {
       size="$2"
       borderRadius="$8"
       paddingHorizontal="$3"
-      height={44}
+      height={36}
       backgroundColor={active ? "$primarySoft" : "$bgSoft"}
       onPress={onPress}
       pressStyle={{ opacity: 0.9, scale: 0.97 }}
@@ -331,13 +389,13 @@ function FilterChip({ label, active, onPress }: FilterChipProps) {
   );
 }
 
+// Notification card component
 type NotificationCardProps = {
   notif: AppNotification;
   onPress: (notif: AppNotification) => void;
   onDelete: (id: string) => void;
 };
 
-// Map notification types to categories
 function getCategory(type: AppNotificationType): NotificationCategory {
   switch (type) {
     case "nudge":
@@ -380,9 +438,7 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
     );
   };
 
-  const createdAtLabel = formatRelativeTime(notif.createdAt);
-
-  // Only apply custom styling to unread notifications
+  const createdAtLabel = new Date(notif.createdAt).toLocaleString();
   const useCustomStyle = !notif.read;
 
   const renderBackground = () => {
@@ -408,7 +464,6 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
             }}
           />
         );
-
       case "glassmorphic":
         return (
           <>
@@ -434,8 +489,7 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
             />
           </>
         );
-
-      default: // solid
+      default:
         return (
           <Stack
             position="absolute"
@@ -477,7 +531,6 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
         {renderBackground()}
 
         <XStack alignItems="flex-start" gap="$3" zIndex={1}>
-          {/* Icon bubble */}
           <Stack
             width={36}
             height={36}
@@ -492,7 +545,6 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
             })}
           </Stack>
 
-          {/* Text content */}
           <YStack flex={1} gap="$1">
             <Text
               color={useCustomStyle ? colors.text : "$color"}
@@ -518,7 +570,6 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
             </Text>
           </YStack>
 
-          {/* Unread indicator */}
           {!notif.read && (
             <Stack
               width={8}
@@ -530,7 +581,6 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
           )}
         </XStack>
 
-        {/* Accent bar for unread */}
         {useCustomStyle && (
           <Stack
             position="absolute"
@@ -554,51 +604,35 @@ function getNotificationVisual(type: AppNotificationType) {
     case "todo_due_soon":
       return {
         icon: (props: any) => <AlarmClock {...props} />,
-        iconBg: "$primarySoft",
-        iconColor: "$primary",
       };
     case "todo_completed":
       return {
         icon: (props: any) => <CheckCircle2 {...props} />,
-        iconBg: "$successSoft",
-        iconColor: "$success",
       };
     case "sticker_sent":
       return {
         icon: (props: any) => <Sticker {...props} />,
-        iconBg: "$accentSoft",
-        iconColor: "$accent",
       };
     case "favorite_added":
       return {
         icon: (props: any) => <Star {...props} />,
-        iconBg: "$accentSoft",
-        iconColor: "$accent",
       };
     case "pair_success":
     case "pair_request":
       return {
         icon: (props: any) => <HeartHandshake {...props} />,
-        iconBg: "$primarySoft",
-        iconColor: "$primary",
       };
     case "unpair":
       return {
         icon: (props: any) => <HeartCrack {...props} />,
-        iconBg: "$dangerSoft",
-        iconColor: "$danger",
       };
     case "profile_updated":
       return {
         icon: (props: any) => <User {...props} />,
-        iconBg: "$bgSoft",
-        iconColor: "$muted",
       };
     default:
       return {
         icon: (props: any) => <Bell {...props} />,
-        iconBg: "$bgSoft",
-        iconColor: "$muted",
       };
   }
 }

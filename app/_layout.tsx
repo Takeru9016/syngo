@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useColorScheme } from "react-native";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { TamaguiProvider, Theme, YStack, Text } from "tamagui";
+import { TamaguiProvider, Theme, YStack, Text, Stack } from "tamagui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font"; // ← Single import
@@ -26,6 +26,7 @@ import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { InAppNotificationProvider, NudgeReceiveAnimation } from "@/components";
 import { useForegroundNotification } from "@/hooks/useForegroundNotification";
 import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
+import { useNotificationStore } from "@/store/notification";
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -80,9 +81,14 @@ function Gate() {
   // Nudge animation state
   const [showNudgeAnimation, setShowNudgeAnimation] = useState(false);
   const [nudgeSender, setNudgeSender] = useState("");
+  const shownNudgeIds = useRef<Set<string>>(new Set()); // Track which nudges we've shown animation for
+  const lastProcessedRef = useRef<number>(0); // Track last processed timestamp
 
-  // Notification hooks for nudge detection
-  const { data: notifications = [] } = useAppNotifications();
+  // Initialize notification listener (sets up Firestore subscription)
+  useAppNotifications();
+
+  // Get notifications directly from Zustand store (guaranteed to trigger re-renders)
+  const notifications = useNotificationStore((s) => s.notifications);
   const markAsRead = useMarkAsRead();
 
   // Enable in-app notification banner for foreground notifications
@@ -90,22 +96,51 @@ function Gate() {
 
   // Listen for new nudge notifications and show animation globally
   useEffect(() => {
-    if (!notifications.length) return;
+    // Don't process if already showing animation
+    if (showNudgeAnimation) return;
 
-    // Get the latest unread nudge notification
-    const latestNudge = notifications.find(
-      (n) => n.type === "nudge" && !n.read
-    );
+    // Get all nudge notifications
+    const allNudges = notifications.filter((n) => n.type === "nudge");
 
-    // Show animation for any unread nudge (even if user opens app hours later)
-    if (latestNudge && latestNudge.data?.senderName && !showNudgeAnimation) {
-      setNudgeSender(latestNudge.data.senderName as string);
-      setShowNudgeAnimation(true);
+    // Find nudges we should show animation for:
+    // 1. Unread nudges we haven't shown animation for yet
+    // 2. OR recent nudges (within 5 minutes) we haven't shown animation for yet (handles app restart case)
+    const FIVE_MINUTES = 5 * 60 * 1000;
+    const now = Date.now();
 
-      // Auto-mark as read after showing animation
+    const eligibleNudge = allNudges.find((n) => {
+      // Skip if we already showed animation for this nudge in this session
+      if (shownNudgeIds.current.has(n.id)) return false;
+
+      // Show if unread
+      if (!n.read) return true;
+
+      // Also show if recent (within 5 minutes) - handles app restart case
+      const isRecent = n.createdAt && now - n.createdAt < FIVE_MINUTES;
+      return isRecent;
+    });
+
+    if (!eligibleNudge) return;
+
+    // Prevent rapid re-triggers (debounce by 500ms)
+    if (now - lastProcessedRef.current < 500) return;
+    lastProcessedRef.current = now;
+
+    // Mark this nudge as shown
+    shownNudgeIds.current.add(eligibleNudge.id);
+
+    // Use senderName from data, or fallback to default
+    const senderName =
+      (eligibleNudge.data?.senderName as string) || "Your partner";
+
+    setNudgeSender(senderName);
+    setShowNudgeAnimation(true);
+
+    // Mark as read if not already (in case it was a recent but read nudge)
+    if (!eligibleNudge.read) {
       setTimeout(() => {
-        markAsRead.mutate(latestNudge.id);
-      }, 3000);
+        markAsRead.mutate(eligibleNudge.id);
+      }, 3500);
     }
   }, [notifications]);
 
@@ -218,16 +253,16 @@ function Gate() {
   }
 
   return (
-    <>
+    <Stack flex={1}>
       <Slot />
-      {/* Global Nudge Receive Animation */}
+      {/* Global Nudge Receive Animation - Must render AFTER Slot to be on top */}
       {showNudgeAnimation && (
         <NudgeReceiveAnimation
           senderName={nudgeSender}
           onComplete={() => setShowNudgeAnimation(false)}
         />
       )}
-    </>
+    </Stack>
   );
 }
 

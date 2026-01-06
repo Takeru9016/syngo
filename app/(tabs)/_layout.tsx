@@ -3,9 +3,8 @@ import { useTheme } from "tamagui";
 import {
   Home,
   CheckSquare,
-  Heart,
-  Sticker,
-  Bell,
+  Sparkles,
+  Smile,
   Settings,
 } from "@tamagui/lucide-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -50,26 +49,19 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="favorites"
+        name="moments"
         options={{
-          title: "Favorites",
-          tabBarIcon: ({ color, size }) => <Heart size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="stickers"
-        options={{
-          title: "Stickers",
+          title: "Moments",
           tabBarIcon: ({ color, size }) => (
-            <Sticker size={size} color={color} />
+            <Sparkles size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="notification"
+        name="mood"
         options={{
-          title: "Notifications",
-          tabBarIcon: ({ color, size }) => <Bell size={size} color={color} />,
+          title: "Mood",
+          tabBarIcon: ({ color, size }) => <Smile size={size} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -79,6 +71,25 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Settings size={size} color={color} />
           ),
+        }}
+      />
+      {/* Hidden screens - kept for backwards compatibility but not shown in tab bar */}
+      <Tabs.Screen
+        name="favorites"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
+      <Tabs.Screen
+        name="stickers"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
+      <Tabs.Screen
+        name="notification"
+        options={{
+          href: null, // Hide from tab bar
         }}
       />
     </Tabs>

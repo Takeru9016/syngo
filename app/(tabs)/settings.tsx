@@ -709,13 +709,6 @@ export default function SettingsScreen() {
                   iconLeft={Heart}
                 />
                 <ToggleRow
-                  label="Pair events"
-                  value={preferences.pairEvents}
-                  onToggle={(v) => handleToggle("pairEvents", v)}
-                  trackColorActive={switchAccentColor}
-                  iconLeft={HeartHandshake}
-                />
-                <ToggleRow
                   label="Sound"
                   value={preferences.sound}
                   onToggle={(v) => handleToggle("sound", v)}

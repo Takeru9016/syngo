@@ -139,3 +139,34 @@ export type PredefinedStickerManifest = {
   categories: PredefinedStickerCategory[];
 };
 
+// Mood Tracking Types
+export type MoodLevel = 1 | 2 | 3 | 4 | 5;
+
+export type MoodEmoji = "😢" | "😔" | "😐" | "🙂" | "😊";
+
+export const MOOD_EMOJIS: Record<MoodLevel, MoodEmoji> = {
+  1: "😢", // Very sad
+  2: "😔", // Sad
+  3: "😐", // Neutral
+  4: "🙂", // Happy
+  5: "😊", // Very happy
+};
+
+export const MOOD_LABELS: Record<MoodLevel, string> = {
+  1: "Struggling",
+  2: "Down",
+  3: "Okay",
+  4: "Good",
+  5: "Great",
+};
+
+export type MoodEntry = {
+  id: string;
+  userId: string;
+  pairId: string;
+  level: MoodLevel;
+  note?: string; // Optional journal entry
+  isPrivate: boolean; // If true, partner can't see this entry
+  createdAt: number;
+  updatedAt?: number;
+};

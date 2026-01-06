@@ -3,6 +3,7 @@ import { Animated, Easing } from "react-native";
 import { Stack, Text, XStack, YStack } from "tamagui";
 import { LinearGradient } from "expo-linear-gradient";
 import { Heart, Sticker, CheckSquare, Star, Bell } from "@tamagui/lucide-icons";
+
 import {
   NotificationCategory,
   NotificationColorScheme,

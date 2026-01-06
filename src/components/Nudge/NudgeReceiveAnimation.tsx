@@ -3,6 +3,7 @@ import { Animated, Easing, Dimensions } from "react-native";
 import { Stack, Text, YStack, useTheme } from "tamagui";
 import { Heart, Sparkles } from "@tamagui/lucide-icons";
 import { LinearGradient } from "expo-linear-gradient";
+
 import { triggerSuccessHaptic } from "@/state/haptics";
 
 const { width, height } = Dimensions.get("window");

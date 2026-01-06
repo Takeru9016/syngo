@@ -19,7 +19,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 
 import { ScreenContainer } from "@/components";
-import { NotificationPreview } from "@/components/NotificationPreview";
+import { NotificationPreview } from "@/components/Notifications/NotificationPreview";
 import { useNotificationPreferences } from "@/store/notificationPreference";
 import {
   NotificationCategory,
