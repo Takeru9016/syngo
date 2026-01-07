@@ -11,14 +11,25 @@ import {
 
 import { db } from "@/config/firebase";
 import { TodoService } from "@/services/todo/todo.service";
-import { Todo, TodoPriority } from "@/types";
+import {
+  Todo,
+  TodoPriority,
+  ListItemType,
+  DreamCategory,
+  Subtask,
+} from "@/types";
 import { useProfileStore } from "@/store/profile";
 
 type CreatePayload = {
   title: string;
   description: string;
-  dueDate: number;
+  dueDate?: number; // Optional for dreams
   priority: TodoPriority;
+  // Together List fields
+  listType?: ListItemType;
+  subtasks?: Subtask[];
+  category?: DreamCategory;
+  photos?: string[];
 };
 
 type UpdatePayload = {
@@ -54,11 +65,22 @@ export function useTodos() {
             id: d.id,
             title: String(data.title ?? ""),
             description: String(data.description ?? ""),
-            dueDate: Number(data.dueDate ?? 0),
+            dueDate: data.dueDate ? Number(data.dueDate) : undefined,
             isCompleted: Boolean(data.isCompleted),
             priority: (data.priority as TodoPriority) || "medium",
             createdBy: String(data.createdBy ?? ""),
             createdAt: Number(data.createdAt ?? 0),
+            // Together List fields
+            listType: (data.listType as ListItemType) || "task",
+            subtasks: Array.isArray(data.subtasks) ? data.subtasks : undefined,
+            category: data.category as DreamCategory | undefined,
+            photos: Array.isArray(data.photos) ? data.photos : undefined,
+            completedDate: data.completedDate
+              ? Number(data.completedDate)
+              : undefined,
+            completedPhotos: Array.isArray(data.completedPhotos)
+              ? data.completedPhotos
+              : undefined,
           };
         });
 
@@ -159,7 +181,6 @@ export function useDeleteTodo() {
 
   return useMutation({
     mutationFn: (id: string) => {
-
       // Reject optimistic IDs immediately
       if (id.startsWith("optimistic-")) {
         console.error(

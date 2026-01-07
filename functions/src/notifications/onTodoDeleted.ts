@@ -10,7 +10,7 @@ import {
 const db = admin.firestore();
 
 /**
- * Firestore trigger: When a todo is deleted
+ * Firestore trigger: When a todo/dream is deleted
  */
 export const onTodoDeleted = onDocumentDeleted(
   "todos/{todoId}",
@@ -43,15 +43,23 @@ export const onTodoDeleted = onDocumentDeleted(
       const deleterDoc = await db.doc(`users/${deleterUid}`).get();
       const deleterName = deleterDoc.data()?.displayName || "Your partner";
 
+      // Determine if this is a dream or task
+      const isDream = todoData.listType === "dream";
+      const title = isDream ? "Dream Removed" : "Todo Deleted 🗑️";
+      const body = isDream
+        ? `${deleterName} removed from bucket list: ${todoData.title}`
+        : `${deleterName} removed: ${todoData.title}`;
+      const type = isDream ? "dream_deleted" : "todo_deleted";
+
       // Send notification to partner
       await Promise.all([
         sendPushToUser(
           partnerUid,
           {
-            title: "Todo Deleted 🗑️",
-            body: `${deleterName} removed: ${todoData.title}`,
+            title,
+            body,
             data: {
-              type: "todo_deleted",
+              type,
               todoId,
               pairId,
             },
@@ -59,15 +67,17 @@ export const onTodoDeleted = onDocumentDeleted(
           "todoReminders"
         ),
         createInAppNotification(partnerUid, pairId, {
-          type: "todo_deleted",
-          title: "Todo Deleted 🗑️",
-          body: `${deleterName} removed: ${todoData.title}`,
+          type,
+          title,
+          body,
           data: { todoId },
         }),
       ]);
 
       logger.info(
-        `✅ Todo deleted notification sent to partner: ${partnerUid}`
+        `✅ ${
+          isDream ? "Dream" : "Todo"
+        } deleted notification sent to partner: ${partnerUid}`
       );
     } catch (error) {
       logger.error("❌ Error in onTodoDeleted:", error);

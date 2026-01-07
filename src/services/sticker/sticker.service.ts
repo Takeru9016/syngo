@@ -109,7 +109,7 @@ export const StickerService = {
       // Send notification to partner
       await notifyPartner({
         type: "sticker_sent",
-        title: "🎨 New Sticker",
+        title: "New Sticker",
         body: `${input.name}`,
         data: { stickerId: ref.id, imageUrl: input.imageUrl },
       });

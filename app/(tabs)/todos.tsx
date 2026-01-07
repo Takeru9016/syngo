@@ -14,6 +14,12 @@ import {
   CheckCircle2,
   ListChecks,
   Sparkles,
+  ClipboardList,
+  Star,
+  Plane,
+  UtensilsCrossed,
+  Mountain,
+  Heart,
 } from "@tamagui/lucide-icons";
 
 import {
@@ -23,37 +29,54 @@ import {
   useDeleteTodo,
 } from "@/hooks/useTodo";
 import { ScreenContainer, TodoItem, TodoModal } from "@/components";
-import { Todo, TodoPriority } from "@/types";
+import { Todo, ListItemType, DreamCategory } from "@/types";
 import {
   triggerLightHaptic,
   triggerMediumHaptic,
   triggerSuccessHaptic,
   triggerWarningHaptic,
+  triggerSelectionHaptic,
 } from "@/state/haptics";
 import { useToast } from "@/hooks/useToast";
 import { AppNotificationService } from "@/services/notification/notification.service";
 
 type ViewMode = "today" | "upcoming" | "someday";
 type StatusFilter = "all" | "active" | "completed";
+type DreamFilter = "all" | DreamCategory;
 
-const isToday = (ts: number) => {
+const isToday = (ts?: number) => {
+  if (!ts) return false;
   const d = new Date(ts);
   const now = new Date();
   return d.toDateString() === now.toDateString();
 };
 
-const isFuture = (ts: number) => {
+const isFuture = (ts?: number) => {
+  if (!ts) return false;
   const now = new Date().getTime();
   return ts > now && !isToday(ts);
 };
 
-const isSomeday = (ts: number) => {
-  // Treat far-future items (e.g., > 30 days) or missing dueDate as "Someday"
+const isSomeday = (ts?: number) => {
   if (!ts) return true;
   const now = new Date().getTime();
   const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
   return ts - now > THIRTY_DAYS;
 };
+
+// Dream category config
+const DREAM_CATEGORIES: {
+  value: DreamFilter;
+  label: string;
+  icon: typeof Plane;
+}[] = [
+  { value: "all", label: "All", icon: Star },
+  { value: "travel", label: "Travel", icon: Plane },
+  { value: "food", label: "Food", icon: UtensilsCrossed },
+  { value: "adventure", label: "Adventure", icon: Mountain },
+  { value: "together", label: "Together", icon: Heart },
+  { value: "other", label: "Other", icon: Sparkles },
+];
 
 export default function TodosScreen() {
   const { data: todos = [], isLoading, refetch } = useTodos();
@@ -66,8 +89,20 @@ export default function TodosScreen() {
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Top-level toggle: Tasks or Dreams
+  const [listMode, setListMode] = useState<ListItemType>("task");
+
+  // Task-specific filters
   const [view, setView] = useState<ViewMode>("today");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("active");
+
+  // Dream-specific filters
+  const [dreamCategory, setDreamCategory] = useState<DreamFilter>("all");
+  const [dreamStatus, setDreamStatus] = useState<"pending" | "achieved">(
+    "pending"
+  );
+
+  const isDreamMode = listMode === "dream";
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -82,20 +117,27 @@ export default function TodosScreen() {
     if (!todo) return;
 
     const newCompletedState = !todo.isCompleted;
-    updateTodo.mutate({ id, updates: { isCompleted: newCompletedState } });
+    const updates: Partial<Todo> = { isCompleted: newCompletedState };
 
-    // Show toast and send notification to partner
+    // For dreams, also set completedDate
+    if (todo.listType === "dream" && newCompletedState) {
+      updates.completedDate = Date.now();
+    }
+
+    updateTodo.mutate({ id, updates });
+
     if (newCompletedState) {
-      success("Todo Completed!", todo.title);
-      // Notify partner about completion
+      const message = todo.listType === "dream" ? "Dream Achieved!" : "Done!";
+      success(message, todo.title);
       AppNotificationService.sendToPartner({
         type: "todo_completed",
-        title: "Todo completed",
+        title:
+          todo.listType === "dream" ? "Dream achieved! ✨" : "Todo completed",
         body: `"${todo.title}" was marked as done!`,
         data: { todoId: id },
       }).catch(console.error);
     } else {
-      info("Todo Reopened", todo.title);
+      info(isDreamMode ? "Dream Reopened" : "Todo Reopened", todo.title);
     }
   };
 
@@ -111,28 +153,44 @@ export default function TodosScreen() {
     deleteTodo.mutate(id);
 
     if (todo) {
-      info("Todo Deleted", todo.title);
+      info(isDreamMode ? "Dream Removed" : "Todo Deleted", todo.title);
     }
+  };
+
+  const handleSubtaskToggle = (todoId: string, subtaskId: string) => {
+    const todo = todos.find((t) => t.id === todoId);
+    if (!todo || !todo.subtasks) return;
+
+    const updatedSubtasks = todo.subtasks.map((s) =>
+      s.id === subtaskId ? { ...s, isCompleted: !s.isCompleted } : s
+    );
+
+    updateTodo.mutate({ id: todoId, updates: { subtasks: updatedSubtasks } });
   };
 
   const handleSave = (data: Omit<Todo, "id" | "createdAt" | "createdBy">) => {
     triggerSuccessHaptic();
     if (editingTodo) {
       updateTodo.mutate({ id: editingTodo.id, updates: data });
-      success("Todo Updated", data.title);
+      success(isDreamMode ? "Dream Updated" : "Todo Updated", data.title);
     } else {
       createTodo.mutate({
         title: data.title,
         description: data.description,
         dueDate: data.dueDate,
         priority: data.priority,
+        listType: data.listType,
+        subtasks: data.subtasks,
+        category: data.category,
+        photos: data.photos,
       });
-      success("Todo Created", data.title);
 
-      // Notify partner about new todo
+      const isDream = data.listType === "dream";
+      success(isDream ? "Dream Added ✨" : "Todo Created", data.title);
+
       AppNotificationService.sendToPartner({
         type: "todo_created",
-        title: "New todo added",
+        title: isDream ? "New dream added ✨" : "New todo added",
         body: `"${data.title}" was added to your shared list`,
         data: { todoTitle: data.title },
       }).catch(console.error);
@@ -145,34 +203,72 @@ export default function TodosScreen() {
     setEditingTodo(null);
   };
 
-  const activeCount = todos.filter((t) => !t.isCompleted).length;
-  const completedCount = todos.filter((t) => t.isCompleted).length;
+  // Separate todos into tasks and dreams
+  const tasks = todos.filter((t) => t.listType !== "dream");
+  const dreams = todos.filter((t) => t.listType === "dream");
 
-  const filteredTodos = useMemo(() => {
-    let base = todos;
+  const activeTaskCount = tasks.filter((t) => !t.isCompleted).length;
+  const completedTaskCount = tasks.filter((t) => t.isCompleted).length;
+  const pendingDreamCount = dreams.filter((t) => !t.isCompleted).length;
+  const achievedDreamCount = dreams.filter((t) => t.isCompleted).length;
 
-    // View mode
-    if (view === "today") {
-      base = base.filter((t) => isToday(t.dueDate) || t.dueDate < Date.now());
-    } else if (view === "upcoming") {
-      base = base.filter((t) => isFuture(t.dueDate));
-    } else if (view === "someday") {
-      base = base.filter((t) => isSomeday(t.dueDate));
+  const filteredItems = useMemo(() => {
+    if (isDreamMode) {
+      // Filter dreams
+      let base = dreams;
+
+      // Category filter
+      if (dreamCategory !== "all") {
+        base = base.filter((t) => t.category === dreamCategory);
+      }
+
+      // Status filter
+      if (dreamStatus === "pending") {
+        base = base.filter((t) => !t.isCompleted);
+      } else {
+        base = base.filter((t) => t.isCompleted);
+      }
+
+      return base;
+    } else {
+      // Filter tasks
+      let base = tasks;
+
+      // View mode
+      if (view === "today") {
+        base = base.filter(
+          (t) => isToday(t.dueDate) || (t.dueDate && t.dueDate < Date.now())
+        );
+      } else if (view === "upcoming") {
+        base = base.filter((t) => isFuture(t.dueDate));
+      } else if (view === "someday") {
+        base = base.filter((t) => isSomeday(t.dueDate));
+      }
+
+      // Status filter
+      if (statusFilter === "all") {
+        base = base.filter((t) => !t.isCompleted);
+      } else if (statusFilter === "completed") {
+        base = base.filter((t) => t.isCompleted);
+      }
+
+      return base;
     }
+  }, [
+    todos,
+    listMode,
+    view,
+    statusFilter,
+    dreamCategory,
+    dreamStatus,
+    isDreamMode,
+    tasks,
+    dreams,
+  ]);
 
-    // Status filter
-    if (statusFilter === "all") {
-      base = base.filter((t) => !t.isCompleted);
-    } else if (statusFilter === "completed") {
-      base = base.filter((t) => t.isCompleted);
-    }
-
-    return base;
-  }, [todos, view, statusFilter]);
-
-  const hasAnyTodos = todos.length > 0;
+  const hasAnyItems = isDreamMode ? dreams.length > 0 : tasks.length > 0;
   const isEmptyForCurrentView =
-    !isLoading && hasAnyTodos && filteredTodos.length === 0;
+    !isLoading && hasAnyItems && filteredItems.length === 0;
 
   const renderEmptyForView = () => {
     if (!isEmptyForCurrentView) return null;
@@ -180,15 +276,25 @@ export default function TodosScreen() {
     let title = "";
     let body = "";
 
-    if (view === "today") {
-      title = "Nothing due today";
-      body = "Enjoy the calm. Add one tiny reminder if you’d like.";
-    } else if (view === "upcoming") {
-      title = "No upcoming todos";
-      body = "Create something to look forward to together.";
+    if (isDreamMode) {
+      if (dreamStatus === "pending") {
+        title = "No pending dreams";
+        body = "All caught up! Add something new to dream about together.";
+      } else {
+        title = "No achieved dreams yet";
+        body = "Start checking off your bucket list!";
+      }
     } else {
-      title = "Someday list is empty";
-      body = "Capture a wish or a nice idea for later.";
+      if (view === "today") {
+        title = "Nothing due today";
+        body = "Enjoy the calm. Add one tiny reminder if you'd like.";
+      } else if (view === "upcoming") {
+        title = "No upcoming todos";
+        body = "Create something to look forward to together.";
+      } else {
+        title = "Someday list is empty";
+        body = "Capture a wish or a nice idea for later.";
+      }
     }
 
     return (
@@ -210,7 +316,11 @@ export default function TodosScreen() {
           alignItems="center"
           justifyContent="center"
         >
-          <ListChecks size={20} color="$primary" />
+          {isDreamMode ? (
+            <Sparkles size={20} color="$primary" />
+          ) : (
+            <ListChecks size={20} color="$primary" />
+          )}
         </Stack>
         <YStack gap="$1" alignItems="center">
           <Text
@@ -253,10 +363,12 @@ export default function TodosScreen() {
                   fontSize={26}
                   fontWeight="800"
                 >
-                  Reminders
+                  Together List
                 </Text>
                 <Text fontFamily="$body" color="$colorMuted" fontSize={13}>
-                  Tiny things you don’t want to forget together.
+                  {isDreamMode
+                    ? "Dreams and adventures to share."
+                    : "Tiny things you don't want to forget."}
                 </Text>
               </YStack>
 
@@ -278,6 +390,7 @@ export default function TodosScreen() {
               </Button>
             </XStack>
 
+            {/* Stats */}
             <XStack gap="$2" alignItems="center" marginTop="$2">
               <XStack
                 paddingHorizontal="$3"
@@ -289,67 +402,201 @@ export default function TodosScreen() {
               >
                 <CheckCircle2 size={16} color="$primary" />
                 <Text fontFamily="$body" color="$colorMuted" fontSize={13}>
-                  {activeCount} active • {completedCount} completed
+                  {isDreamMode
+                    ? `${pendingDreamCount} pending • ${achievedDreamCount} achieved`
+                    : `${activeTaskCount} active • ${completedTaskCount} completed`}
                 </Text>
               </XStack>
             </XStack>
           </YStack>
 
-          {/* Segmented controls */}
-          <YStack gap="$2">
-            {/* View mode: Today / Upcoming / Someday */}
-            <XStack
-              backgroundColor="$bgCard"
-              borderRadius="$8"
-              padding="$1"
-              gap="$1"
-              width={260}
+          {/* Top-level Toggle: Tasks / Dreams */}
+          <XStack
+            backgroundColor="$bgCard"
+            borderRadius="$8"
+            padding="$1"
+            gap="$1"
+          >
+            <Button
+              flex={1}
+              backgroundColor={!isDreamMode ? "$primarySoft" : "transparent"}
+              borderRadius="$7"
+              height={44}
+              onPress={() => {
+                triggerSelectionHaptic();
+                setListMode("task");
+              }}
+              pressStyle={{ opacity: 0.8 }}
             >
-              <SegmentChip
-                label="Today"
-                isActive={view === "today"}
-                onPress={() => setView("today")}
-              />
-              <SegmentChip
-                label="Upcoming"
-                isActive={view === "upcoming"}
-                onPress={() => setView("upcoming")}
-              />
-              <SegmentChip
-                label="Someday"
-                isActive={view === "someday"}
-                onPress={() => setView("someday")}
-              />
-            </XStack>
-
-            {/* Status filter: Active / All / Completed */}
-            <XStack gap="$2" alignItems="center">
-              <XStack
-                backgroundColor="$bgCard"
-                borderRadius="$6"
-                padding="$1"
-                gap="$1"
-              >
-                <SegmentChip
-                  label="All"
-                  small
-                  isActive={statusFilter === "all"}
-                  onPress={() => setStatusFilter("all")}
+              <XStack alignItems="center" gap="$2">
+                <ClipboardList
+                  size={18}
+                  color={!isDreamMode ? "$primary" : "$colorMuted"}
                 />
-                <SegmentChip
-                  label="Active"
-                  small
-                  isActive={statusFilter === "active"}
-                  onPress={() => setStatusFilter("active")}
-                />
-                <SegmentChip
-                  label="Completed"
-                  small
-                  isActive={statusFilter === "completed"}
-                  onPress={() => setStatusFilter("completed")}
-                />
+                <Text
+                  fontFamily="$body"
+                  fontSize={15}
+                  fontWeight={!isDreamMode ? "700" : "500"}
+                  color={!isDreamMode ? "$primary" : "$colorMuted"}
+                >
+                  Tasks
+                </Text>
               </XStack>
-            </XStack>
+            </Button>
+            <Button
+              flex={1}
+              backgroundColor={isDreamMode ? "$primarySoft" : "transparent"}
+              borderRadius="$7"
+              height={44}
+              onPress={() => {
+                triggerSelectionHaptic();
+                setListMode("dream");
+              }}
+              pressStyle={{ opacity: 0.8 }}
+            >
+              <XStack alignItems="center" gap="$2">
+                <Sparkles
+                  size={18}
+                  color={isDreamMode ? "$primary" : "$colorMuted"}
+                />
+                <Text
+                  fontFamily="$body"
+                  fontSize={15}
+                  fontWeight={isDreamMode ? "700" : "500"}
+                  color={isDreamMode ? "$primary" : "$colorMuted"}
+                >
+                  Dreams
+                </Text>
+              </XStack>
+            </Button>
+          </XStack>
+
+          {/* Mode-specific filters */}
+          <YStack gap="$2">
+            {isDreamMode ? (
+              <>
+                {/* Dream category filter */}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ gap: 8 }}
+                >
+                  {DREAM_CATEGORIES.map((cat) => {
+                    const isActive = dreamCategory === cat.value;
+                    const Icon = cat.icon;
+                    return (
+                      <Button
+                        key={cat.value}
+                        backgroundColor={isActive ? "$primarySoft" : "$bgCard"}
+                        borderColor={isActive ? "$primary" : "$borderColor"}
+                        borderWidth={1}
+                        borderRadius="$6"
+                        height={36}
+                        paddingHorizontal="$3"
+                        onPress={() => {
+                          triggerSelectionHaptic();
+                          setDreamCategory(cat.value);
+                        }}
+                        pressStyle={{ opacity: 0.8 }}
+                      >
+                        <XStack alignItems="center" gap="$2">
+                          <Icon
+                            size={14}
+                            color={isActive ? "$primary" : "$colorMuted"}
+                          />
+                          <Text
+                            fontFamily="$body"
+                            fontSize={13}
+                            fontWeight={isActive ? "600" : "500"}
+                            color={isActive ? "$primary" : "$colorMuted"}
+                          >
+                            {cat.label}
+                          </Text>
+                        </XStack>
+                      </Button>
+                    );
+                  })}
+                </ScrollView>
+
+                {/* Dream status filter */}
+                <XStack
+                  backgroundColor="$bgCard"
+                  borderRadius="$6"
+                  padding="$1"
+                  gap="$1"
+                  alignSelf="flex-start"
+                >
+                  <SegmentChip
+                    label="Pending"
+                    small
+                    isActive={dreamStatus === "pending"}
+                    onPress={() => setDreamStatus("pending")}
+                  />
+                  <SegmentChip
+                    label="Achieved"
+                    small
+                    isActive={dreamStatus === "achieved"}
+                    onPress={() => setDreamStatus("achieved")}
+                  />
+                </XStack>
+              </>
+            ) : (
+              <>
+                {/* Task view mode: Today / Upcoming / Someday */}
+                <XStack
+                  backgroundColor="$bgCard"
+                  borderRadius="$8"
+                  padding="$1"
+                  gap="$1"
+                  width={260}
+                >
+                  <SegmentChip
+                    label="Today"
+                    isActive={view === "today"}
+                    onPress={() => setView("today")}
+                  />
+                  <SegmentChip
+                    label="Upcoming"
+                    isActive={view === "upcoming"}
+                    onPress={() => setView("upcoming")}
+                  />
+                  <SegmentChip
+                    label="Someday"
+                    isActive={view === "someday"}
+                    onPress={() => setView("someday")}
+                  />
+                </XStack>
+
+                {/* Task status filter */}
+                <XStack gap="$2" alignItems="center">
+                  <XStack
+                    backgroundColor="$bgCard"
+                    borderRadius="$6"
+                    padding="$1"
+                    gap="$1"
+                  >
+                    <SegmentChip
+                      label="All"
+                      small
+                      isActive={statusFilter === "all"}
+                      onPress={() => setStatusFilter("all")}
+                    />
+                    <SegmentChip
+                      label="Active"
+                      small
+                      isActive={statusFilter === "active"}
+                      onPress={() => setStatusFilter("active")}
+                    />
+                    <SegmentChip
+                      label="Completed"
+                      small
+                      isActive={statusFilter === "completed"}
+                      onPress={() => setStatusFilter("completed")}
+                    />
+                  </XStack>
+                </XStack>
+              </>
+            )}
           </YStack>
 
           {/* Content */}
@@ -371,7 +618,7 @@ export default function TodosScreen() {
                 </Stack>
               ))}
             </YStack>
-          ) : !hasAnyTodos ? (
+          ) : !hasAnyItems ? (
             // Global empty state
             <Stack
               flex={1}
@@ -388,7 +635,11 @@ export default function TodosScreen() {
                 alignItems="center"
                 justifyContent="center"
               >
-                <Sparkles size={36} color="$primary" />
+                {isDreamMode ? (
+                  <Sparkles size={36} color="$primary" />
+                ) : (
+                  <ListChecks size={36} color="$primary" />
+                )}
               </Stack>
               <YStack gap="$2" alignItems="center">
                 <Text
@@ -397,7 +648,7 @@ export default function TodosScreen() {
                   fontSize={20}
                   fontWeight="700"
                 >
-                  No reminders yet
+                  {isDreamMode ? "No dreams yet" : "No tasks yet"}
                 </Text>
                 <Text
                   fontFamily="$body"
@@ -406,8 +657,9 @@ export default function TodosScreen() {
                   textAlign="center"
                   maxWidth={280}
                 >
-                  Create your first reminder to keep each other on the same
-                  page.
+                  {isDreamMode
+                    ? "Add your first dream or bucket list item together."
+                    : "Create your first reminder to keep each other on track."}
                 </Text>
               </YStack>
               <Button
@@ -428,19 +680,20 @@ export default function TodosScreen() {
                   fontWeight="700"
                   fontSize={16}
                 >
-                  Create reminder
+                  {isDreamMode ? "Add a dream" : "Create task"}
                 </Text>
               </Button>
             </Stack>
           ) : (
             <YStack gap="$3" marginTop="$2">
-              {filteredTodos.map((todo, index) => (
+              {filteredItems.map((todo, index) => (
                 <TodoItem
                   key={todo.id}
                   todo={todo}
                   onToggle={handleToggle}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  onSubtaskToggle={handleSubtaskToggle}
                   index={index}
                 />
               ))}
@@ -455,7 +708,7 @@ export default function TodosScreen() {
       </ScrollView>
 
       {/* Bottom Add button */}
-      {hasAnyTodos && (
+      {hasAnyItems && (
         <Stack
           position="absolute"
           left={0}
@@ -481,7 +734,7 @@ export default function TodosScreen() {
               fontSize={16}
               fontWeight="700"
             >
-              Add a todo
+              {isDreamMode ? "Add a dream" : "Add a task"}
             </Text>
           </Button>
         </Stack>
@@ -491,6 +744,7 @@ export default function TodosScreen() {
       <TodoModal
         visible={modalVisible}
         todo={editingTodo}
+        listType={listMode}
         onClose={handleCloseModal}
         onSave={handleSave}
       />

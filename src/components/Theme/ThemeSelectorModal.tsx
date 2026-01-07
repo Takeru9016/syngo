@@ -1,8 +1,26 @@
 import { Modal } from "react-native";
 import { YStack, XStack, Text, Button, Stack } from "tamagui";
+import {
+  Sun,
+  Moon,
+  Settings,
+  Sunrise,
+  Flower2,
+  Grape,
+  Heart,
+  Coffee,
+  Waves,
+  Sunset,
+  Cloud,
+  X,
+  Check,
+} from "@tamagui/lucide-icons";
 
 import { ThemeMode, ColorScheme, useThemeStore } from "@/state/theme";
 import { triggerLightHaptic, triggerSelectionHaptic } from "@/state/haptics";
+
+// Icon component type for type safety
+type IconComponent = typeof Sun;
 
 type Props = {
   visible: boolean;
@@ -15,25 +33,25 @@ export function ThemeSelectorModal({ visible, onClose }: Props) {
   const modeOptions: {
     mode: ThemeMode;
     label: string;
-    icon: string;
+    Icon: IconComponent;
     description: string;
   }[] = [
     {
       mode: "light",
       label: "Light",
-      icon: "☀️",
+      Icon: Sun,
       description: "Always use light theme",
     },
     {
       mode: "dark",
       label: "Dark",
-      icon: "🌙",
+      Icon: Moon,
       description: "Always use dark theme",
     },
     {
       mode: "system",
       label: "System",
-      icon: "⚙️",
+      Icon: Settings,
       description: "Follow system settings",
     },
   ];
@@ -41,63 +59,63 @@ export function ThemeSelectorModal({ visible, onClose }: Props) {
   const colorOptions: {
     scheme: ColorScheme;
     label: string;
-    icon: string;
+    Icon: IconComponent;
     description: string;
     previewColors: string[];
   }[] = [
     {
       scheme: "coral",
       label: "Coral Sand",
-      icon: "🌅",
+      Icon: Sunrise,
       description: "Bright & optimistic",
       previewColors: ["#FF7A7A", "#FFE0DD", "#F4E2D9"],
     },
     {
       scheme: "rose",
       label: "Rose Latte",
-      icon: "🌹",
+      Icon: Flower2,
       description: "Warm & romantic",
       previewColors: ["#E86A82", "#FBD3DD", "#F3E0E3"],
     },
     {
       scheme: "plum",
       label: "Plum Mist",
-      icon: "🍇",
+      Icon: Grape,
       description: "Modern & elegant",
       previewColors: ["#9A5FB5", "#E7D6F3", "#E5DEEF"],
     },
     {
       scheme: "lavender",
       label: "Lavender Dreams",
-      icon: "💜",
+      Icon: Heart,
       description: "Soft & dreamy",
       previewColors: ["#9C86E0", "#E1D8F9", "#E7E2F3"],
     },
     {
       scheme: "mocha",
       label: "Mocha Haze",
-      icon: "☕",
+      Icon: Coffee,
       description: "Warm & cozy",
       previewColors: ["#C87A4A", "#F8D5B8", "#E7D6C7"],
     },
     {
       scheme: "ocean",
       label: "Ocean Mist",
-      icon: "🌊",
+      Icon: Waves,
       description: "Fresh & calm",
       previewColors: ["#1F9A88", "#C3E9E2", "#D5E7E6"],
     },
     {
       scheme: "sunset",
       label: "Sunset Glow",
-      icon: "🌇",
+      Icon: Sunset,
       description: "Vibrant & warm",
       previewColors: ["#FF8A5C", "#FFD5C0", "#F9E0D3"],
     },
     {
       scheme: "sky",
       label: "Sky Breeze",
-      icon: "☁️",
+      Icon: Cloud,
       description: "Cool & clear",
       previewColors: ["#3B82F6", "#C7D9FF", "#F3F6FB"],
     },
@@ -150,9 +168,7 @@ export function ThemeSelectorModal({ visible, onClose }: Props) {
                   onClose();
                 }}
               >
-                <Text color="$colorMuted" fontSize={28}>
-                  ✕
-                </Text>
+                <X size={24} color="$colorMuted" />
               </Button>
             </XStack>
 
@@ -186,7 +202,7 @@ export function ThemeSelectorModal({ visible, onClose }: Props) {
                       }
                     >
                       <XStack gap="$3" alignItems="center">
-                        <Text fontSize={32}>{option.icon}</Text>
+                        <option.Icon size={28} color="$colorMuted" />
                         <YStack flex={1} gap="$1">
                           <Text
                             color="$color"
@@ -217,9 +233,7 @@ export function ThemeSelectorModal({ visible, onClose }: Props) {
                           ))}
                         </XStack>
                         {colorScheme === option.scheme && (
-                          <Text fontSize={20} color="$primary">
-                            ✓
-                          </Text>
+                          <Check size={20} color="$primary" />
                         )}
                       </XStack>
                     </Stack>
@@ -256,7 +270,7 @@ export function ThemeSelectorModal({ visible, onClose }: Props) {
                       }
                     >
                       <XStack gap="$3" alignItems="center">
-                        <Text fontSize={32}>{option.icon}</Text>
+                        <option.Icon size={28} color="$colorMuted" />
                         <YStack flex={1} gap="$1">
                           <Text
                             color="$color"
@@ -275,9 +289,7 @@ export function ThemeSelectorModal({ visible, onClose }: Props) {
                           </Text>
                         </YStack>
                         {mode === option.mode && (
-                          <Text fontSize={20} color="$primary">
-                            ✓
-                          </Text>
+                          <Check size={20} color="$primary" />
                         )}
                       </XStack>
                     </Stack>

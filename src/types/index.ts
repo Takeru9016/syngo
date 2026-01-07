@@ -1,14 +1,45 @@
 export type TodoPriority = "low" | "medium" | "high";
 
+// Together List: List item type discriminator
+export type ListItemType = "task" | "dream";
+
+// Together List: Dream categories for bucket list items
+export type DreamCategory =
+  | "travel" // ✈️ Vacation spots, destinations
+  | "food" // 🍕 Restaurants, dishes to try
+  | "adventure" // 🎢 Experiences, activities
+  | "together" // 💕 Couple-specific activities
+  | "other"; // ✨ Miscellaneous
+
+// Together List: Subtask for breaking down tasks
+export type Subtask = {
+  id: string; // UUID
+  title: string;
+  isCompleted: boolean;
+  createdAt: number;
+};
+
 export type Todo = {
   id: string;
   title: string;
   description: string;
-  dueDate: number; // timestamp
+  dueDate?: number; // timestamp (optional for dreams)
   isCompleted: boolean;
   priority: TodoPriority;
   createdBy: string; // uid
   createdAt: number;
+
+  // Type discriminator (defaults to "task" for backward compatibility)
+  listType?: ListItemType;
+
+  // Subtasks (for tasks only)
+  subtasks?: Subtask[];
+
+  // Dream-specific fields (optional)
+  category?: DreamCategory;
+  photos?: string[]; // Photos for inspiration
+  completedDate?: number; // When achieved
+  completedPhotos?: string[]; // Photos of the achievement
 };
 
 export type FavoriteCategory =

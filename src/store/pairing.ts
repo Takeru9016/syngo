@@ -75,8 +75,6 @@ export const usePairingStore = create<PairingState>((set) => ({
         code: null,
         expiresAt: null,
       });
-
-
     } catch (error: any) {
       console.error("❌ Error redeeming code:", error.message);
 
@@ -94,7 +92,7 @@ export const usePairingStore = create<PairingState>((set) => ({
           errorMessage = "This code has already been used.";
           break;
         case "own_code":
-          errorMessage = "You can't pair with yourself! 😅";
+          errorMessage = "You can't pair with yourself!";
           break;
         case "already_paired":
           errorMessage =
@@ -148,8 +146,6 @@ export const usePairingStore = create<PairingState>((set) => ({
         expiresAt: null,
         isLoading: false,
       });
-
-
     } catch (error: any) {
       console.error("❌ Error unpairing:", error.message);
 

@@ -123,3 +123,81 @@
 [debug] [2026-01-06T18:28:59.156Z] Checked if tokens are valid: true, expires at: 1767727492891
 [debug] [2026-01-06T18:28:59.156Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions [none]
 [debug] [2026-01-06T18:28:59.156Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2026-01-07T17:47:14.143Z] ----------------------------------------------------------------------
+[debug] [2026-01-07T17:47:14.147Z] Command:       /Users/sahiljadhav/.nvm/versions/node/v22.20.0/bin/node /Users/sahiljadhav/Library/pnpm/global/5/.pnpm/firebase-tools@15.1.0_@types+node@24.9.1_encoding@0.1.13_typescript@5.9.3/node_modules/firebase-tools/lib/bin/firebase.js deploy --only functions
+[debug] [2026-01-07T17:47:14.147Z] CLI Version:   15.1.0
+[debug] [2026-01-07T17:47:14.147Z] Platform:      darwin
+[debug] [2026-01-07T17:47:14.148Z] Node Version:  v22.20.0
+[debug] [2026-01-07T17:47:14.148Z] Time:          Wed Jan 07 2026 23:17:14 GMT+0530 (India Standard Time)
+[debug] [2026-01-07T17:47:14.148Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-01-07T17:47:14.667Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-07T17:47:14.667Z] > authorizing via signed-in user (timetocode22@gmail.com)
+[debug] [2026-01-07T17:47:14.667Z] [iam] checking project notify-40a33 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-01-07T17:47:14.668Z] Checked if tokens are valid: true, expires at: 1767811426512
+[debug] [2026-01-07T17:47:14.668Z] Checked if tokens are valid: true, expires at: 1767811426512
+[debug] [2026-01-07T17:47:14.668Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions [none]
+[debug] [2026-01-07T17:47:14.668Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions x-goog-quota-user=projects/notify-40a33
+[debug] [2026-01-07T17:47:14.668Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-01-07T17:47:16.026Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions 200
+[debug] [2026-01-07T17:47:16.027Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-01-07T17:47:16.027Z] Checked if tokens are valid: true, expires at: 1767811426512
+[debug] [2026-01-07T17:47:16.027Z] Checked if tokens are valid: true, expires at: 1767811426512
+[debug] [2026-01-07T17:47:16.027Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-01-07T17:47:16.027Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2026-01-07T17:47:17.868Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2026-01-07T17:47:17.868Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'notify-40a33'...
+[info] 
+[info] i  deploying functions 
+[debug] [2026-01-07T17:47:17.872Z] Checked if tokens are valid: true, expires at: 1767811426512
+[debug] [2026-01-07T17:47:17.872Z] Checked if tokens are valid: true, expires at: 1767811426512
+[debug] [2026-01-07T17:47:17.872Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33 [none]
+[debug] [2026-01-07T17:47:18.180Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33 200
+[debug] [2026-01-07T17:47:18.181Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33 {"projectNumber":"184045337822","projectId":"notify-40a33","lifecycleState":"ACTIVE","name":"syngo","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-10-26T07:18:16.212085Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2026-01-07T17:47:18.184Z] Checked if tokens are valid: true, expires at: 1767811426512
+[debug] [2026-01-07T17:47:18.184Z] Checked if tokens are valid: true, expires at: 1767811426512
+[debug] [2026-01-07T17:47:18.184Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/notify-40a33/adminSdkConfig [none]
+[debug] [2026-01-07T17:47:19.332Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/notify-40a33/adminSdkConfig 200
+[debug] [2026-01-07T17:47:19.332Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/notify-40a33/adminSdkConfig {"projectId":"notify-40a33","storageBucket":"notify-40a33.firebasestorage.app"}
+[debug] [2026-01-07T17:47:19.334Z] Validating nodejs source
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] ⚠  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2026-01-07T17:47:20.019Z] > [functions] package.json contents: {
+  "name": "syngo-functions",
+  "version": "1.0.0",
+  "description": "Cloud Functions for Syngo app",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^7.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}
+[debug] [2026-01-07T17:47:20.019Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2026-01-07T17:47:20.019Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-01-07T17:47:20.022Z] Found firebase-functions binary at '/Users/sahiljadhav/Projects/syngo/node_modules/.bin/firebase-functions'
+[info] Serving at port 8516
+
+[debug] [2026-01-07T17:47:20.313Z] Got response from /__/functions.yaml {"endpoints":{"generatePairingCode":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"callableTrigger":{},"entryPoint":"generatePairingCode"},"redeemPairingCode":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"callableTrigger":{},"entryPoint":"redeemPairingCode"},"onTodoCreated":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"todos/{todoId}"},"retry":false},"entryPoint":"onTodoCreated"},"onTodoUpdated":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.updated","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"todos/{todoId}"},"retry":false},"entryPoint":"onTodoUpdated"},"onTodoDeleted":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.deleted","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"todos/{todoId}"},"retry":false},"entryPoint":"onTodoDeleted"},"onStickerSent":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"callableTrigger":{},"entryPoint":"onStickerSent"},"onFavoriteAdded":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"favorites/{favoriteId}"},"retry":false},"entryPoint":"onFavoriteAdded"},"onNotificationCreated":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"notifications/{notificationId}"},"retry":false},"entryPoint":"onNotificationCreated"},"scheduledCleanup":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"scheduleTrigger":{"schedule":"every 1 hours","retryConfig":{"retryCount":null,"maxDoublings":null,"maxRetrySeconds":null,"minBackoffSeconds":null,"maxBackoffSeconds":null},"timeZone":null},"entryPoint":"scheduledCleanup"},"todoDueReminders":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"scheduleTrigger":{"schedule":"every 15 minutes","retryConfig":{"retryCount":null,"maxDoublings":null,"maxRetrySeconds":null,"minBackoffSeconds":null,"maxBackoffSeconds":null},"timeZone":null},"entryPoint":"todoDueReminders"}},"specVersion":"v1alpha1","requiredAPIs":[{"api":"cloudscheduler.googleapis.com","reason":"Needed for scheduled functions."}],"extensions":{}}

@@ -229,21 +229,21 @@ export const MoodService = {
 
       // Send notification to partner if mood is shared and not sad
       if (!input.isPrivate) {
-        const moodEmoji =
+        const moodLabel =
           input.level === 1
-            ? "😢"
+            ? "down"
             : input.level === 2
-            ? "😔"
+            ? "a bit low"
             : input.level === 3
-            ? "😐"
+            ? "okay"
             : input.level === 4
-            ? "🙂"
-            : "😊";
+            ? "good"
+            : "great";
 
         await notifyPartner({
           type: "other",
           title: "Mood Update",
-          body: `Your partner is feeling ${moodEmoji}`,
+          body: `Your partner is feeling ${moodLabel}`,
           data: { moodId: ref.id, level: input.level },
         });
       }

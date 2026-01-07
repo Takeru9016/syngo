@@ -52,7 +52,7 @@ export class NudgeService {
     const canSend = await this.canSendNudge(profile.uid, profile.pairId);
     if (!canSend) {
       throw new Error(
-        "Please wait a bit before sending another nudge. Keep it special! 💕"
+        "Please wait a bit before sending another nudge. Keep it special!"
       );
     }
 
@@ -74,7 +74,7 @@ export class NudgeService {
 
     await notifyPartner({
       type: "nudge",
-      title: "💕 Thinking of you",
+      title: "Thinking of you",
       body: notificationBody,
       data: {
         senderUid: profile.uid,
