@@ -73,6 +73,8 @@ export default function NotificationCustomization() {
     customization,
     applyPreset,
     updateCustomization,
+    updateCategoryStyle,
+    getStyleForCategory,
     resetCustomization,
   } = useNotificationPreferences();
 
@@ -87,6 +89,13 @@ export default function NotificationCustomization() {
   };
 
   const handleStyleChange = async (style: NotificationVisualStyle) => {
+    triggerLightHaptic();
+    // Update per-category style for selected category
+    await updateCategoryStyle(selectedCategory, style);
+    setPreviewKey((k) => k + 1);
+  };
+
+  const handleGlobalStyleChange = async (style: NotificationVisualStyle) => {
     triggerLightHaptic();
     await updateCustomization({ visualStyle: style });
     setPreviewKey((k) => k + 1);
@@ -122,6 +131,7 @@ export default function NotificationCustomization() {
   };
 
   const currentColors = customization.colors[selectedCategory];
+  const currentCategoryStyle = getStyleForCategory(selectedCategory);
 
   return (
     <ScreenContainer scroll={false}>
@@ -188,7 +198,7 @@ export default function NotificationCustomization() {
                 key={previewKey}
                 category={selectedCategory}
                 colors={currentColors}
-                visualStyle={customization.visualStyle}
+                visualStyle={currentCategoryStyle}
                 borderRadius={customization.borderRadius}
                 shadowIntensity={customization.shadowIntensity}
                 animate={true}
@@ -335,21 +345,27 @@ export default function NotificationCustomization() {
             </ScrollView>
           </YStack>
 
-          {/* Visual Style */}
+          {/* Visual Style for Selected Category */}
           <YStack gap="$3">
-            <Text
-              color="$color"
-              fontSize={14}
-              fontWeight="700"
-              textTransform="uppercase"
-              letterSpacing={0.5}
-            >
-              Visual Style
-            </Text>
+            <YStack gap="$1">
+              <Text
+                color="$color"
+                fontSize={14}
+                fontWeight="700"
+                textTransform="uppercase"
+                letterSpacing={0.5}
+              >
+                Style for{" "}
+                {CATEGORY_CONFIG.find((c) => c.id === selectedCategory)?.label}
+              </Text>
+              <Text color="$muted" fontSize={12}>
+                Customize this category's appearance
+              </Text>
+            </YStack>
 
             <XStack gap="$2">
               {STYLE_OPTIONS.map((style) => {
-                const isActive = customization.visualStyle === style.id;
+                const isActive = currentCategoryStyle === style.id;
                 const Icon = style.icon;
                 return (
                   <Button

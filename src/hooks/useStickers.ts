@@ -17,11 +17,14 @@ import { useProfileStore } from "@/store/profile";
 type CreatePayload = {
   name: string;
   imageUrl: string;
+  description?: string;
 };
 
 type UpdatePayload = {
   id: string;
-  name: string;
+  name?: string;
+  description?: string;
+  isFavorite?: boolean;
 };
 
 const key = (pairId?: string) => ["stickers", pairId || "none"] as const;
@@ -29,7 +32,6 @@ const key = (pairId?: string) => ["stickers", pairId || "none"] as const;
 export function useStickers() {
   const pairId = useProfileStore((s) => s.profile?.pairId);
   const qc = useQueryClient();
-
 
   // Set up real-time listener
   useEffect(() => {
@@ -52,9 +54,11 @@ export function useStickers() {
           return {
             id: d.id,
             name: String(data.name ?? ""),
+            description: String(data.description ?? ""),
             imageUrl: String(data.imageUrl ?? ""),
             createdBy: String(data.createdBy ?? ""),
             createdAt: Number(data.createdAt ?? 0),
+            isFavorite: Boolean(data.isFavorite),
           };
         });
 
@@ -87,8 +91,7 @@ export function useCreateSticker() {
     mutationFn: (payload: CreatePayload) => {
       return StickerService.create(payload);
     },
-    onSuccess: async (newId) => {
-    },
+    onSuccess: async (newId) => {},
     onError: (error) => {
       console.error("❌ [useCreateSticker] Error:", error);
     },
@@ -97,14 +100,13 @@ export function useCreateSticker() {
 
 export function useUpdateSticker() {
   return useMutation({
-    mutationFn: ({ id, name }: UpdatePayload) => {
-      return StickerService.update(id, { name });
+    mutationFn: ({ id, ...updates }: UpdatePayload) => {
+      return StickerService.update(id, updates);
     },
     onError: (error) => {
       console.error("❌ [useUpdateSticker] Error:", error);
     },
-    onSuccess: (_, vars) => {
-    },
+    onSuccess: (_, vars) => {},
   });
 }
 
@@ -116,7 +118,6 @@ export function useDeleteSticker() {
     onError: (error) => {
       console.error("❌ [useDeleteSticker] Error:", error);
     },
-    onSuccess: (_, id) => {
-    },
+    onSuccess: (_, id) => {},
   });
 }

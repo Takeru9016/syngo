@@ -58,9 +58,18 @@ interface NotificationPreferencesStore {
     category: NotificationCategory,
     colors: Partial<NotificationColorScheme>
   ) => Promise<void>;
+  updateCategoryStyle: (
+    category: NotificationCategory,
+    style: NotificationVisualStyle
+  ) => Promise<void>;
   applyPreset: (presetId: string) => Promise<void>;
   resetCustomization: () => Promise<void>;
-  getColorsForCategory: (category: NotificationCategory) => NotificationColorScheme;
+  getColorsForCategory: (
+    category: NotificationCategory
+  ) => NotificationColorScheme;
+  getStyleForCategory: (
+    category: NotificationCategory
+  ) => NotificationVisualStyle;
 }
 
 export const useNotificationPreferences =
@@ -159,10 +168,7 @@ export const useNotificationPreferences =
                 { merge: true }
               );
             } catch (error) {
-              console.error(
-                "❌ Failed to sync category colors:",
-                error
-              );
+              console.error("❌ Failed to sync category colors:", error);
             }
           }
         },
@@ -192,10 +198,7 @@ export const useNotificationPreferences =
                 { merge: true }
               );
             } catch (error) {
-              console.error(
-                "❌ Failed to apply preset:",
-                error
-              );
+              console.error("❌ Failed to apply preset:", error);
             }
           }
         },
@@ -208,20 +211,55 @@ export const useNotificationPreferences =
             try {
               await setDoc(
                 doc(db, "users", uid),
-                { notificationCustomization: DEFAULT_NOTIFICATION_CUSTOMIZATION },
+                {
+                  notificationCustomization: DEFAULT_NOTIFICATION_CUSTOMIZATION,
+                },
                 { merge: true }
               );
             } catch (error) {
-              console.error(
-                "❌ Failed to reset customization:",
-                error
-              );
+              console.error("❌ Failed to reset customization:", error);
             }
           }
         },
 
         getColorsForCategory: (category) => {
           return get().customization.colors[category];
+        },
+
+        getStyleForCategory: (category) => {
+          const { customization } = get();
+          // Return category-specific style if set, otherwise global style
+          return (
+            customization.categoryStyles?.[category] ??
+            customization.visualStyle
+          );
+        },
+
+        updateCategoryStyle: async (category, style) => {
+          const currentStyles = get().customization.categoryStyles || {};
+          const newCategoryStyles = {
+            ...currentStyles,
+            [category]: style,
+          };
+          const newCustomization = {
+            ...get().customization,
+            categoryStyles: newCategoryStyles,
+            activePreset: null,
+          };
+          set({ customization: newCustomization });
+
+          const uid = useAuthStore.getState().uid;
+          if (uid) {
+            try {
+              await setDoc(
+                doc(db, "users", uid),
+                { notificationCustomization: newCustomization },
+                { merge: true }
+              );
+            } catch (error) {
+              console.error("❌ Failed to sync category style:", error);
+            }
+          }
         },
       }),
       {

@@ -21,12 +21,13 @@ import { useToast } from "@/hooks/useToast";
 type Props = {
   visible: boolean;
   onClose: () => void;
-  onSave: (name: string, imageUrl: string) => void;
+  onSave: (name: string, imageUrl: string, description?: string) => void;
 };
 
 export function AddStickerModal({ visible, onClose, onSave }: Props) {
   const insets = useSafeAreaInsets();
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -34,6 +35,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
 
   const handleClose = () => {
     setName("");
+    setDescription("");
     setImageUrl(null);
     setLocalPreview(null);
     onClose();
@@ -55,7 +57,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
       return;
     }
 
-    onSave(name.trim(), imageUrl);
+    onSave(name.trim(), imageUrl, description.trim() || undefined);
     handleClose();
   };
 
@@ -326,6 +328,25 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                     fontSize={15}
                     fontFamily="$body"
                     aria-label="Sticker name input"
+                  />
+                </YStack>
+
+                {/* Description */}
+                <YStack gap="$2">
+                  <Text color="$color" fontSize={14} fontWeight="600">
+                    Description (Optional)
+                  </Text>
+                  <Input
+                    value={description}
+                    onChangeText={setDescription}
+                    placeholder="e.g., For when I miss you..."
+                    backgroundColor="$bgCard"
+                    borderColor="$borderColor"
+                    borderRadius="$5"
+                    height={44}
+                    fontSize={15}
+                    fontFamily="$body"
+                    aria-label="Sticker description input"
                   />
                 </YStack>
 

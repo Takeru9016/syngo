@@ -1,0 +1,125 @@
+[debug] [2026-01-06T18:28:16.313Z] ----------------------------------------------------------------------
+[debug] [2026-01-06T18:28:16.314Z] Command:       /Users/sahiljadhav/.nvm/versions/node/v22.20.0/bin/node /Users/sahiljadhav/Library/pnpm/global/5/.pnpm/firebase-tools@15.1.0_@types+node@24.9.1_encoding@0.1.13_typescript@5.9.3/node_modules/firebase-tools/lib/bin/firebase.js deploy --only functions
+[debug] [2026-01-06T18:28:16.314Z] CLI Version:   15.1.0
+[debug] [2026-01-06T18:28:16.314Z] Platform:      darwin
+[debug] [2026-01-06T18:28:16.314Z] Node Version:  v22.20.0
+[debug] [2026-01-06T18:28:16.314Z] Time:          Tue Jan 06 2026 23:58:16 GMT+0530 (India Standard Time)
+[debug] [2026-01-06T18:28:16.314Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-01-06T18:28:16.850Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-06T18:28:16.850Z] > authorizing via signed-in user (timetocode22@gmail.com)
+[debug] [2026-01-06T18:28:16.850Z] [iam] checking project notify-40a33 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-01-06T18:28:16.851Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:16.851Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:16.851Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions [none]
+[debug] [2026-01-06T18:28:16.851Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions x-goog-quota-user=projects/notify-40a33
+[debug] [2026-01-06T18:28:16.851Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-01-06T18:28:18.418Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions 200
+[debug] [2026-01-06T18:28:18.419Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-01-06T18:28:18.419Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:18.419Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:18.419Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-01-06T18:28:18.420Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2026-01-06T18:28:20.151Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2026-01-06T18:28:20.151Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'notify-40a33'...
+[info] 
+[info] i  deploying functions 
+[debug] [2026-01-06T18:28:20.153Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:20.153Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:20.153Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33 [none]
+[debug] [2026-01-06T18:28:20.513Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33 200
+[debug] [2026-01-06T18:28:20.513Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33 {"projectNumber":"184045337822","projectId":"notify-40a33","lifecycleState":"ACTIVE","name":"syngo","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-10-26T07:18:16.212085Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2026-01-06T18:28:20.517Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:20.517Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:20.517Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/notify-40a33/adminSdkConfig [none]
+[debug] [2026-01-06T18:28:21.707Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/notify-40a33/adminSdkConfig 200
+[debug] [2026-01-06T18:28:21.707Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/notify-40a33/adminSdkConfig {"projectId":"notify-40a33","storageBucket":"notify-40a33.firebasestorage.app"}
+[debug] [2026-01-06T18:28:21.709Z] Validating nodejs source
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[debug] [2026-01-06T18:28:22.540Z] > [functions] package.json contents: {
+  "name": "syngo-functions",
+  "version": "1.0.0",
+  "description": "Cloud Functions for Syngo app",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}
+[debug] [2026-01-06T18:28:22.540Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2026-01-06T18:28:22.540Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-01-06T18:28:22.544Z] Found firebase-functions binary at '/Users/sahiljadhav/Projects/syngo/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8893
+
+[debug] [2026-01-06T18:28:22.784Z] Got response from /__/functions.yaml {"endpoints":{"generatePairingCode":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"callableTrigger":{},"entryPoint":"generatePairingCode"},"redeemPairingCode":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"callableTrigger":{},"entryPoint":"redeemPairingCode"},"onTodoCreated":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"todos/{todoId}"},"retry":false},"entryPoint":"onTodoCreated"},"onStickerSent":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"callableTrigger":{},"entryPoint":"onStickerSent"},"onFavoriteAdded":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"favorites/{favoriteId}"},"retry":false},"entryPoint":"onFavoriteAdded"},"onNotificationCreated":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"notifications/{notificationId}"},"retry":false},"entryPoint":"onNotificationCreated"},"scheduledCleanup":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"scheduleTrigger":{"schedule":"every 1 hours","retryConfig":{"retryCount":null,"maxDoublings":null,"maxRetrySeconds":null,"minBackoffSeconds":null,"maxBackoffSeconds":null},"timeZone":null},"entryPoint":"scheduledCleanup"},"todoDueReminders":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":10,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-south1"],"labels":{},"scheduleTrigger":{"schedule":"every 15 minutes","retryConfig":{"retryCount":null,"maxDoublings":null,"maxRetrySeconds":null,"minBackoffSeconds":null,"maxBackoffSeconds":null},"timeZone":null},"entryPoint":"todoDueReminders"}},"specVersion":"v1alpha1","requiredAPIs":[{"api":"cloudscheduler.googleapis.com","reason":"Needed for scheduled functions."}],"extensions":{}}
+[info] i  extensions: ensuring required API firebaseextensions.googleapis.com is enabled... 
+[debug] [2026-01-06T18:28:26.811Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-06T18:28:26.811Z] > authorizing via signed-in user (timetocode22@gmail.com)
+[debug] [2026-01-06T18:28:26.811Z] [iam] checking project notify-40a33 for permissions ["firebase.projects.get","firebaseextensions.instances.list"]
+[debug] [2026-01-06T18:28:26.812Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:26.812Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:26.812Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions [none]
+[debug] [2026-01-06T18:28:26.812Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions x-goog-quota-user=projects/notify-40a33
+[debug] [2026-01-06T18:28:26.812Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2026-01-06T18:28:28.321Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions 200
+[debug] [2026-01-06T18:28:28.321Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2026-01-06T18:28:28.322Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:28.322Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:28.322Z] >>> [apiv2][query] GET https://firebaseextensions.googleapis.com/v1beta/projects/notify-40a33/instances pageSize=100&pageToken=
+[debug] [2026-01-06T18:28:30.082Z] <<< [apiv2][status] GET https://firebaseextensions.googleapis.com/v1beta/projects/notify-40a33/instances 200
+[debug] [2026-01-06T18:28:30.083Z] <<< [apiv2][body] GET https://firebaseextensions.googleapis.com/v1beta/projects/notify-40a33/instances {}
+[info] i  functions: preparing functions directory for uploading... 
+[info] i  functions: packaged /Users/sahiljadhav/Projects/syngo/functions (83.96 KB) for uploading 
+[debug] [2026-01-06T18:28:30.138Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:30.138Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:30.138Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/notify-40a33/locations/-/functions [none]
+[debug] [2026-01-06T18:28:31.108Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/notify-40a33/locations/-/functions 200
+[debug] [2026-01-06T18:28:31.109Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/notify-40a33/locations/-/functions {}
+[debug] [2026-01-06T18:28:31.109Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:31.109Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:31.110Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/notify-40a33/locations/-/functions filter=environment%3D%22GEN_2%22
+[debug] [2026-01-06T18:28:57.298Z] ----------------------------------------------------------------------
+[debug] [2026-01-06T18:28:57.303Z] Command:       /Users/sahiljadhav/.nvm/versions/node/v22.20.0/bin/node /Users/sahiljadhav/Library/pnpm/global/5/.pnpm/firebase-tools@15.1.0_@types+node@24.9.1_encoding@0.1.13_typescript@5.9.3/node_modules/firebase-tools/lib/bin/firebase.js deploy
+[debug] [2026-01-06T18:28:57.303Z] CLI Version:   15.1.0
+[debug] [2026-01-06T18:28:57.303Z] Platform:      darwin
+[debug] [2026-01-06T18:28:57.303Z] Node Version:  v22.20.0
+[debug] [2026-01-06T18:28:57.303Z] Time:          Tue Jan 06 2026 23:58:57 GMT+0530 (India Standard Time)
+[debug] [2026-01-06T18:28:57.303Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-01-06T18:28:57.795Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-06T18:28:57.795Z] > authorizing via signed-in user (timetocode22@gmail.com)
+[debug] [2026-01-06T18:28:57.795Z] [iam] checking project notify-40a33 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2026-01-06T18:28:57.795Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:57.795Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:57.796Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions [none]
+[debug] [2026-01-06T18:28:57.796Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions x-goog-quota-user=projects/notify-40a33
+[debug] [2026-01-06T18:28:57.796Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2026-01-06T18:28:59.156Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions 200
+[debug] [2026-01-06T18:28:59.156Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/notify-40a33:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2026-01-06T18:28:59.156Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:59.156Z] Checked if tokens are valid: true, expires at: 1767727492891
+[debug] [2026-01-06T18:28:59.156Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-01-06T18:28:59.156Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/notify-40a33/serviceAccounts/notify-40a33@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}

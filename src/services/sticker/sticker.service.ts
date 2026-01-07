@@ -22,10 +22,13 @@ import { notifyPartner } from "@/services/notification/notifyPartner";
 type CreateStickerInput = {
   name: string;
   imageUrl: string;
+  description?: string;
 };
 
 type UpdateStickerInput = {
-  name: string;
+  name?: string;
+  description?: string;
+  isFavorite?: boolean;
 };
 
 function nowMs(): number {
@@ -35,13 +38,11 @@ function nowMs(): number {
 function requirePairId(): string {
   const profile = useProfileStore.getState().profile;
 
-
   const pairId = profile?.pairId;
   if (!pairId) {
     console.error("❌ [StickerService] No pairId found in profile");
     throw new Error("Pair not established");
   }
-
 
   return pairId;
 }
@@ -50,8 +51,6 @@ export const StickerService = {
   async listByPair(): Promise<Sticker[]> {
     const pairId = requirePairId();
     const uid = getCurrentUserId();
-
-
 
     const q = query(
       collection(db, "stickers"),
@@ -62,17 +61,17 @@ export const StickerService = {
 
     const snap = await getDocs(q);
 
-
     const stickers = snap.docs.map((d) => {
       const data = d.data() as any;
-
 
       const sticker: Sticker = {
         id: d.id,
         name: String(data.name ?? ""),
+        description: String(data.description ?? ""),
         imageUrl: String(data.imageUrl ?? ""),
         createdBy: String(data.createdBy ?? ""),
         createdAt: Number(data.createdAt ?? 0),
+        isFavorite: Boolean(data.isFavorite),
       };
       return sticker;
     });
@@ -96,17 +95,16 @@ export const StickerService = {
     const payload = {
       name: input.name,
       imageUrl: input.imageUrl,
+      description: input.description || "",
+      isFavorite: false,
       createdBy: uid,
       pairId,
       createdAt: nowMs(),
       updatedAt: serverTimestamp(),
     };
 
-
-
     try {
       const ref = await addDoc(collection(db, "stickers"), payload);
-
 
       // Send notification to partner
       await notifyPartner({
@@ -127,8 +125,6 @@ export const StickerService = {
     const pairId = requirePairId();
     const uid = getCurrentUserId();
 
-
-
     const ref = doc(db, "stickers", id);
 
     try {
@@ -141,7 +137,6 @@ export const StickerService = {
 
       const data = snap.data() as any;
 
-
       if (data.pairId !== pairId) {
         console.error(
           "❌ [StickerService.update] PairId mismatch. Doc pairId:",
@@ -153,14 +148,15 @@ export const StickerService = {
       }
 
       const patch: Record<string, any> = {
-        name: updates.name,
         updatedAt: serverTimestamp(),
       };
-
-
+      if (updates.name !== undefined) patch.name = updates.name;
+      if (updates.description !== undefined)
+        patch.description = updates.description;
+      if (updates.isFavorite !== undefined)
+        patch.isFavorite = updates.isFavorite;
 
       await updateDoc(ref, patch);
-
     } catch (error) {
       console.error(
         "❌ [StickerService.update] Error updating sticker:",
@@ -174,8 +170,6 @@ export const StickerService = {
     const pairId = requirePairId();
     const uid = getCurrentUserId();
 
-
-
     const ref = doc(db, "stickers", id);
 
     try {
@@ -188,7 +182,6 @@ export const StickerService = {
 
       const data = snap.data() as any;
 
-
       if (data.pairId !== pairId) {
         console.error(
           "❌ [StickerService.remove] PairId mismatch. Doc pairId:",
@@ -200,7 +193,6 @@ export const StickerService = {
       }
 
       await deleteDoc(ref);
-
     } catch (error) {
       console.error(
         "❌ [StickerService.remove] Error deleting sticker:",

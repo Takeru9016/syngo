@@ -33,9 +33,11 @@ export type Favorite = {
 export type Sticker = {
   id: string;
   name: string;
+  description?: string; // Optional description for the sticker
   imageUrl: string;
   createdBy: string;
   createdAt: number;
+  isFavorite?: boolean; // Flag for favorite stickers
   isPredefined?: boolean; // Flag for pre-defined stickers
   category?: string; // Category for organization
   tags?: string[]; // Tags for search/filtering
@@ -62,6 +64,7 @@ export type AppNotificationType =
   | "todo_updated" // Client-side
   | "todo_deleted" // Client-side
   | "todo_due_soon" // Cloud Function: todoDueReminders
+  | "todo_overdue" // Cloud Function: todoDueReminders (overdue)
   | "favorite_added" // Cloud Function: onFavoriteAdded
   | "sticker_sent" // Cloud Function: onStickerSent
   | "nudge" // Client-side: Thinking of you nudges

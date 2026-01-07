@@ -98,7 +98,7 @@ export default function HomeScreen() {
   const markAsRead = useMarkAsRead();
   const { data: partnerMood } = usePartnerMood();
   const { data: todayMood } = useTodayMood();
-  const { customization } = useNotificationPreferences();
+  const { customization, getStyleForCategory } = useNotificationPreferences();
   const [refreshing, setRefreshing] = useState(false);
   const [notifPanelVisible, setNotifPanelVisible] = useState(false);
 
@@ -381,7 +381,7 @@ export default function HomeScreen() {
                     const Icon = getNotifIcon(notif.type);
                     const category = getCategory(notif.type);
                     const colors = customization.colors[category];
-                    const visualStyle = customization.visualStyle;
+                    const visualStyle = getStyleForCategory(category);
                     const useCustomStyle = !notif.read;
 
                     const renderBackground = () => {

@@ -1,5 +1,12 @@
-import { useMemo, useState } from "react";
-import { RefreshControl, Alert, FlatList, ListRenderItem } from "react-native";
+import { useMemo, useState, useRef } from "react";
+import {
+  RefreshControl,
+  Alert,
+  FlatList,
+  ListRenderItem,
+  Animated,
+} from "react-native";
+import { Swipeable } from "react-native-gesture-handler";
 import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
 import {
   Bell,
@@ -7,6 +14,7 @@ import {
   Trash2,
   AlarmClock,
   CheckCircle2,
+  Check,
   Sticker,
   Star,
   HeartHandshake,
@@ -126,10 +134,11 @@ export default function NotificationsScreen() {
   }, [notifications, filter]);
 
   const renderItem: ListRenderItem<AppNotification> = ({ item }) => (
-    <NotificationCard
+    <SwipeableNotificationCard
       notif={item}
       onPress={handlePress}
       onDelete={handleDelete}
+      onMarkAsRead={(id) => markAsRead.mutate(id)}
     />
   );
 
@@ -337,6 +346,97 @@ type NotificationCardProps = {
   onDelete: (id: string) => void;
 };
 
+type SwipeableNotificationCardProps = NotificationCardProps & {
+  onMarkAsRead: (id: string) => void;
+};
+
+// Swipeable wrapper component
+function SwipeableNotificationCard({
+  notif,
+  onPress,
+  onDelete,
+  onMarkAsRead,
+}: SwipeableNotificationCardProps) {
+  const swipeableRef = useRef<Swipeable>(null);
+
+  const renderRightActions = (
+    progress: Animated.AnimatedInterpolation<number>,
+    dragX: Animated.AnimatedInterpolation<number>
+  ) => {
+    // Don't show swipe action for already read notifications
+    if (notif.read) return null;
+
+    const scale = dragX.interpolate({
+      inputRange: [-100, 0],
+      outputRange: [1, 0],
+      extrapolate: "clamp",
+    });
+
+    const opacity = dragX.interpolate({
+      inputRange: [-100, -50, 0],
+      outputRange: [1, 0.8, 0],
+      extrapolate: "clamp",
+    });
+
+    return (
+      <Animated.View
+        style={{
+          backgroundColor: "#10B981",
+          justifyContent: "center",
+          alignItems: "center",
+          width: 80,
+          borderRadius: 16,
+          marginLeft: 8,
+          opacity,
+        }}
+      >
+        <Animated.View style={{ transform: [{ scale }] }}>
+          <Check size={24} color="white" />
+        </Animated.View>
+        <Animated.Text
+          style={{
+            color: "white",
+            fontSize: 11,
+            fontWeight: "600",
+            marginTop: 4,
+            transform: [{ scale }],
+          }}
+        >
+          Mark Read
+        </Animated.Text>
+      </Animated.View>
+    );
+  };
+
+  const handleSwipeOpen = (direction: "left" | "right") => {
+    if (direction === "right" && !notif.read) {
+      triggerSuccessHaptic();
+      onMarkAsRead(notif.id);
+      swipeableRef.current?.close();
+    }
+  };
+
+  // If already read, don't use swipeable
+  if (notif.read) {
+    return (
+      <NotificationCard notif={notif} onPress={onPress} onDelete={onDelete} />
+    );
+  }
+
+  return (
+    <Swipeable
+      ref={swipeableRef}
+      renderRightActions={renderRightActions}
+      onSwipeableOpen={handleSwipeOpen}
+      rightThreshold={40}
+      friction={2}
+      overshootRight={false}
+    >
+      <NotificationCard notif={notif} onPress={onPress} onDelete={onDelete} />
+    </Swipeable>
+  );
+}
+
 // Map notification types to categories
 function getCategory(type: AppNotificationType): NotificationCategory {
   switch (type) {
@@ -357,10 +457,10 @@ function getCategory(type: AppNotificationType): NotificationCategory {
 }
 
 function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
-  const { customization } = useNotificationPreferences();
+  const { customization, getStyleForCategory } = useNotificationPreferences();
   const category = getCategory(notif.type);
   const colors = customization.colors[category];
-  const visualStyle = customization.visualStyle;
+  const visualStyle = getStyleForCategory(category);
   const { icon } = getNotificationVisual(notif.type);
 
   const handleLongPress = () => {

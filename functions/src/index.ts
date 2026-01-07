@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin";
-import {setGlobalOptions} from "firebase-functions/v2";
+import { setGlobalOptions } from "firebase-functions/v2";
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -13,6 +13,8 @@ setGlobalOptions({
 // Export all functions
 export * from "./pairing/generateCode";
 export * from "./notifications/onTodoCreated";
+export * from "./notifications/onTodoUpdated";
+export * from "./notifications/onTodoDeleted";
 export * from "./notifications/onStickerSent";
 export * from "./notifications/onFavoriteAdded";
 export * from "./notifications/onNotificationCreated";

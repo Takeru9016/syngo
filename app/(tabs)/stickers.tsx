@@ -7,11 +7,12 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { YStack, XStack, Text, Button, Stack, Spinner, Tabs } from "tamagui";
-import { ImagePlus, Sparkles } from "@tamagui/lucide-icons";
+import { ImagePlus, Sparkles, Heart } from "@tamagui/lucide-icons";
 
 import {
   useStickers,
   useCreateSticker,
+  useUpdateSticker,
   useDeleteSticker,
 } from "@/hooks/useStickers";
 import { usePredefinedStickers } from "@/hooks/usePredefinedStickers";
@@ -31,12 +32,14 @@ export default function StickersScreen() {
   const { data: predefinedStickers = [], isLoading: predefinedLoading } =
     usePredefinedStickers();
   const createSticker = useCreateSticker();
+  const updateSticker = useUpdateSticker();
   const deleteSticker = useDeleteSticker();
 
   const { success, error: toastError } = useToast();
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<"custom" | "predefined">("custom");
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -72,18 +75,36 @@ export default function StickersScreen() {
     // Alert logic is inside StickerCard
   };
 
-  const handleSave = async (name: string, imageUrl: string) => {
+  const handleSave = async (
+    name: string,
+    imageUrl: string,
+    description?: string
+  ) => {
     triggerSuccessHaptic();
-    createSticker.mutate({ name, imageUrl });
+    createSticker.mutate({ name, imageUrl, description });
+  };
+
+  const handleToggleFavorite = async (id: string, isFavorite: boolean) => {
+    triggerLightHaptic();
+    updateSticker.mutate({ id, isFavorite });
   };
 
   const totalCount = stickers.length;
+  const favoriteCount = stickers.filter((s) => s.isFavorite).length;
   const predefinedCount = predefinedStickers.length;
 
-  const sortedStickers = useMemo(
-    () => [...stickers], // placeholder for future sort (e.g., by createdAt)
-    [stickers]
-  );
+  const sortedStickers = useMemo(() => {
+    let filtered = [...stickers];
+    if (showFavoritesOnly) {
+      filtered = filtered.filter((s) => s.isFavorite);
+    }
+    // Sort favorites first, then by createdAt
+    return filtered.sort((a, b) => {
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
+      return b.createdAt - a.createdAt;
+    });
+  }, [stickers, showFavoritesOnly]);
 
   const renderCustomItem: ListRenderItem<Sticker> = ({ item, index }) => (
     <Stack flex={1}>
@@ -92,6 +113,7 @@ export default function StickersScreen() {
         onSend={handleSend}
         onDelete={handleDelete}
         onLongPress={handleLongPress}
+        onToggleFavorite={handleToggleFavorite}
         index={index}
         isPredefined={false}
       />
@@ -148,7 +170,7 @@ export default function StickersScreen() {
         </XStack>
 
         {/* Summary pill */}
-        <XStack alignItems="center" justifyContent="flex-start">
+        <XStack alignItems="center" justifyContent="space-between">
           <XStack
             alignItems="center"
             gap="$2"
@@ -160,12 +182,46 @@ export default function StickersScreen() {
             <Sparkles size={16} color="$primary" />
             <Text color="$muted" fontSize={12}>
               {activeTab === "custom"
-                ? `${totalCount} custom sticker${totalCount === 1 ? "" : "s"}`
+                ? showFavoritesOnly
+                  ? `${sortedStickers.length} favorite${
+                      sortedStickers.length === 1 ? "" : "s"
+                    }`
+                  : `${totalCount} custom sticker${totalCount === 1 ? "" : "s"}`
                 : `${predefinedCount} pre-defined sticker${
                     predefinedCount === 1 ? "" : "s"
                   }`}
             </Text>
           </XStack>
+
+          {/* Favorites filter toggle (only on custom tab) */}
+          {activeTab === "custom" && favoriteCount > 0 && (
+            <Button
+              size="$2"
+              backgroundColor={showFavoritesOnly ? "$primary" : "$bgSoft"}
+              borderRadius="$6"
+              paddingHorizontal="$3"
+              onPress={() => {
+                triggerLightHaptic();
+                setShowFavoritesOnly(!showFavoritesOnly);
+              }}
+              pressStyle={{ opacity: 0.8, scale: 0.97 }}
+            >
+              <XStack alignItems="center" gap="$1.5">
+                <Heart
+                  size={14}
+                  color={showFavoritesOnly ? "white" : "$primary"}
+                  fill={showFavoritesOnly ? "white" : "transparent"}
+                />
+                <Text
+                  color={showFavoritesOnly ? "white" : "$primary"}
+                  fontSize={12}
+                  fontWeight="600"
+                >
+                  {favoriteCount}
+                </Text>
+              </XStack>
+            </Button>
+          )}
         </XStack>
       </YStack>
 
