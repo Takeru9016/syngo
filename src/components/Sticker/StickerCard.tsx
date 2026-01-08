@@ -146,7 +146,10 @@ export function StickerCard({
                 borderRadius="$8"
                 alignItems="center"
                 justifyContent="center"
-                onPress={handleFavoritePress}
+                onPress={(e: any) => {
+                  e.stopPropagation();
+                  handleFavoritePress();
+                }}
                 pressStyle={{ opacity: 0.7, scale: 0.9 }}
               >
                 <Heart

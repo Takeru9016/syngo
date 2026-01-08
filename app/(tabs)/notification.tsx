@@ -7,7 +7,7 @@ import {
   Animated,
 } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
-import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
+import { YStack, XStack, Text, Button, Stack, Spinner, Image } from "tamagui";
 import {
   Bell,
   CheckCheck,
@@ -21,6 +21,7 @@ import {
   HeartCrack,
   User,
   Heart,
+  Smile,
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -359,7 +360,7 @@ function SwipeableNotificationCard({
 }: SwipeableNotificationCardProps) {
   const swipeableRef = useRef<Swipeable>(null);
 
-  const renderRightActions = (
+  const renderLeftActions = (
     progress: Animated.AnimatedInterpolation<number>,
     dragX: Animated.AnimatedInterpolation<number>
   ) => {
@@ -367,14 +368,14 @@ function SwipeableNotificationCard({
     if (notif.read) return null;
 
     const scale = dragX.interpolate({
-      inputRange: [-100, 0],
-      outputRange: [1, 0],
+      inputRange: [0, 100],
+      outputRange: [0, 1],
       extrapolate: "clamp",
     });
 
     const opacity = dragX.interpolate({
-      inputRange: [-100, -50, 0],
-      outputRange: [1, 0.8, 0],
+      inputRange: [0, 50, 100],
+      outputRange: [0, 0.8, 1],
       extrapolate: "clamp",
     });
 
@@ -386,7 +387,7 @@ function SwipeableNotificationCard({
           alignItems: "center",
           width: 80,
           borderRadius: 16,
-          marginLeft: 8,
+          marginRight: 8,
           opacity,
         }}
       >
@@ -409,7 +410,7 @@ function SwipeableNotificationCard({
   };
 
   const handleSwipeOpen = (direction: "left" | "right") => {
-    if (direction === "right" && !notif.read) {
+    if (direction === "left" && !notif.read) {
       triggerSuccessHaptic();
       onMarkAsRead(notif.id);
       swipeableRef.current?.close();
@@ -426,11 +427,11 @@ function SwipeableNotificationCard({
   return (
     <Swipeable
       ref={swipeableRef}
-      renderRightActions={renderRightActions}
+      renderLeftActions={renderLeftActions}
       onSwipeableOpen={handleSwipeOpen}
-      rightThreshold={40}
+      leftThreshold={40}
       friction={2}
-      overshootRight={false}
+      overshootLeft={false}
     >
       <NotificationCard notif={notif} onPress={onPress} onDelete={onDelete} />
     </Swipeable>
@@ -577,20 +578,38 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
         {renderBackground()}
 
         <XStack alignItems="flex-start" gap="$3" zIndex={1}>
-          {/* Icon bubble */}
-          <Stack
-            width={36}
-            height={36}
-            borderRadius={10}
-            backgroundColor={useCustomStyle ? `${colors.icon}20` : "$bgSoft"}
-            alignItems="center"
-            justifyContent="center"
-          >
-            {icon({
-              size: 18,
-              color: useCustomStyle ? colors.icon : "$primary",
-            })}
-          </Stack>
+          {/* Icon or Image bubble */}
+          {(notif.type === "sticker_sent" || notif.type === "favorite_added") &&
+          notif.data?.imageUrl ? (
+            <Stack
+              width={44}
+              height={44}
+              borderRadius={10}
+              overflow="hidden"
+              backgroundColor={useCustomStyle ? `${colors.icon}20` : "$bgSoft"}
+            >
+              <Image
+                source={{ uri: notif.data.imageUrl as string }}
+                width={44}
+                height={44}
+                objectFit="cover"
+              />
+            </Stack>
+          ) : (
+            <Stack
+              width={36}
+              height={36}
+              borderRadius={10}
+              backgroundColor={useCustomStyle ? `${colors.icon}20` : "$bgSoft"}
+              alignItems="center"
+              justifyContent="center"
+            >
+              {icon({
+                size: 18,
+                color: useCustomStyle ? colors.icon : "$primary",
+              })}
+            </Stack>
+          )}
 
           {/* Text content */}
           <YStack flex={1} gap="$1">
@@ -693,6 +712,12 @@ function getNotificationVisual(type: AppNotificationType) {
         icon: (props: any) => <User {...props} />,
         iconBg: "$bgSoft",
         iconColor: "$muted",
+      };
+    case "mood_updated":
+      return {
+        icon: (props: any) => <Smile {...props} />,
+        iconBg: "$primarySoft",
+        iconColor: "$primary",
       };
     default:
       return {

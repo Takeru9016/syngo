@@ -43,17 +43,30 @@ export const onFavoriteAdded = onDocumentCreated(
       const creatorDoc = await db.doc(`users/${creatorUid}`).get();
       const creatorName = creatorDoc.data()?.displayName || "Your partner";
 
-      // Send notification to partner
+      // Get description and image from favorite data
+      const favoriteDescription = favoriteData.description || "";
+      const favoriteImageUrl = favoriteData.imageUrl || undefined;
+      const favoriteCategory = favoriteData.category || "other";
+
+      // Send notification to partner with rich content
       await Promise.all([
         sendPushToUser(
           partnerUid,
           {
             title: "New Favorite Added ⭐",
             body: `${creatorName} added: ${favoriteData.title}`,
+            subtitle: favoriteDescription || undefined,
+            imageUrl: favoriteImageUrl,
             data: {
               type: "favorite_added",
               favoriteId,
               pairId,
+            },
+            richContent: {
+              type: "favorite",
+              imageUrl: favoriteImageUrl,
+              favoriteTitle: favoriteData.title,
+              favoriteDescription: favoriteDescription || undefined,
             },
           },
           "favoriteUpdates"
@@ -62,7 +75,13 @@ export const onFavoriteAdded = onDocumentCreated(
           type: "favorite_added",
           title: "New Favorite Added ⭐",
           body: `${creatorName} added: ${favoriteData.title}`,
-          data: { favoriteId },
+          data: {
+            favoriteId,
+            favoriteTitle: favoriteData.title,
+            favoriteDescription,
+            favoriteImageUrl,
+            favoriteCategory,
+          },
         }),
       ]);
 

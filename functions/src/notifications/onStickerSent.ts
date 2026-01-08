@@ -42,18 +42,29 @@ export const onStickerSent = onCall(async (request) => {
     // Get sender's name
     const senderName = senderDoc.data()?.displayName || "Your partner";
 
-    // Send notification to partner
+    // Get sticker description if available
+    const { stickerDescription } = request.data;
+
+    // Send notification to partner with rich content
     await Promise.all([
       sendPushToUser(
         partnerUid,
         {
           title: "Sticker from your partner! 🎨",
           body: `${senderName} sent you: ${stickerName}`,
+          subtitle: stickerDescription || undefined,
+          imageUrl: stickerUrl || undefined,
           data: {
             type: "sticker_sent",
             stickerId,
             stickerUrl: stickerUrl || "",
             pairId,
+          },
+          richContent: {
+            type: "sticker",
+            imageUrl: stickerUrl || undefined,
+            stickerName,
+            stickerDescription: stickerDescription || undefined,
           },
         },
         "stickerNotifications"
@@ -62,7 +73,7 @@ export const onStickerSent = onCall(async (request) => {
         type: "sticker_sent",
         title: "Sticker from your partner! 🎨",
         body: `${senderName} sent you: ${stickerName}`,
-        data: { stickerId, stickerUrl },
+        data: { stickerId, stickerUrl, stickerName, stickerDescription },
       }),
     ]);
 

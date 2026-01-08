@@ -10,18 +10,33 @@ const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 export interface PushPayload {
   title: string;
   body: string;
+  subtitle?: string; // iOS subtitle support
   data?: Record<string, string>;
+  // Rich notification content
+  imageUrl?: string; // For stickers, favorites with images
+  richContent?: {
+    type: "sticker" | "favorite" | "mood" | "default";
+    imageUrl?: string;
+    stickerName?: string;
+    stickerDescription?: string;
+    favoriteTitle?: string;
+    favoriteDescription?: string;
+    moodEmoji?: string;
+    moodLabel?: string;
+  };
 }
 
 interface ExpoPushMessage {
   to: string;
   title: string;
   body: string;
+  subtitle?: string;
   data?: Record<string, string>;
   sound?: "default" | null;
   channelId?: string;
   priority?: "default" | "normal" | "high";
   badge?: number;
+  _contentAvailable?: boolean; // For iOS background processing
 }
 
 interface ExpoPushTicket {
@@ -79,15 +94,32 @@ export async function sendPushToUser(
     else if (notificationType === "favoriteUpdates") channelId = "favorites";
     else if (notificationType === "nudgeNotifications") channelId = "nudges";
 
+    // Build rich data payload with image URLs for client-side handling
+    const richData: Record<string, string> = {
+      ...(payload.data || {}),
+    };
+
+    // Include image URL in data for client-side rich notification handling
+    if (payload.imageUrl) {
+      richData.imageUrl = payload.imageUrl;
+    }
+
+    // Include rich content as JSON for structured data
+    if (payload.richContent) {
+      richData.richContent = JSON.stringify(payload.richContent);
+    }
+
     // Build Expo push messages
     const messages: ExpoPushMessage[] = tokens.map(({ token }) => ({
       to: token,
       title: payload.title,
       body: payload.body,
-      data: payload.data || {},
+      subtitle: payload.subtitle,
+      data: richData,
       sound: "default",
       channelId,
       priority: "high",
+      _contentAvailable: !!payload.imageUrl, // Enable background processing for images
     }));
 
     // Send via Expo Push API

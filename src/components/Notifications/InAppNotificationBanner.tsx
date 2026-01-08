@@ -11,6 +11,7 @@ import {
   Bell,
   HeartHandshake,
   X,
+  Smile,
 } from "@tamagui/lucide-icons";
 import * as Haptics from "expo-haptics";
 
@@ -43,6 +44,8 @@ function getCategory(type: AppNotificationType): NotificationCategory {
       return "todos";
     case "favorite_added":
       return "favorites";
+    case "mood_updated":
+      return "system"; // Use system styling for mood updates
     default:
       return "system";
   }
@@ -67,6 +70,8 @@ function getIcon(type: AppNotificationType) {
     case "pair_request":
     case "pair_accepted":
       return HeartHandshake;
+    case "mood_updated":
+      return Smile;
     default:
       return Bell;
   }

@@ -99,6 +99,7 @@ export type AppNotificationType =
   | "favorite_added" // Cloud Function: onFavoriteAdded
   | "sticker_sent" // Cloud Function: onStickerSent
   | "nudge" // Client-side: Thinking of you nudges
+  | "mood_updated" // Cloud Function: onMoodUpdated
   | "pair_success" // Cloud Function: redeemPairingCode
   | "pair_connected" // Client-side (alias for pair_success)
   | "pair_request" // Client-side

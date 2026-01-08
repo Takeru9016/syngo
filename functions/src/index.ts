@@ -20,3 +20,4 @@ export * from "./notifications/onFavoriteAdded";
 export * from "./notifications/onNotificationCreated";
 export * from "./scheduled/cleanup";
 export * from "./scheduled/todoDueReminders";
+export * from "./notifications/onMoodUpdated";
