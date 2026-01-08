@@ -17,6 +17,7 @@ import {
 import {
   useStickers,
   useCreateSticker,
+  useUpdateSticker,
   useDeleteSticker,
 } from "@/hooks/useStickers";
 import { usePredefinedStickers } from "@/hooks/usePredefinedStickers";
@@ -26,6 +27,7 @@ import {
   FavoriteFormModal,
   StickerCard,
   AddStickerModal,
+  EditStickerModal,
   ScreenContainer,
 } from "@/components";
 import { Favorite, FavoriteCategory, Sticker } from "@/types";
@@ -64,6 +66,7 @@ export default function MomentsScreen() {
   const { data: predefinedStickers = [], isLoading: predefinedLoading } =
     usePredefinedStickers();
   const createSticker = useCreateSticker();
+  const updateSticker = useUpdateSticker();
   const deleteSticker = useDeleteSticker();
 
   const { success, error: toastError } = useToast();
@@ -81,6 +84,8 @@ export default function MomentsScreen() {
 
   // Stickers state
   const [stickerModalVisible, setStickerModalVisible] = useState(false);
+  const [editStickerModalVisible, setEditStickerModalVisible] = useState(false);
+  const [editingSticker, setEditingSticker] = useState<Sticker | null>(null);
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -159,6 +164,21 @@ export default function MomentsScreen() {
   const handleSaveSticker = async (name: string, imageUrl: string) => {
     triggerSuccessHaptic();
     createSticker.mutate({ name, imageUrl });
+  };
+
+  const handleEditSticker = (sticker: Sticker) => {
+    triggerLightHaptic();
+    setEditingSticker(sticker);
+    setEditStickerModalVisible(true);
+  };
+
+  const handleSaveEditSticker = (
+    id: string,
+    updates: { name?: string; description?: string; imageUrl?: string }
+  ) => {
+    triggerSuccessHaptic();
+    updateSticker.mutate({ id, ...updates });
+    success("Sticker Updated", "Your sticker has been updated!");
   };
 
   // Computed values
@@ -457,6 +477,7 @@ export default function MomentsScreen() {
                     onSend={handleSendSticker}
                     onDelete={handleDeleteSticker}
                     onLongPress={handleLongPressSticker}
+                    onEdit={handleEditSticker}
                     index={index}
                     isPredefined={false}
                   />
@@ -519,6 +540,16 @@ export default function MomentsScreen() {
         visible={stickerModalVisible}
         onClose={() => setStickerModalVisible(false)}
         onSave={handleSaveSticker}
+      />
+
+      <EditStickerModal
+        visible={editStickerModalVisible}
+        sticker={editingSticker}
+        onClose={() => {
+          setEditStickerModalVisible(false);
+          setEditingSticker(null);
+        }}
+        onSave={handleSaveEditSticker}
       />
     </ScreenContainer>
   );

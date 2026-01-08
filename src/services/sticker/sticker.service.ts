@@ -28,7 +28,7 @@ type CreateStickerInput = {
 type UpdateStickerInput = {
   name?: string;
   description?: string;
-  isFavorite?: boolean;
+  imageUrl?: string;
 };
 
 function nowMs(): number {
@@ -71,7 +71,6 @@ export const StickerService = {
         imageUrl: String(data.imageUrl ?? ""),
         createdBy: String(data.createdBy ?? ""),
         createdAt: Number(data.createdAt ?? 0),
-        isFavorite: Boolean(data.isFavorite),
       };
       return sticker;
     });
@@ -96,7 +95,6 @@ export const StickerService = {
       name: input.name,
       imageUrl: input.imageUrl,
       description: input.description || "",
-      isFavorite: false,
       createdBy: uid,
       pairId,
       createdAt: nowMs(),
@@ -153,8 +151,7 @@ export const StickerService = {
       if (updates.name !== undefined) patch.name = updates.name;
       if (updates.description !== undefined)
         patch.description = updates.description;
-      if (updates.isFavorite !== undefined)
-        patch.isFavorite = updates.isFavorite;
+      if (updates.imageUrl !== undefined) patch.imageUrl = updates.imageUrl;
 
       await updateDoc(ref, patch);
     } catch (error) {

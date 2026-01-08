@@ -1,6 +1,6 @@
 import { Alert, Animated } from "react-native";
-import { YStack, XStack, Text, Stack, Button, Image } from "tamagui";
-import { Send, Heart } from "@tamagui/lucide-icons";
+import { YStack, Text, Stack, Button, Image } from "tamagui";
+import { Send } from "@tamagui/lucide-icons";
 
 import { Sticker } from "@/types";
 import { useScaleIn, getStaggerDelay } from "@/utils/animations";
@@ -10,7 +10,7 @@ type Props = {
   onSend: (sticker: Sticker) => void;
   onDelete?: (id: string) => void; // Optional for predefined stickers
   onLongPress?: (sticker: Sticker) => void; // Optional for predefined stickers
-  onToggleFavorite?: (id: string, isFavorite: boolean) => void; // Toggle favorite
+  onEdit?: (sticker: Sticker) => void; // Edit sticker
   index?: number;
   isPredefined?: boolean; // Flag to indicate predefined sticker
 };
@@ -19,7 +19,7 @@ export function StickerCard({
   sticker,
   onSend,
   onDelete,
-  onToggleFavorite,
+  onEdit,
   index = 0,
   isPredefined = false,
 }: Props) {
@@ -54,9 +54,17 @@ export function StickerCard({
           text: "Send to partner",
           onPress: () => onSend(sticker),
         },
+        ...(onEdit
+          ? [
+              {
+                text: "Edit",
+                onPress: () => onEdit(sticker),
+              },
+            ]
+          : []),
         {
           text: "Delete",
-          style: "destructive",
+          style: "destructive" as const,
           onPress: () => {
             Alert.alert("Delete sticker", "Are you sure?", [
               { text: "Cancel", style: "cancel" },
@@ -70,17 +78,11 @@ export function StickerCard({
         },
         {
           text: "Cancel",
-          style: "cancel",
+          style: "cancel" as const,
         },
       ],
       { cancelable: true }
     );
-  };
-
-  const handleFavoritePress = () => {
-    if (onToggleFavorite && !isPredefined) {
-      onToggleFavorite(sticker.id, !sticker.isFavorite);
-    }
   };
 
   return (
@@ -132,33 +134,6 @@ export function StickerCard({
             >
               <Send size={14} color="white" />
             </Stack>
-
-            {/* Favorite toggle button (only for custom stickers) */}
-            {!isPredefined && onToggleFavorite && (
-              <Button
-                unstyled
-                position="absolute"
-                top="$2"
-                left="$2"
-                width={32}
-                height={32}
-                backgroundColor="rgba(0,0,0,0.55)"
-                borderRadius="$8"
-                alignItems="center"
-                justifyContent="center"
-                onPress={(e: any) => {
-                  e.stopPropagation();
-                  handleFavoritePress();
-                }}
-                pressStyle={{ opacity: 0.7, scale: 0.9 }}
-              >
-                <Heart
-                  size={16}
-                  color={sticker.isFavorite ? "#FF6B9D" : "white"}
-                  fill={sticker.isFavorite ? "#FF6B9D" : "transparent"}
-                />
-              </Button>
-            )}
           </Stack>
 
           {/* Name and Description */}

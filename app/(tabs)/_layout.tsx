@@ -75,18 +75,6 @@ export default function TabsLayout() {
       />
       {/* Hidden screens - kept for backwards compatibility but not shown in tab bar */}
       <Tabs.Screen
-        name="favorites"
-        options={{
-          href: null, // Hide from tab bar
-        }}
-      />
-      <Tabs.Screen
-        name="stickers"
-        options={{
-          href: null, // Hide from tab bar
-        }}
-      />
-      <Tabs.Screen
         name="notification"
         options={{
           href: null, // Hide from tab bar

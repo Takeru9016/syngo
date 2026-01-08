@@ -68,7 +68,6 @@ export type Sticker = {
   imageUrl: string;
   createdBy: string;
   createdAt: number;
-  isFavorite?: boolean; // Flag for favorite stickers
   isPredefined?: boolean; // Flag for pre-defined stickers
   category?: string; // Category for organization
   tags?: string[]; // Tags for search/filtering

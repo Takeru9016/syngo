@@ -24,7 +24,7 @@ type UpdatePayload = {
   id: string;
   name?: string;
   description?: string;
-  isFavorite?: boolean;
+  imageUrl?: string;
 };
 
 const key = (pairId?: string) => ["stickers", pairId || "none"] as const;
@@ -58,7 +58,6 @@ export function useStickers() {
             imageUrl: String(data.imageUrl ?? ""),
             createdBy: String(data.createdBy ?? ""),
             createdAt: Number(data.createdAt ?? 0),
-            isFavorite: Boolean(data.isFavorite),
           };
         });
 

@@ -80,10 +80,8 @@ export default function NotificationsScreen() {
         router.push("/(tabs)/todos");
         break;
       case "sticker_sent":
-        router.push("/(tabs)/stickers");
-        break;
       case "favorite_added":
-        router.push("/(tabs)/favorites");
+        router.push("/(tabs)/moments");
         break;
       case "pair_success":
       case "pair_request":
