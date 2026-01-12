@@ -114,8 +114,8 @@ importers:
         specifier: 0.81.5
         version: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
       react-native-android-widget:
-        specifier: ^0.18.0
-        version: 0.18.0(expo@54.0.29)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+        specifier: ^0.19.0
+        version: 0.19.0(expo@54.0.29)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       react-native-gesture-handler:
         specifier: ~2.28.0
         version: 2.28.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -4968,8 +4968,8 @@ packages:
   react-is@19.2.0:
     resolution: {integrity: sha512-x3Ax3kNSMIIkyVYhWPyO09bu0uttcAIoecO/um/rKGQ4EltYWVYtyiGkS/3xMynrbVQdS69Jhlv8FXUEZehlzA==}
 
-  react-native-android-widget@0.18.0:
-    resolution: {integrity: sha512-Q/2HMl27kNy7loRC6g7VhNqnRZDEyeNChyEx0jFB8DcpYwXdw2E+pZKd8196EhFYxAZlMs7BJ+CDKrvw+Q7jGA==}
+  react-native-android-widget@0.19.0:
+    resolution: {integrity: sha512-dkhxZEdJkMquUfJMAYhPP6S8IVYvZKV3ipsPtf3ZDQ8OhVkafw6sKUx3+RsLV3a+P8YfmNOyzHMfkEfLfFiUBg==}
     peerDependencies:
       expo: '>=54.0.0'
       react: '*'
@@ -12382,7 +12382,7 @@ snapshots:
 
   react-is@19.2.0: {}
 
-  react-native-android-widget@0.18.0(expo@54.0.29)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
+  react-native-android-widget@0.19.0(expo@54.0.29)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
     dependencies:
       react: 19.1.0
       react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
