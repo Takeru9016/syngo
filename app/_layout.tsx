@@ -27,6 +27,7 @@ import { InAppNotificationProvider, NudgeReceiveAnimation } from "@/components";
 import { useForegroundNotification } from "@/hooks/useForegroundNotification";
 import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
 import { useNotificationStore } from "@/store/notification";
+import { useWidgetUpdates } from "@/hooks/useWidgetUpdates";
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -93,6 +94,9 @@ function Gate() {
 
   // Enable in-app notification banner for foreground notifications
   useForegroundNotification();
+
+  // Keep widgets updated with latest data
+  useWidgetUpdates();
 
   // Listen for new nudge notifications and show animation globally
   useEffect(() => {

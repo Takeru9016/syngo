@@ -30,7 +30,12 @@ const config: ExpoConfig = {
     supportsTablet: false, // Portrait-only app
 
     // App Store metadata
-    appStoreUrl: "https://apps.apple.com/in/app/syngo/id6755762478", // Will be filled after app is live
+    appStoreUrl: "https://apps.apple.com/in/app/syngo/id6755762478",
+
+    // App Groups for widget data sharing
+    entitlements: {
+      "com.apple.security.application-groups": ["group.com.sahiljadhav.syngo"],
+    },
 
     infoPlist: {
       // Background modes for notifications
@@ -131,6 +136,78 @@ const config: ExpoConfig = {
   plugins: [
     "expo-router",
 
+    // iOS Widget Extension
+    "@bacons/apple-targets",
+
+    // Android Widgets
+    [
+      "react-native-android-widget",
+      {
+        widgets: [
+          {
+            name: "SyngoPartnerStatus",
+            label: "Partner Status",
+            minWidth: "110dp",
+            minHeight: "110dp",
+            description: "See your partner's mood at a glance",
+            targetCellWidth: 2,
+            targetCellHeight: 2,
+            previewImage: "./assets/images/widgets/widget-partner-status.png",
+          },
+          {
+            name: "SyngoMood",
+            label: "Mood",
+            minWidth: "110dp",
+            minHeight: "110dp",
+            description: "How are you both feeling",
+            targetCellWidth: 2,
+            targetCellHeight: 2,
+            previewImage: "./assets/images/widgets/widget-mood.png",
+          },
+          {
+            name: "SyngoQuickNudge",
+            label: "Quick Nudge",
+            minWidth: "110dp",
+            minHeight: "110dp",
+            description: "Send a nudge with one tap",
+            targetCellWidth: 2,
+            targetCellHeight: 2,
+            previewImage: "./assets/images/widgets/widget-quick-nudge.png",
+          },
+          {
+            name: "SyngoQuickActions",
+            label: "Quick Actions",
+            minWidth: "250dp",
+            minHeight: "110dp",
+            description: "Quick access to Syngo features",
+            targetCellWidth: 4,
+            targetCellHeight: 2,
+            previewImage: "./assets/images/widgets/widget-quick-actions.png",
+          },
+          {
+            name: "SyngoDashboard",
+            label: "Dashboard",
+            minWidth: "250dp",
+            minHeight: "250dp",
+            description: "Full partner dashboard with notifications",
+            targetCellWidth: 4,
+            targetCellHeight: 4,
+            previewImage: "./assets/images/widgets/widget-dashboard.png",
+          },
+          {
+            name: "SyngoCoupleOverview",
+            label: "Couple Overview",
+            minWidth: "250dp",
+            minHeight: "250dp",
+            description: "You and your partner at a glance",
+            targetCellWidth: 4,
+            targetCellHeight: 4,
+            previewImage: "./assets/images/widgets/widget-couple-overview.png",
+          },
+        ],
+        widgetTaskHandlerPath: "src/widgets/widget-task-handler",
+      },
+    ],
     [
       "expo-splash-screen",
       {
