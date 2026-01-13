@@ -2,11 +2,11 @@ import SwiftUI
 import WidgetKit
 
 // MARK: - Lock Screen Widgets (iOS 16+)
+// Note: These widgets use @available on supportedFamilies to handle iOS version compatibility
 
-// MARK: - 11. Partner Mood Accessory Widget (Circular)
+// MARK: - Partner Mood Accessory Widget (Circular)
 // Shows: Mood emoji in a circle
 
-@available(iOS 16.0, *)
 struct PartnerMoodAccessoryWidget: Widget {
     let kind: String = "PartnerMoodAccessoryWidget"
     
@@ -16,37 +16,47 @@ struct PartnerMoodAccessoryWidget: Widget {
         }
         .configurationDisplayName("Partner Mood")
         .description("Your partner's mood")
-        .supportedFamilies([.accessoryCircular])
+        .supportedFamilies(partnerMoodSupportedFamilies)
     }
-}
-
-@available(iOS 16.0, *)
-struct PartnerMoodAccessoryView: View {
-    let entry: SyngoWidgetEntry
     
-    var body: some View {
-        if let partner = entry.data.partner, entry.data.isPaired {
-            ZStack {
-                AccessoryWidgetBackground()
-                Text(partner.moodEmoji ?? "💕")
-                    .font(.system(size: 24))
-            }
-            .widgetURL(WidgetDeepLink.mood)
+    private var partnerMoodSupportedFamilies: [WidgetFamily] {
+        if #available(iOS 16.0, *) {
+            return [.accessoryCircular]
         } else {
-            ZStack {
-                AccessoryWidgetBackground()
-                Image(systemName: "heart")
-                    .font(.system(size: 20))
-            }
-            .widgetURL(WidgetDeepLink.pair)
+            return []
         }
     }
 }
 
-// MARK: - 13. Partner Status Accessory Widget (Rectangular)
+struct PartnerMoodAccessoryView: View {
+    let entry: SyngoWidgetEntry
+    
+    var body: some View {
+        if #available(iOS 16.0, *) {
+            if let partner = entry.data.partner, entry.data.isPaired {
+                ZStack {
+                    AccessoryWidgetBackground()
+                    Text(partner.moodEmoji ?? "💕")
+                        .font(.system(size: 24))
+                }
+                .widgetURL(WidgetDeepLink.mood)
+            } else {
+                ZStack {
+                    AccessoryWidgetBackground()
+                    Image(systemName: "heart")
+                        .font(.system(size: 20))
+                }
+                .widgetURL(WidgetDeepLink.pair)
+            }
+        } else {
+            EmptyView()
+        }
+    }
+}
+
+// MARK: - Partner Status Accessory Widget (Rectangular)
 // Shows: "Partner: 😊 Good" in compact form
 
-@available(iOS 16.0, *)
 struct PartnerStatusAccessoryWidget: Widget {
     let kind: String = "PartnerStatusAccessoryWidget"
     
@@ -56,11 +66,18 @@ struct PartnerStatusAccessoryWidget: Widget {
         }
         .configurationDisplayName("Partner Status")
         .description("Partner name and mood")
-        .supportedFamilies([.accessoryRectangular])
+        .supportedFamilies(partnerStatusSupportedFamilies)
+    }
+    
+    private var partnerStatusSupportedFamilies: [WidgetFamily] {
+        if #available(iOS 16.0, *) {
+            return [.accessoryRectangular]
+        } else {
+            return []
+        }
     }
 }
 
-@available(iOS 16.0, *)
 struct PartnerStatusAccessoryView: View {
     let entry: SyngoWidgetEntry
     
@@ -104,11 +121,9 @@ struct PartnerStatusAccessoryView: View {
     }
 }
 
-// MARK: - 14. Nudge Inline Widget
+// MARK: - Nudge Inline Widget
 // Note: Inline widgets are text-only and show above the time
-// They're registered differently and have minimal customization
 
-@available(iOS 16.0, *)
 struct NudgeInlineWidget: Widget {
     let kind: String = "NudgeInlineWidget"
     
@@ -118,54 +133,39 @@ struct NudgeInlineWidget: Widget {
         }
         .configurationDisplayName("Nudge Inline")
         .description("Quick nudge above the time")
-        .supportedFamilies([.accessoryInline])
+        .supportedFamilies(nudgeInlineSupportedFamilies)
     }
-}
-
-@available(iOS 16.0, *)
-struct NudgeInlineView: View {
-    let entry: SyngoWidgetEntry
     
-    var body: some View {
-        if let partner = entry.data.partner, entry.data.isPaired {
-            ViewThatFits {
-                // Full text
-                Label("💕 Send a nudge to \(partner.name)", systemImage: "heart.fill")
-                // Shorter version if needed
-                Label("\(partner.moodEmoji ?? "💕") \(partner.name)", systemImage: "heart")
-                // Minimal
-                Label(partner.moodEmoji ?? "💕", systemImage: "heart")
-            }
-            .widgetURL(WidgetDeepLink.nudge)
+    private var nudgeInlineSupportedFamilies: [WidgetFamily] {
+        if #available(iOS 16.0, *) {
+            return [.accessoryInline]
         } else {
-            Label("💕 Syngo", systemImage: "heart")
-                .widgetURL(WidgetDeepLink.home)
+            return []
         }
     }
 }
 
-// MARK: - Previews
-
-#Preview("Partner Mood (Circular)", as: .accessoryCircular) {
-    if #available(iOS 16.0, *) {
-        PartnerMoodAccessoryWidget()
+struct NudgeInlineView: View {
+    let entry: SyngoWidgetEntry
+    
+    var body: some View {
+        if #available(iOS 16.0, *) {
+            if let partner = entry.data.partner, entry.data.isPaired {
+                ViewThatFits {
+                    // Full text
+                    Label("💕 Send a nudge to \(partner.name)", systemImage: "heart.fill")
+                    // Shorter version if needed
+                    Label("\(partner.moodEmoji ?? "💕") \(partner.name)", systemImage: "heart")
+                    // Minimal
+                    Label(partner.moodEmoji ?? "💕", systemImage: "heart")
+                }
+                .widgetURL(WidgetDeepLink.nudge)
+            } else {
+                Label("💕 Syngo", systemImage: "heart")
+                    .widgetURL(WidgetDeepLink.home)
+            }
+        } else {
+            EmptyView()
+        }
     }
-} timeline: {
-    SyngoWidgetEntry(date: .now, data: WidgetDataProvider.shared.getPlaceholderData())
-}
-
-#Preview("Partner Status (Rectangular)", as: .accessoryRectangular) {
-    if #available(iOS 16.0, *) {
-        PartnerStatusAccessoryWidget()
-    }
-} timeline: {
-    SyngoWidgetEntry(date: .now, data: WidgetDataProvider.shared.getPlaceholderData())
-}
-
-#Preview("Nudge (Inline)", as: .accessoryInline) {
-    if #available(iOS 16.0, *) {
-        NudgeInlineWidget()
-    }
-} timeline: {
-    SyngoWidgetEntry(date: .now, data: WidgetDataProvider.shared.getPlaceholderData())
 }

@@ -962,7 +962,7 @@ export default function SettingsScreen() {
               fontSize={12}
               marginTop="$2"
             >
-              Version 1.0.3 (1)
+              Version 1.0.4
             </Text>
           </YStack>
         </YStack>

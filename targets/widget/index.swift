@@ -13,10 +13,10 @@ struct SyngoWidgetBundle: WidgetBundle {
         CoupleOverviewWidget()
         
         // Lock Screen Widgets (iOS 16+)
-        if #available(iOS 16.0, *) {
-            PartnerMoodAccessoryWidget()
-            PartnerStatusAccessoryWidget()
-            NudgeInlineWidget()
-        }
+        // Note: These widgets already have @available(iOS 16.0, *) on their definition,
+        // so they will only be active on iOS 16+
+        PartnerMoodAccessoryWidget()
+        PartnerStatusAccessoryWidget()
+        NudgeInlineWidget()
     }
 }
