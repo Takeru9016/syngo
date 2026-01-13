@@ -6,7 +6,7 @@ const EAS_PROJECT_ID = "0f6d9962-45d9-4648-bc14-54362c3f999e";
 const config: ExpoConfig = {
   name: "Syngo",
   slug: "notify",
-  version: "1.0.4",
+  version: "1.0.5",
   orientation: "portrait",
   scheme: "syngo",
   userInterfaceStyle: "automatic",
@@ -26,7 +26,7 @@ const config: ExpoConfig = {
 
   ios: {
     bundleIdentifier: "com.sahiljadhav.syngo",
-    buildNumber: "1",
+    buildNumber: "2",
     supportsTablet: false, // Portrait-only app
     appleTeamId: "3RNFFHNH54", // Required for @bacons/apple-targets widgets
 
@@ -80,7 +80,7 @@ const config: ExpoConfig = {
 
   android: {
     package: "com.sahiljadhav.syngo",
-    versionCode: 1,
+    versionCode: 2,
 
     // Play Store metadata
     playStoreUrl:
@@ -140,78 +140,76 @@ const config: ExpoConfig = {
     // iOS Widget Extension
     "@bacons/apple-targets",
 
-    // Android Widgets - TEMPORARILY DISABLED
-    // react-native-android-widget has compatibility issue with RN 0.81.5
-    // (getShader method signature changed). Re-enable when library is updated.
-    // See: https://github.com/nickmattinson/react-native-android-widget/issues
-    // [
-    //   "react-native-android-widget",
-    //   {
-    //     widgets: [
-    //       {
-    //         name: "SyngoPartnerStatus",
-    //         label: "Partner Status",
-    //         minWidth: "110dp",
-    //         minHeight: "110dp",
-    //         description: "See your partner's mood at a glance",
-    //         targetCellWidth: 2,
-    //         targetCellHeight: 2,
-    //         previewImage: "./assets/images/widgets/widget-partner-status.png",
-    //       },
-    //       {
-    //         name: "SyngoMood",
-    //         label: "Mood",
-    //         minWidth: "110dp",
-    //         minHeight: "110dp",
-    //         description: "How are you both feeling",
-    //         targetCellWidth: 2,
-    //         targetCellHeight: 2,
-    //         previewImage: "./assets/images/widgets/widget-mood.png",
-    //       },
-    //       {
-    //         name: "SyngoQuickNudge",
-    //         label: "Quick Nudge",
-    //         minWidth: "110dp",
-    //         minHeight: "110dp",
-    //         description: "Send a nudge with one tap",
-    //         targetCellWidth: 2,
-    //         targetCellHeight: 2,
-    //         previewImage: "./assets/images/widgets/widget-quick-nudge.png",
-    //       },
-    //       {
-    //         name: "SyngoQuickActions",
-    //         label: "Quick Actions",
-    //         minWidth: "250dp",
-    //         minHeight: "110dp",
-    //         description: "Quick access to Syngo features",
-    //         targetCellWidth: 4,
-    //         targetCellHeight: 2,
-    //         previewImage: "./assets/images/widgets/widget-quick-actions.png",
-    //       },
-    //       {
-    //         name: "SyngoDashboard",
-    //         label: "Dashboard",
-    //         minWidth: "250dp",
-    //         minHeight: "250dp",
-    //         description: "Full partner dashboard with notifications",
-    //         targetCellWidth: 4,
-    //         targetCellHeight: 4,
-    //         previewImage: "./assets/images/widgets/widget-dashboard.png",
-    //       },
-    //       {
-    //         name: "SyngoCoupleOverview",
-    //         label: "Couple Overview",
-    //         minWidth: "250dp",
-    //         minHeight: "250dp",
-    //         description: "You and your partner at a glance",
-    //         targetCellWidth: 4,
-    //         targetCellHeight: 4,
-    //         previewImage: "./assets/images/widgets/widget-couple-overview.png",
-    //       },
-    //     ],
-    //     widgetTaskHandlerPath: "src/widgets/widget-task-handler",
-    //   },
-    // ],
+    // Android Widgets - PATCHED for RN 0.81.5 compatibility
+    // See: patches/react-native-android-widget+0.19.0.patch
+    [
+      "react-native-android-widget",
+      {
+        widgets: [
+          {
+            name: "SyngoPartnerStatus",
+            label: "Partner Status",
+            minWidth: "110dp",
+            minHeight: "110dp",
+            description: "See your partner's mood at a glance",
+            targetCellWidth: 2,
+            targetCellHeight: 2,
+            previewImage: "./assets/images/widgets/widget-partner-status.png",
+          },
+          {
+            name: "SyngoMood",
+            label: "Mood",
+            minWidth: "110dp",
+            minHeight: "110dp",
+            description: "How are you both feeling",
+            targetCellWidth: 2,
+            targetCellHeight: 2,
+            previewImage: "./assets/images/widgets/widget-mood.png",
+          },
+          {
+            name: "SyngoQuickNudge",
+            label: "Quick Nudge",
+            minWidth: "110dp",
+            minHeight: "110dp",
+            description: "Send a nudge with one tap",
+            targetCellWidth: 2,
+            targetCellHeight: 2,
+            previewImage: "./assets/images/widgets/widget-quick-nudge.png",
+          },
+          {
+            name: "SyngoQuickActions",
+            label: "Quick Actions",
+            minWidth: "250dp",
+            minHeight: "110dp",
+            description: "Quick access to Syngo features",
+            targetCellWidth: 4,
+            targetCellHeight: 2,
+            previewImage: "./assets/images/widgets/widget-quick-actions.png",
+          },
+          {
+            name: "SyngoDashboard",
+            label: "Dashboard",
+            minWidth: "250dp",
+            minHeight: "250dp",
+            description: "Full partner dashboard with notifications",
+            targetCellWidth: 4,
+            targetCellHeight: 4,
+            previewImage: "./assets/images/widgets/widget-dashboard.png",
+          },
+          {
+            name: "SyngoCoupleOverview",
+            label: "Couple Overview",
+            minWidth: "250dp",
+            minHeight: "250dp",
+            description: "You and your partner at a glance",
+            targetCellWidth: 4,
+            targetCellHeight: 4,
+            previewImage: "./assets/images/widgets/widget-couple-overview.png",
+          },
+        ],
+        widgetTaskHandlerPath: "src/widgets/widget-task-handler",
+      },
+    ],
     [
       "expo-splash-screen",
       {
@@ -278,8 +276,8 @@ const config: ExpoConfig = {
     cloudinaryUploadPreset: process.env.EXPO_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
 
     // App metadata (accessible via Constants.expoConfig.extra)
-    appVersion: "1.0.4",
-    appBuildNumber: "1",
+    appVersion: "1.0.5",
+    appBuildNumber: "2",
     supportEmail: "timetocode22@gmail.com",
     privacyPolicyUrl: "https://syngo.vercel.app/privacy",
     termsOfServiceUrl: "https://syngo.vercel.app/eula",

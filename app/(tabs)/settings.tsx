@@ -7,6 +7,7 @@ import {
   useColorScheme,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import Constants from "expo-constants";
 import {
   YStack,
   XStack,
@@ -239,13 +240,13 @@ export default function SettingsScreen() {
             // Gate will automatically redirect to /onboarding
           },
         },
-      ]
+      ],
     );
   };
 
   const handleToggle = async (
     key: keyof NotificationPreferences,
-    value: boolean
+    value: boolean,
   ) => {
     triggerLightHaptic();
     await updatePreferences({ [key]: value });
@@ -265,7 +266,7 @@ export default function SettingsScreen() {
             await resetPreferences();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -346,7 +347,7 @@ export default function SettingsScreen() {
                   overflow="hidden"
                   backgroundColor="$bg"
                 >
-                  {uploading ? (
+                  {uploading ?
                     <Stack
                       width="100%"
                       height="100%"
@@ -356,15 +357,14 @@ export default function SettingsScreen() {
                     >
                       <Spinner size="large" color="white" />
                     </Stack>
-                  ) : profile?.avatarUrl ? (
+                  : profile?.avatarUrl ?
                     <Image
                       source={{ uri: profile.avatarUrl }}
                       width="100%"
                       height="100%"
                       objectFit="cover"
                     />
-                  ) : (
-                    <Stack
+                  : <Stack
                       width="100%"
                       height="100%"
                       alignItems="center"
@@ -374,7 +374,7 @@ export default function SettingsScreen() {
                         {profile?.displayName.charAt(0).toUpperCase() || "?"}
                       </Text>
                     </Stack>
-                  )}
+                  }
 
                   {/* Soft overlay only when no avatar (subtle gradient feel) */}
                   {!uploading && !profile?.avatarUrl && (
@@ -432,7 +432,7 @@ export default function SettingsScreen() {
                 Display Name
               </Text>
 
-              {editingName ? (
+              {editingName ?
                 <YStack gap="$2">
                   <TextInput
                     value={tempName}
@@ -478,8 +478,7 @@ export default function SettingsScreen() {
                     </Button>
                   </XStack>
                 </YStack>
-              ) : (
-                <XStack alignItems="center" justifyContent="space-between">
+              : <XStack alignItems="center" justifyContent="space-between">
                   <Text color="$color" fontSize={15} fontWeight="600">
                     {profile?.displayName || "Not set"}
                   </Text>
@@ -500,7 +499,7 @@ export default function SettingsScreen() {
                     </Text>
                   </Button>
                 </XStack>
-              )}
+              }
             </Stack>
 
             {/* Bio */}
@@ -515,7 +514,7 @@ export default function SettingsScreen() {
                 Bio
               </Text>
 
-              {editingBio ? (
+              {editingBio ?
                 <YStack gap="$2">
                   <TextInput
                     value={tempBio}
@@ -560,8 +559,7 @@ export default function SettingsScreen() {
                     </Button>
                   </XStack>
                 </YStack>
-              ) : (
-                <XStack
+              : <XStack
                   alignItems="flex-start"
                   justifyContent="space-between"
                   gap="$2"
@@ -586,7 +584,7 @@ export default function SettingsScreen() {
                     </Text>
                   </Button>
                 </XStack>
-              )}
+              }
             </Stack>
           </YStack>
 
@@ -799,15 +797,14 @@ export default function SettingsScreen() {
                     overflow="hidden"
                     backgroundColor="$primary"
                   >
-                    {partner.avatarUrl ? (
+                    {partner.avatarUrl ?
                       <Image
                         source={{ uri: partner.avatarUrl }}
                         width="100%"
                         height="100%"
                         objectFit="cover"
                       />
-                    ) : (
-                      <Stack
+                    : <Stack
                         width="100%"
                         height="100%"
                         alignItems="center"
@@ -817,7 +814,7 @@ export default function SettingsScreen() {
                           {partner.displayName.charAt(0).toUpperCase()}
                         </Text>
                       </Stack>
-                    )}
+                    }
                   </Stack>
                   <YStack flex={1}>
                     <Text color="$color" fontSize={16} fontWeight="600">
@@ -889,7 +886,7 @@ export default function SettingsScreen() {
                         }
                       },
                     },
-                  ]
+                  ],
                 );
               }}
               pressStyle={{ opacity: 0.8 }}
@@ -962,7 +959,7 @@ export default function SettingsScreen() {
               fontSize={12}
               marginTop="$2"
             >
-              Version 1.0.4
+              Version {Constants.expoConfig?.version ?? "1.0.0"}
             </Text>
           </YStack>
         </YStack>

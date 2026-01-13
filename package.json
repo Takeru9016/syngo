@@ -1,22 +1,26 @@
 {
   "name": "syngo",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "scripts": {
+    "postinstall": "patch-package",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
+    "version:bump": "node scripts/version-bump.js",
     "build:dev": "eas build --profile development --platform all",
     "build:preview": "eas build --profile preview --platform all",
-    "build:prod": "eas build --profile production --platform all",
-    "build:prod:ios": "eas build --profile production --platform ios",
-    "build:prod:android": "eas build --profile production --platform android",
+    "build:prod": "npm run version:bump && eas build --profile production --platform all",
+    "build:prod:ios": "npm run version:bump && eas build --profile production --platform ios",
+    "build:prod:android": "npm run version:bump && eas build --profile production --platform android",
+    "build:prod:skip-bump": "eas build --profile production --platform all",
     "submit:ios": "eas submit --profile production --platform ios",
     "submit:android": "eas submit --profile production --platform android",
-    "update": "eas update --branch production --message \"OTA update\""
+    "update": "eas update --branch production --message \"OTA update\"",
+    "release": "npm run version:bump && npm run build:prod:skip-bump"
   },
   "dependencies": {
     "@bacons/apple-targets": "^3.0.6",
@@ -73,6 +77,7 @@
     "eslint": "^9.39.1",
     "eslint-config-expo": "~10.0.0",
     "metro-minify-terser": "^0.83.3",
+    "patch-package": "^8.0.1",
     "typescript": "~5.9.3"
   },
   "private": true

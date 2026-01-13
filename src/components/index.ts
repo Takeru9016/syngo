@@ -22,6 +22,8 @@ export { NudgeReceiveAnimation } from "./Nudge/NudgeReceiveAnimation";
 export { ErrorBoundary } from "./common/ErrorBoundary";
 export { EmptyState } from "./common/EmptyState";
 export { ScreenContainer } from "./common/ScreenContainer";
+export { UpdateModal } from "./common/UpdateModal";
+export { ForceUpdateScreen } from "./common/ForceUpdateScreen";
 
 export { NotificationPreview } from "./Notifications/NotificationPreview";
 export {

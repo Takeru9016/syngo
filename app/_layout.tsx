@@ -23,10 +23,16 @@ import { testFirebaseConnection } from "@/utils/test/testFirebase";
 import { NotificationService } from "@/services/notification/local-notification.service";
 import { registerDevicePushToken } from "@/services/notification/push.registry";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
-import { InAppNotificationProvider, NudgeReceiveAnimation } from "@/components";
+import {
+  InAppNotificationProvider,
+  NudgeReceiveAnimation,
+  UpdateModal,
+  ForceUpdateScreen,
+} from "@/components";
 import { useForegroundNotification } from "@/hooks/useForegroundNotification";
 import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
 import { useNotificationStore } from "@/store/notification";
+import { useAppUpdates } from "@/hooks/useAppUpdates";
 import { useWidgetUpdates } from "@/hooks/useWidgetUpdates";
 
 Sentry.init({
@@ -97,6 +103,18 @@ function Gate() {
 
   // Keep widgets updated with latest data
   useWidgetUpdates();
+
+  // App update system (OTA + Store)
+  const {
+    storeUpdateRequired,
+    showOtaModal,
+    currentVersion,
+    minSupportedVersion,
+    applyOtaUpdate,
+    dismissOtaModal,
+    openStore,
+    isDownloadingOta,
+  } = useAppUpdates();
 
   // Listen for new nudge notifications and show animation globally
   useEffect(() => {
@@ -256,6 +274,17 @@ function Gate() {
     return <LoadingScreen />;
   }
 
+  // Block app usage if store update is required
+  if (storeUpdateRequired) {
+    return (
+      <ForceUpdateScreen
+        currentVersion={currentVersion}
+        minVersion={minSupportedVersion}
+        onUpdate={openStore}
+      />
+    );
+  }
+
   return (
     <Stack flex={1}>
       <Slot />
@@ -266,6 +295,13 @@ function Gate() {
           onComplete={() => setShowNudgeAnimation(false)}
         />
       )}
+      {/* OTA Update Modal - Non-blocking prompt */}
+      <UpdateModal
+        visible={showOtaModal}
+        onRestart={applyOtaUpdate}
+        onDismiss={dismissOtaModal}
+        isDownloading={isDownloadingOta}
+      />
     </Stack>
   );
 }
@@ -297,7 +333,11 @@ function RootLayout() {
 
   // Determine active theme name (properly typed)
   const effectiveMode =
-    mode === "system" ? (systemScheme === "dark" ? "dark" : "light") : mode;
+    mode === "system" ?
+      systemScheme === "dark" ?
+        "dark"
+      : "light"
+    : mode;
   const activeTheme = `${colorScheme}_${effectiveMode}` as const;
 
   useEffect(() => {

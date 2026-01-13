@@ -1,0 +1,13 @@
+diff --git a/android/src/main/java/com/reactnativeandroidwidget/oss/CSSBackgroundDrawable.java b/android/src/main/java/com/reactnativeandroidwidget/oss/CSSBackgroundDrawable.java
+index 1234567..abcdefg 100644
+--- a/android/src/main/java/com/reactnativeandroidwidget/oss/CSSBackgroundDrawable.java
++++ b/android/src/main/java/com/reactnativeandroidwidget/oss/CSSBackgroundDrawable.java
+@@ -1457,7 +1457,7 @@ public class CSSBackgroundDrawable extends Drawable {
+         Shader compositeShader = null;
+         for (BackgroundImageLayer backgroundImageLayer : mBackgroundImageLayers) {
+             Rect bounds = getBounds();
+-            Shader currentShader = backgroundImageLayer.getShader(bounds.width(), bounds.height());
++            Shader currentShader = backgroundImageLayer.getShader(bounds);
+             if (currentShader == null) {
+                 continue;
+             }
