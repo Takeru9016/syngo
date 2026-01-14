@@ -26,7 +26,7 @@ const config: ExpoConfig = {
 
   ios: {
     bundleIdentifier: "com.sahiljadhav.syngo",
-    buildNumber: "2",
+    buildNumber: "3",
     supportsTablet: false, // Portrait-only app
     appleTeamId: "3RNFFHNH54", // Required for @bacons/apple-targets widgets
 
@@ -80,7 +80,7 @@ const config: ExpoConfig = {
 
   android: {
     package: "com.sahiljadhav.syngo",
-    versionCode: 2,
+    versionCode: 3,
 
     // Play Store metadata
     playStoreUrl:
@@ -277,7 +277,7 @@ const config: ExpoConfig = {
 
     // App metadata (accessible via Constants.expoConfig.extra)
     appVersion: "1.0.5",
-    appBuildNumber: "2",
+    appBuildNumber: "3",
     supportEmail: "timetocode22@gmail.com",
     privacyPolicyUrl: "https://syngo.vercel.app/privacy",
     termsOfServiceUrl: "https://syngo.vercel.app/eula",
