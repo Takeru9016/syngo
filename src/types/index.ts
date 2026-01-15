@@ -163,13 +163,13 @@ export type PredefinedStickerCategory = {
 
 export type PredefinedStickerManifest = {
   version: string;
-  stickers: Array<{
+  stickers: {
     id: string;
     name: string;
     category: string;
     tags: string[];
     filename: string;
-  }>;
+  }[];
   categories: PredefinedStickerCategory[];
 };
 

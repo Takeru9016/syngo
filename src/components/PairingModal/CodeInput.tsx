@@ -14,10 +14,10 @@ type Props = {
 
 export const CodeInput = forwardRef<TextInput, Props>(function CodeInput(
   { length = 8, group = 4, value = "", onChange, autoFocus, disabled, error },
-  _ref
+  _ref,
 ) {
   const theme = useTheme();
-  const inputs = useRef<Array<TextInput | null>>([]);
+  const inputs = useRef<(TextInput | null)[]>([]);
 
   const blocks = useMemo(() => Array.from({ length }), [length]);
 
@@ -116,7 +116,7 @@ export const CodeInput = forwardRef<TextInput, Props>(function CodeInput(
                 }}
               />
             </Stack>
-            {showHyphenAfter && i < length - 1 ? (
+            {showHyphenAfter && i < length - 1 ?
               <Text
                 fontFamily="$body"
                 color="$colorMuted"
@@ -126,7 +126,7 @@ export const CodeInput = forwardRef<TextInput, Props>(function CodeInput(
               >
                 -
               </Text>
-            ) : null}
+            : null}
           </React.Fragment>
         );
       })}

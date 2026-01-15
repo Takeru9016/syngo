@@ -28,12 +28,17 @@ import {
   NudgeReceiveAnimation,
   UpdateModal,
   ForceUpdateScreen,
+  LoadingScreen,
 } from "@/components";
 import { useForegroundNotification } from "@/hooks/useForegroundNotification";
 import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
 import { useNotificationStore } from "@/store/notification";
 import { useAppUpdates } from "@/hooks/useAppUpdates";
 import { useWidgetUpdates } from "@/hooks/useWidgetUpdates";
+
+// Register Android widget headless task handler (must be at top level)
+// This runs the background task when widgets need to render
+import "@/widgets/widget-task-handler";
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -58,21 +63,6 @@ Sentry.init({
 SplashScreen.preventAutoHideAsync();
 
 const qc = new QueryClient();
-
-function LoadingScreen() {
-  return (
-    <YStack
-      flex={1}
-      alignItems="center"
-      justifyContent="center"
-      backgroundColor="$bg"
-    >
-      <Text color="$color" fontSize={20} fontWeight="700">
-        Loading...
-      </Text>
-    </YStack>
-  );
-}
 
 function Gate() {
   const router = useRouter();

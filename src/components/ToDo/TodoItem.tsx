@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Alert, Animated } from "react-native";
 import { XStack, YStack, Text, Stack, Button } from "tamagui";
 import { Swipeable } from "react-native-gesture-handler";
@@ -49,10 +48,9 @@ export function TodoItem({
   onSubtaskToggle,
   index = 0,
 }: Props) {
-  const [swiping, setSwiping] = useState(false);
   const { opacity, transform } = useSlideIn(
     "left",
-    getStaggerDelay(index, 50, 250)
+    getStaggerDelay(index, 50, 250),
   );
   const { bounce, transform: bounceTransform } = useBounce();
 
@@ -98,9 +96,8 @@ export function TodoItem({
   const hasSubtasks = subtasks.length > 0;
 
   // Category display
-  const categoryConfig = todo.category
-    ? CATEGORY_CONFIG[todo.category]
-    : CATEGORY_CONFIG.other;
+  const categoryConfig =
+    todo.category ? CATEGORY_CONFIG[todo.category] : CATEGORY_CONFIG.other;
 
   const handleDelete = () => {
     Alert.alert(
@@ -113,7 +110,7 @@ export function TodoItem({
           style: "destructive",
           onPress: () => onDelete(todo.id),
         },
-      ]
+      ],
     );
   };
 
@@ -169,11 +166,7 @@ export function TodoItem({
 
   return (
     <Animated.View style={{ opacity, transform }}>
-      <Swipeable
-        renderRightActions={renderRightActions}
-        onSwipeableWillOpen={() => setSwiping(true)}
-        onSwipeableClose={() => setSwiping(false)}
-      >
+      <Swipeable renderRightActions={renderRightActions}>
         <Stack
           backgroundColor="$bgCard"
           borderRadius="$8"
@@ -201,11 +194,9 @@ export function TodoItem({
                 }}
                 marginTop={2}
               >
-                {todo.isCompleted ? (
+                {todo.isCompleted ?
                   <CheckCircle2 size={22} color="$primary" />
-                ) : (
-                  <Circle size={22} color="$borderColor" />
-                )}
+                : <Circle size={22} color="$borderColor" />}
               </Button>
             </Animated.View>
 
@@ -221,7 +212,7 @@ export function TodoItem({
                 {todo.title}
               </Text>
 
-              {todo.description ? (
+              {todo.description ?
                 <Text
                   fontFamily="$body"
                   color="$colorMuted"
@@ -233,7 +224,7 @@ export function TodoItem({
                 >
                   {todo.description}
                 </Text>
-              ) : null}
+              : null}
 
               {/* Subtasks - always visible */}
               {hasSubtasks && !isDream && (
@@ -246,11 +237,9 @@ export function TodoItem({
                       pressStyle={{ opacity: 0.7 }}
                     >
                       <XStack alignItems="center" gap="$2" paddingVertical="$1">
-                        {subtask.isCompleted ? (
+                        {subtask.isCompleted ?
                           <CheckCircle2 size={18} color="$primary" />
-                        ) : (
-                          <Circle size={18} color="$borderColor" />
-                        )}
+                        : <Circle size={18} color="$borderColor" />}
                         <Text
                           fontFamily="$body"
                           color={subtask.isCompleted ? "$colorMuted" : "$color"}

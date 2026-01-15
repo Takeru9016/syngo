@@ -96,14 +96,14 @@ export const NotificationService = {
     // Get accent colors for LED from customization
     const nudgeColor = customization.colors.nudges.accent;
 
-    const channels: Array<{
+    const channels: {
       id: string;
       name: string;
       importance: Notifications.AndroidImportance;
       sound?: string;
       lightColor?: string;
       vibrationPattern?: number[];
-    }> = [
+    }[] = [
         {
           id: "default",
           name: "General",

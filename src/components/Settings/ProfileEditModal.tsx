@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, Platform, KeyboardAvoidingView, Alert } from "react-native";
+import { Modal, Platform, KeyboardAvoidingView } from "react-native";
 import {
   YStack,
   XStack,
@@ -161,15 +161,14 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
                     backgroundColor="$background"
                     position="relative"
                   >
-                    {avatarUrl ? (
+                    {avatarUrl ?
                       <Image
                         source={{ uri: avatarUrl }}
                         width="100%"
                         height="100%"
                         resizeMode="cover"
                       />
-                    ) : (
-                      <Stack
+                    : <Stack
                         width="100%"
                         height="100%"
                         alignItems="center"
@@ -180,7 +179,7 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
                           {displayName.charAt(0).toUpperCase() || "?"}
                         </Text>
                       </Stack>
-                    )}
+                    }
                     {/* Upload overlay */}
                     {uploadingAvatar && (
                       <Stack
@@ -208,18 +207,17 @@ export function ProfileEditModal({ visible, profile, onClose, onSave }: Props) {
                     disabled={uploadingAvatar}
                     pressStyle={{ opacity: 0.7 }}
                   >
-                    {uploadingAvatar ? (
+                    {uploadingAvatar ?
                       <XStack gap="$2" alignItems="center">
                         <Spinner size="small" />
                         <Text color="$color" fontSize={14} fontWeight="600">
                           Uploading...
                         </Text>
                       </XStack>
-                    ) : (
-                      <Text color="$color" fontSize={14} fontWeight="600">
+                    : <Text color="$color" fontSize={14} fontWeight="600">
                         Change Photo
                       </Text>
-                    )}
+                    }
                   </Button>
                 </YStack>
 

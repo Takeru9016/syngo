@@ -7,11 +7,7 @@
 
 import { Platform, StyleSheet } from "react-native";
 import { YStack, XStack, Text, Button, Stack } from "tamagui";
-import {
-  Download,
-  Smartphone,
-  ArrowRight,
-} from "@tamagui/lucide-icons";
+import { Download, Smartphone, ArrowRight } from "@tamagui/lucide-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
@@ -50,7 +46,7 @@ export function ForceUpdateScreen({
       -1,
       true,
     );
-  }, []);
+  }, [pulse]);
 
   const pulseStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulse.value }],
@@ -207,7 +203,7 @@ export function ForceUpdateScreen({
               textAlign="center"
               opacity={0.7}
             >
-              You'll be redirected to the {storeName}
+              You&apos;ll be redirected to the {storeName}
             </Text>
           </YStack>
         </Animated.View>

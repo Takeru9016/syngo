@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Animated, Easing, Dimensions } from "react-native";
-import { Stack, Text, YStack, useTheme } from "tamagui";
+import { Stack, Text, YStack } from "tamagui";
 import { Heart, Sparkles } from "@tamagui/lucide-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -29,8 +29,6 @@ export function NudgeReceiveAnimation({
   senderName = "Someone special",
   onComplete,
 }: NudgeReceiveAnimationProps) {
-  const theme = useTheme();
-
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
@@ -47,7 +45,7 @@ export function NudgeReceiveAnimation({
       rotate: new Animated.Value(0),
       type: (i % 10 < 7 ? "heart" : "sparkle") as ParticleType,
       size: 20 + Math.random() * 12,
-    }))
+    })),
   ).current;
 
   useEffect(() => {
@@ -85,7 +83,7 @@ export function NudgeReceiveAnimation({
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
 
     // Shimmer effect
@@ -95,7 +93,7 @@ export function NudgeReceiveAnimation({
         duration: 2000,
         easing: Easing.linear,
         useNativeDriver: true,
-      })
+      }),
     ).start();
 
     // Floating particles animation
@@ -234,21 +232,20 @@ export function NudgeReceiveAnimation({
             opacity: particle.opacity,
           }}
         >
-          {particle.type === "heart" ? (
+          {particle.type === "heart" ?
             <Heart
               size={particle.size}
               color="#FF6987"
               fill="#FF6987"
               opacity={0.9}
             />
-          ) : (
-            <Sparkles
+          : <Sparkles
               size={particle.size}
               color="#FFD700"
               fill="#FFD700"
               opacity={0.8}
             />
-          )}
+          }
         </Animated.View>
       ))}
 

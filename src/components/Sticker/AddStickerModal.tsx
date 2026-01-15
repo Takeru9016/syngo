@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, Platform, KeyboardAvoidingView, Alert } from "react-native";
+import { Modal, Platform, KeyboardAvoidingView } from "react-native";
 import {
   YStack,
   XStack,
@@ -177,7 +177,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                 </XStack>
 
                 {/* Image Preview */}
-                {localPreview ? (
+                {localPreview ?
                   <Stack alignItems="center" gap="$3">
                     <Stack
                       width={200}
@@ -254,8 +254,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                       </Button>
                     )}
                   </Stack>
-                ) : (
-                  <YStack gap="$2">
+                : <YStack gap="$2">
                     <Text color="$color" fontSize={14} fontWeight="600">
                       Select Image
                     </Text>
@@ -274,11 +273,9 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                         aria-label="Pick image from gallery"
                       >
                         <YStack alignItems="center" gap="$2">
-                          {uploading ? (
+                          {uploading ?
                             <Spinner size="small" />
-                          ) : (
-                            <LucideImage color="$color" size={32} />
-                          )}
+                          : <LucideImage color="$color" size={32} />}
                           <Text color="$color" fontSize={14} fontWeight="600">
                             Gallery
                           </Text>
@@ -298,11 +295,9 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                         aria-label="Take photo with camera"
                       >
                         <YStack alignItems="center" gap="$2">
-                          {uploading ? (
+                          {uploading ?
                             <Spinner size="small" />
-                          ) : (
-                            <Camera color="$color" size={32} />
-                          )}
+                          : <Camera color="$color" size={32} />}
                           <Text color="$color" fontSize={14} fontWeight="600">
                             Camera
                           </Text>
@@ -310,7 +305,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                       </Button>
                     </XStack>
                   </YStack>
-                )}
+                }
 
                 {/* Name */}
                 <YStack gap="$2">
@@ -362,7 +357,7 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                   marginTop="$2"
                   aria-label="Save sticker"
                 >
-                  {uploading ? (
+                  {uploading ?
                     <XStack
                       gap="$2"
                       alignItems="center"
@@ -373,11 +368,10 @@ export function AddStickerModal({ visible, onClose, onSave }: Props) {
                         Uploading...
                       </Text>
                     </XStack>
-                  ) : (
-                    <Text color="white" fontWeight="700" fontSize={16}>
+                  : <Text color="white" fontWeight="700" fontSize={16}>
                       Add Sticker
                     </Text>
-                  )}
+                  }
                 </Button>
               </YStack>
             </ScrollView>

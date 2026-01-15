@@ -58,7 +58,7 @@ function requirePairId(): string {
 export const TodoService = {
   async listByPair(): Promise<Todo[]> {
     const pairId = requirePairId();
-    const uid = getCurrentUserId();
+    const _uid = getCurrentUserId();
 
     const q = query(
       collection(db, "todos"),
@@ -163,7 +163,7 @@ export const TodoService = {
 
   async update(id: string, updates: UpdateTodoInput): Promise<void> {
     const pairId = requirePairId();
-    const uid = getCurrentUserId();
+    const _uid = getCurrentUserId();
 
     const ref = doc(db, "todos", id);
 
@@ -214,7 +214,7 @@ export const TodoService = {
 
   async remove(id: string): Promise<void> {
     const pairId = requirePairId();
-    const uid = getCurrentUserId();
+    const _uid = getCurrentUserId();
 
     const ref = doc(db, "todos", id);
 

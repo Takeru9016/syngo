@@ -6,7 +6,26 @@
  * Android widgets via shared storage (App Groups / SharedPreferences).
  */
 
-import { MoodLevel, MOOD_EMOJIS, MOOD_LABELS } from "./index";
+// Inline mood types to avoid importing from index.ts (which has many dependencies)
+export type WidgetMoodLevel = 1 | 2 | 3 | 4 | 5;
+type MoodLevel = WidgetMoodLevel;
+
+// Inline mood constants for widget use
+const MOOD_EMOJIS: Record<MoodLevel, string> = {
+  1: "😢",
+  2: "😔",
+  3: "😐",
+  4: "🙂",
+  5: "😊",
+};
+
+const MOOD_LABELS: Record<MoodLevel, string> = {
+  1: "Struggling",
+  2: "Down",
+  3: "Okay",
+  4: "Good",
+  5: "Great",
+};
 
 // ============================================================================
 // Partner Data

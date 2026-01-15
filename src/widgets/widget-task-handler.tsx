@@ -1,8 +1,11 @@
+"use no memo";
 /**
  * Widget Task Handler
  *
  * Background task handler for Android widgets.
  * Called when widgets need to be rendered/updated.
+ *
+ * NOTE: "use no memo" disables React Compiler for this file.
  */
 
 import React from "react";
@@ -15,7 +18,7 @@ import {
   WidgetData,
   createEmptyWidgetData,
   WIDGET_DATA_KEY,
-} from "@/types/widget-data.types";
+} from "../types/widget-data.types";
 import {
   PartnerStatusWidget,
   MoodWidget,
@@ -26,16 +29,21 @@ import {
 } from "./SyngoWidgets";
 
 /**
- * Load widget data from AsyncStorage
+ * Load widget data from AsyncStorage with fallback
  */
 async function loadWidgetData(): Promise<WidgetData> {
   try {
     const jsonString = await AsyncStorage.getItem(`widget:${WIDGET_DATA_KEY}`);
     if (jsonString) {
-      return JSON.parse(jsonString) as WidgetData;
+      const parsed = JSON.parse(jsonString) as WidgetData;
+      // Validate required fields
+      if (parsed && typeof parsed.isPaired === "boolean") {
+        return parsed;
+      }
     }
   } catch (error) {
-    console.error("Failed to load widget data:", error);
+    // Silently fail and return empty data
+    console.log("Widget: Failed to load data, using empty state");
   }
   return createEmptyWidgetData();
 }
@@ -43,28 +51,37 @@ async function loadWidgetData(): Promise<WidgetData> {
 /**
  * Get widget component based on widget name
  */
-function getWidgetComponent(widgetName: string, data: WidgetData) {
-  switch (widgetName) {
-    case "SyngoPartnerStatus":
-      return <PartnerStatusWidget data={data} />;
+function getWidgetComponent(
+  widgetName: string,
+  data: WidgetData,
+): React.JSX.Element {
+  try {
+    switch (widgetName) {
+      case "SyngoPartnerStatus":
+        return <PartnerStatusWidget data={data} />;
 
-    case "SyngoMood":
-      return <MoodWidget data={data} />;
+      case "SyngoMood":
+        return <MoodWidget data={data} />;
 
-    case "SyngoQuickNudge":
-      return <QuickNudgeWidget data={data} />;
+      case "SyngoQuickNudge":
+        return <QuickNudgeWidget data={data} />;
 
-    case "SyngoQuickActions":
-      return <QuickActionsWidget data={data} />;
+      case "SyngoQuickActions":
+        return <QuickActionsWidget data={data} />;
 
-    case "SyngoDashboard":
-      return <FullDashboardWidget data={data} />;
+      case "SyngoDashboard":
+        return <FullDashboardWidget data={data} />;
 
-    case "SyngoCoupleOverview":
-      return <CoupleOverviewWidget data={data} />;
+      case "SyngoCoupleOverview":
+        return <CoupleOverviewWidget data={data} />;
 
-    default:
-      return <PartnerStatusWidget data={data} />;
+      default:
+        // Fallback to partner status widget
+        return <PartnerStatusWidget data={data} />;
+    }
+  } catch (error) {
+    // Return a simple fallback widget if component fails
+    return <PartnerStatusWidget data={createEmptyWidgetData()} />;
   }
 }
 
@@ -84,10 +101,17 @@ registerWidgetTaskHandler(async (props: WidgetTaskHandlerProps) => {
     return;
   }
 
-  // Load data and get widget component
-  const data = await loadWidgetData();
-  const widget = getWidgetComponent(widgetInfo.widgetName, data);
+  try {
+    // Load data and get widget component
+    const data = await loadWidgetData();
+    const widget = getWidgetComponent(widgetInfo.widgetName, data);
 
-  // Render the widget using the callback
-  renderWidget(widget);
+    // Render the widget using the callback
+    renderWidget(widget);
+  } catch (error) {
+    // Fallback: render empty state widget if anything fails
+    console.log("Widget: Error rendering, using fallback");
+    const fallbackData = createEmptyWidgetData();
+    renderWidget(<PartnerStatusWidget data={fallbackData} />);
+  }
 });

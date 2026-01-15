@@ -88,14 +88,15 @@ export function TodoModal({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState(
-    new Date(Date.now() + 3600000) // 1 hour from now
+    new Date(Date.now() + 3600000), // 1 hour from now
   );
   const [priority, setPriority] = useState<TodoPriority>("medium");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
   // Together List fields
-  const [listType, setListType] = useState<ListItemType>("task");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setListType] = useState<ListItemType>("task");
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
   const [category, setCategory] = useState<DreamCategory>("other");
@@ -174,8 +175,8 @@ export function TodoModal({
     triggerSelectionHaptic();
     setSubtasks(
       subtasks.map((s) =>
-        s.id === id ? { ...s, isCompleted: !s.isCompleted } : s
-      )
+        s.id === id ? { ...s, isCompleted: !s.isCompleted } : s,
+      ),
     );
   };
 
@@ -186,7 +187,7 @@ export function TodoModal({
 
   const updateSubtaskTitle = (id: string, newTitle: string) => {
     setSubtasks(
-      subtasks.map((s) => (s.id === id ? { ...s, title: newTitle } : s))
+      subtasks.map((s) => (s.id === id ? { ...s, title: newTitle } : s)),
     );
   };
 
@@ -246,18 +247,18 @@ export function TodoModal({
                       fontSize={22}
                       fontWeight="800"
                     >
-                      {todo
-                        ? isDream
-                          ? "Edit dream"
-                          : "Edit reminder"
-                        : isDream
-                        ? "New dream"
-                        : "New reminder"}
+                      {todo ?
+                        isDream ?
+                          "Edit dream"
+                        : "Edit reminder"
+                      : isDream ?
+                        "New dream"
+                      : "New reminder"}
                     </Text>
                     <Text fontFamily="$body" color="$colorMuted" fontSize={13}>
-                      {isDream
-                        ? "Add something you want to do together."
-                        : "Set a gentle nudge for the two of you."}
+                      {isDream ?
+                        "Add something you want to do together."
+                      : "Set a gentle nudge for the two of you."}
                     </Text>
                   </YStack>
                   <Button unstyled onPress={onClose} hitSlop={16}>
@@ -279,9 +280,9 @@ export function TodoModal({
                     value={title}
                     onChangeText={setTitle}
                     placeholder={
-                      isDream
-                        ? "Visit Paris, learn to cook Thai..."
-                        : "Plan the weekend, pick up flowers..."
+                      isDream ?
+                        "Visit Paris, learn to cook Thai..."
+                      : "Plan the weekend, pick up flowers..."
                     }
                     backgroundColor="$bgCard"
                     borderColor="$borderColor"
@@ -417,11 +418,9 @@ export function TodoModal({
                           onPress={() => toggleSubtask(subtask.id)}
                           hitSlop={8}
                         >
-                          {subtask.isCompleted ? (
+                          {subtask.isCompleted ?
                             <CheckCircle2 size={20} color="$primary" />
-                          ) : (
-                            <Circle size={20} color="$colorMuted" />
-                          )}
+                          : <Circle size={20} color="$colorMuted" />}
                         </Button>
                         <Input
                           flex={1}
@@ -612,11 +611,9 @@ export function TodoModal({
                     {(["low", "medium", "high"] as TodoPriority[]).map((p) => {
                       const isActive = priority === p;
                       const label =
-                        p === "low"
-                          ? "Low"
-                          : p === "medium"
-                          ? "Normal"
-                          : "High";
+                        p === "low" ? "Low"
+                        : p === "medium" ? "Normal"
+                        : "High";
 
                       return (
                         <Button
@@ -673,13 +670,13 @@ export function TodoModal({
                     fontWeight="700"
                     fontSize={16}
                   >
-                    {todo
-                      ? isDream
-                        ? "Update dream"
-                        : "Update reminder"
-                      : isDream
-                      ? "Add to bucket list"
-                      : "Create reminder"}
+                    {todo ?
+                      isDream ?
+                        "Update dream"
+                      : "Update reminder"
+                    : isDream ?
+                      "Add to bucket list"
+                    : "Create reminder"}
                   </Text>
                 </Button>
               </YStack>

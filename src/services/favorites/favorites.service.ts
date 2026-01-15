@@ -52,7 +52,7 @@ function requirePairId(): string {
 export const FavoriteService = {
   async listByPair(): Promise<Favorite[]> {
     const pairId = requirePairId();
-    const uid = getCurrentUserId();
+    const _uid = getCurrentUserId();
 
 
 
@@ -133,7 +133,7 @@ export const FavoriteService = {
 
   async update(id: string, updates: UpdateFavoriteInput): Promise<void> {
     const pairId = requirePairId();
-    const uid = getCurrentUserId();
+    const _uid = getCurrentUserId();
 
 
 
@@ -184,7 +184,7 @@ export const FavoriteService = {
 
   async remove(id: string): Promise<void> {
     const pairId = requirePairId();
-    const uid = getCurrentUserId();
+    const _uid = getCurrentUserId();
 
 
 

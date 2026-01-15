@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, Platform, KeyboardAvoidingView, Alert } from "react-native";
+import { Modal, Platform, KeyboardAvoidingView } from "react-native";
 import {
   YStack,
   XStack,
@@ -399,22 +399,20 @@ export function FavoriteFormModal({
                       alignItems="center"
                       justifyContent="center"
                     >
-                      {uploading ? (
+                      {uploading ?
                         <Spinner size="small" />
-                      ) : (
-                        <Camera size={18} color="$colorMuted" />
-                      )}
+                      : <Camera size={18} color="$colorMuted" />}
                       <Text
                         fontFamily="$body"
                         color="$color"
                         fontSize={15}
                         fontWeight="600"
                       >
-                        {uploading
-                          ? "Uploading..."
-                          : localPreview
-                          ? "Change image"
-                          : "Pick image"}
+                        {uploading ?
+                          "Uploading..."
+                        : localPreview ?
+                          "Change image"
+                        : "Pick image"}
                       </Text>
                     </XStack>
                   </Button>
@@ -431,7 +429,7 @@ export function FavoriteFormModal({
                   pressStyle={{ opacity: 0.85 }}
                   marginTop="$2"
                 >
-                  {uploading ? (
+                  {uploading ?
                     <XStack
                       gap="$2"
                       alignItems="center"
@@ -447,8 +445,7 @@ export function FavoriteFormModal({
                         Uploading...
                       </Text>
                     </XStack>
-                  ) : (
-                    <Text
+                  : <Text
                       fontFamily="$body"
                       color="white"
                       fontWeight="700"
@@ -456,7 +453,7 @@ export function FavoriteFormModal({
                     >
                       {favorite ? "Update favorite" : "Add favorite"}
                     </Text>
-                  )}
+                  }
                 </Button>
               </YStack>
             </ScrollView>

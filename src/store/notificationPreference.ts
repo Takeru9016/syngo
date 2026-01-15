@@ -10,7 +10,6 @@ import {
   NotificationCategory,
   NotificationColorScheme,
   NotificationVisualStyle,
-  VibrationPatternName,
   DEFAULT_NOTIFICATION_CUSTOMIZATION,
   NOTIFICATION_THEME_PRESETS,
 } from "@/types/notification-theme.types";

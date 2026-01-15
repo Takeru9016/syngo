@@ -1,8 +1,12 @@
+"use no memo";
 /**
  * Android Widget Components
  *
  * React Native components that render as native Android widgets.
  * Uses react-native-android-widget's declarative components.
+ *
+ * NOTE: "use no memo" disables React Compiler for this file.
+ * Widget library doesn't support compiler-transformed components.
  */
 
 import React from "react";
@@ -12,7 +16,7 @@ import {
   ImageWidget,
 } from "react-native-android-widget";
 import type { ColorProp } from "react-native-android-widget";
-import { WidgetData } from "@/types/widget-data.types";
+import { WidgetData } from "../types/widget-data.types";
 
 // ============================================================================
 // Theme Colors (matching Syngo design)

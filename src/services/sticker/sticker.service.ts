@@ -50,7 +50,7 @@ function requirePairId(): string {
 export const StickerService = {
   async listByPair(): Promise<Sticker[]> {
     const pairId = requirePairId();
-    const uid = getCurrentUserId();
+    const _uid = getCurrentUserId();
 
     const q = query(
       collection(db, "stickers"),
@@ -121,7 +121,7 @@ export const StickerService = {
 
   async update(id: string, updates: UpdateStickerInput): Promise<void> {
     const pairId = requirePairId();
-    const uid = getCurrentUserId();
+    const _uid = getCurrentUserId();
 
     const ref = doc(db, "stickers", id);
 
@@ -165,7 +165,7 @@ export const StickerService = {
 
   async remove(id: string): Promise<void> {
     const pairId = requirePairId();
-    const uid = getCurrentUserId();
+    const _uid = getCurrentUserId();
 
     const ref = doc(db, "stickers", id);
 

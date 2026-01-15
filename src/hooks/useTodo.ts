@@ -109,8 +109,8 @@ export function useTodos() {
 }
 
 export function useCreateTodo() {
-  const qc = useQueryClient();
-  const pairId = useProfileStore.getState().profile?.pairId;
+  const _qc = useQueryClient();
+  const _pairId = useProfileStore.getState().profile?.pairId;
 
   return useMutation({
     mutationFn: (payload: CreatePayload) => {
