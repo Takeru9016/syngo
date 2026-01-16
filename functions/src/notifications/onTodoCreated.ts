@@ -6,6 +6,7 @@ import {
   createInAppNotification,
   getPartnerUid,
 } from "./sendPush";
+import { expoAccessToken } from "../index";
 
 const db = admin.firestore();
 
@@ -13,7 +14,7 @@ const db = admin.firestore();
  * Firestore trigger: When a todo/dream is created
  */
 export const onTodoCreated = onDocumentCreated(
-  "todos/{todoId}",
+  { document: "todos/{todoId}", secrets: [expoAccessToken] },
   async (event) => {
     const todoData = event.data?.data();
     const todoId = event.params.todoId;
@@ -47,11 +48,11 @@ export const onTodoCreated = onDocumentCreated(
       const isDream = todoData.listType === "dream";
       const categoryEmoji = getCategoryEmoji(todoData.category);
 
-      const title = isDream
-        ? `New Dream Added ${categoryEmoji}`
-        : "New Task Added";
-      const body = isDream
-        ? `${creatorName} added to bucket list: ${todoData.title}`
+      const title =
+        isDream ? `New Dream Added ${categoryEmoji}` : "New Task Added";
+      const body =
+        isDream ?
+          `${creatorName} added to bucket list: ${todoData.title}`
         : `${creatorName} added: ${todoData.title}`;
       const type = isDream ? "dream_created" : "todo_reminder";
 
@@ -68,7 +69,7 @@ export const onTodoCreated = onDocumentCreated(
               pairId,
             },
           },
-          "todoReminders"
+          "todoReminders",
         ),
         createInAppNotification(partnerUid, pairId, {
           type,
@@ -81,12 +82,12 @@ export const onTodoCreated = onDocumentCreated(
       logger.info(
         `✅ ${
           isDream ? "Dream" : "Todo"
-        } notification sent to partner: ${partnerUid}`
+        } notification sent to partner: ${partnerUid}`,
       );
     } catch (error) {
       logger.error("❌ Error in onTodoCreated:", error);
     }
-  }
+  },
 );
 
 /**

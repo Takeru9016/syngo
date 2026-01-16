@@ -37,5 +37,4 @@ export { NotificationPanel } from "./Notifications/NotificationPanel";
 
 export { MoodPicker } from "./Mood/MoodPicker";
 export { MoodCard } from "./Mood/MoodCard";
-export { MoodWidget } from "./Mood/MoodWidget";
 export { MoodEntryModal } from "./Mood/MoodEntryModal";

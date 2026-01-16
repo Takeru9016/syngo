@@ -34,11 +34,6 @@ import { useForegroundNotification } from "@/hooks/useForegroundNotification";
 import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
 import { useNotificationStore } from "@/store/notification";
 import { useAppUpdates } from "@/hooks/useAppUpdates";
-import { useWidgetUpdates } from "@/hooks/useWidgetUpdates";
-
-// Register Android widget headless task handler (must be at top level)
-// This runs the background task when widgets need to render
-import "@/widgets/widget-task-handler";
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -90,9 +85,6 @@ function Gate() {
 
   // Enable in-app notification banner for foreground notifications
   useForegroundNotification();
-
-  // Keep widgets updated with latest data
-  useWidgetUpdates();
 
   // App update system (OTA + Store)
   const {

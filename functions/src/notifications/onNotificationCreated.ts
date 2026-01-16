@@ -1,13 +1,14 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 import { sendPushToUser } from "./sendPush";
+import { expoAccessToken } from "../index";
 
 /**
  * Firestore trigger: When a notification is created directly in Firestore
  * (e.g. from client side for stickers)
  */
 export const onNotificationCreated = onDocumentCreated(
-  "notifications/{notificationId}",
+  { document: "notifications/{notificationId}", secrets: [expoAccessToken] },
   async (event) => {
     const snapshot = event.data;
     if (!snapshot) {
@@ -26,7 +27,9 @@ export const onNotificationCreated = onDocumentCreated(
     ];
 
     if (HANDLED_BY_OTHER_TRIGGERS.includes(type)) {
-      logger.info(`ℹ️ Notification type '${type}' handled by other triggers. Skipping.`);
+      logger.info(
+        `ℹ️ Notification type '${type}' handled by other triggers. Skipping.`,
+      );
       return;
     }
 
@@ -43,7 +46,8 @@ export const onNotificationCreated = onDocumentCreated(
       let preferenceKey = "system";
       if (type === "sticker_sent") preferenceKey = "stickerNotifications";
       else if (type === "nudge") preferenceKey = "nudgeNotifications";
-      else if (type === "pair_request" || type === "pair_success") preferenceKey = "pairEvents";
+      else if (type === "pair_request" || type === "pair_success")
+        preferenceKey = "pairEvents";
 
       await sendPushToUser(
         recipientUid,
@@ -56,12 +60,12 @@ export const onNotificationCreated = onDocumentCreated(
             type,
           },
         },
-        preferenceKey
+        preferenceKey,
       );
 
       logger.info(`✅ Push sent for notification ${notificationId}`);
     } catch (error) {
       logger.error("❌ Error in onNotificationCreated:", error);
     }
-  }
+  },
 );

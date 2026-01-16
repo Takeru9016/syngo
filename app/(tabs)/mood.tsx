@@ -10,12 +10,7 @@ import {
   useCreateMood,
   useUpdateMood,
 } from "@/hooks/useMood";
-import {
-  MoodCard,
-  MoodWidget,
-  MoodEntryModal,
-  ScreenContainer,
-} from "@/components";
+import { MoodCard, MoodEntryModal, ScreenContainer } from "@/components";
 import { MoodEntry, MoodLevel, MOOD_EMOJIS, MOOD_LABELS } from "@/types";
 import { triggerLightHaptic } from "@/state/haptics";
 import { useToast } from "@/hooks/useToast";
@@ -198,23 +193,27 @@ export default function MoodScreen() {
         )}
       </YStack>
 
-      {/* Partner Mood Widget */}
+      {/* Partner Mood Display */}
       {partnerMood && (
         <YStack paddingHorizontal="$5" paddingBottom="$4">
-          <MoodWidget
-            myMood={todayMood}
-            partnerMood={partnerMood}
-            onPress={handleOpenModal}
-          />
+          <Text
+            fontFamily="$body"
+            color="$colorMuted"
+            fontSize={13}
+            marginBottom="$2"
+          >
+            Partner's mood
+          </Text>
+          <MoodCard mood={partnerMood} onPress={handleOpenModal} />
         </YStack>
       )}
 
       {/* Content */}
-      {isLoading ? (
+      {isLoading ?
         <YStack flex={1} alignItems="center" justifyContent="center">
           <Spinner size="large" color="$primary" />
         </YStack>
-      ) : !hasAnyMoods ? (
+      : !hasAnyMoods ?
         /* Empty State */
         <Stack
           flex={1}
@@ -276,8 +275,7 @@ export default function MoodScreen() {
             </XStack>
           </Button>
         </Stack>
-      ) : (
-        /* Mood History */
+      : /* Mood History */
         <YStack flex={1} paddingHorizontal="$5">
           <Text
             fontFamily="$heading"
@@ -305,7 +303,7 @@ export default function MoodScreen() {
             )}
           />
         </YStack>
-      )}
+      }
 
       {/* Mood Entry Modal */}
       <MoodEntryModal

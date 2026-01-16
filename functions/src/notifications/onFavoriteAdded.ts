@@ -6,6 +6,7 @@ import {
   createInAppNotification,
   getPartnerUid,
 } from "./sendPush";
+import { expoAccessToken } from "../index";
 
 const db = admin.firestore();
 
@@ -13,7 +14,7 @@ const db = admin.firestore();
  * Firestore trigger: When a favorite is added
  */
 export const onFavoriteAdded = onDocumentCreated(
-  "favorites/{favoriteId}",
+  { document: "favorites/{favoriteId}", secrets: [expoAccessToken] },
   async (event) => {
     const favoriteData = event.data?.data();
     const favoriteId = event.params.favoriteId;
@@ -69,7 +70,7 @@ export const onFavoriteAdded = onDocumentCreated(
               favoriteDescription: favoriteDescription || undefined,
             },
           },
-          "favoriteUpdates"
+          "favoriteUpdates",
         ),
         createInAppNotification(partnerUid, pairId, {
           type: "favorite_added",
@@ -89,5 +90,5 @@ export const onFavoriteAdded = onDocumentCreated(
     } catch (error) {
       logger.error("❌ Error in onFavoriteAdded:", error);
     }
-  }
+  },
 );

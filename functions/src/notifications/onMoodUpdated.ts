@@ -6,6 +6,7 @@ import {
   createInAppNotification,
   getPartnerUid,
 } from "./sendPush";
+import { expoAccessToken } from "../index";
 
 const db = admin.firestore();
 
@@ -31,7 +32,7 @@ const MOOD_LABELS: Record<number, string> = {
  * Sends notification to partner with mood emoji
  */
 export const onMoodUpdated = onDocumentCreated(
-  "moodEntries/{moodId}",
+  { document: "moodEntries/{moodId}", secrets: [expoAccessToken] },
   async (event) => {
     const moodData = event.data?.data();
     const moodId = event.params.moodId;
@@ -99,7 +100,7 @@ export const onMoodUpdated = onDocumentCreated(
               moodLabel,
             },
           },
-          "system" // Using system channel for mood notifications
+          "system", // Using system channel for mood notifications
         ),
         createInAppNotification(partnerUid, pairId, {
           type: "mood_updated",
@@ -119,5 +120,5 @@ export const onMoodUpdated = onDocumentCreated(
     } catch (error) {
       logger.error("❌ Error in onMoodUpdated:", error);
     }
-  }
+  },
 );

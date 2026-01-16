@@ -6,6 +6,7 @@ import {
   createInAppNotification,
   getPartnerUid,
 } from "./sendPush";
+import { expoAccessToken } from "../index";
 
 const db = admin.firestore();
 
@@ -13,7 +14,7 @@ const db = admin.firestore();
  * Firestore trigger: When a todo/dream is updated
  */
 export const onTodoUpdated = onDocumentUpdated(
-  "todos/{todoId}",
+  { document: "todos/{todoId}", secrets: [expoAccessToken] },
   async (event) => {
     const beforeData = event.data?.before.data();
     const afterData = event.data?.after.data();
@@ -109,7 +110,7 @@ export const onTodoUpdated = onDocumentUpdated(
               pairId,
             },
           },
-          "todoReminders"
+          "todoReminders",
         ),
         createInAppNotification(partnerUid, pairId, {
           type: notificationType,
@@ -122,12 +123,12 @@ export const onTodoUpdated = onDocumentUpdated(
       logger.info(
         `✅ ${
           isDream ? "Dream" : "Todo"
-        } update notification sent to partner: ${partnerUid}`
+        } update notification sent to partner: ${partnerUid}`,
       );
     } catch (error) {
       logger.error("❌ Error in onTodoUpdated:", error);
     }
-  }
+  },
 );
 
 /**

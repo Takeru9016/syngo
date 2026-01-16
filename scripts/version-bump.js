@@ -203,6 +203,9 @@ async function main() {
     log(
       `  ${colors.bright}4${colors.reset} / ${colors.bright}build${colors.reset}  → ${current.version}  (bump build number only)`
     );
+    log(
+      `  ${colors.bright}5${colors.reset} / ${colors.bright}custom${colors.reset} → enter custom version and build number`
+    );
     log(`  ${colors.dim}q / quit   → cancel${colors.reset}`);
     console.log();
 
@@ -238,6 +241,43 @@ async function main() {
       case "b":
         newBuildNumber = current.buildNumber + 1;
         bumpType = "build";
+        break;
+      case "5":
+      case "custom":
+      case "c":
+        // Get custom version
+        console.log();
+        const customVersion = await ask(
+          rl,
+          `${colors.cyan}Enter version (e.g., 1.2.3) [${current.version}]: ${colors.reset}`
+        );
+        if (customVersion && customVersion !== "") {
+          // Validate version format
+          if (!/^\d+\.\d+\.\d+$/.test(customVersion)) {
+            log(`\n❌ Invalid version format. Use X.Y.Z format.`, colors.red);
+            rl.close();
+            process.exit(1);
+          }
+          newVersion = customVersion;
+        }
+        
+        // Get custom build number
+        const customBuild = await ask(
+          rl,
+          `${colors.cyan}Enter build number [${current.buildNumber + 1}]: ${colors.reset}`
+        );
+        if (customBuild && customBuild !== "") {
+          const buildNum = parseInt(customBuild, 10);
+          if (isNaN(buildNum) || buildNum <= 0) {
+            log(`\n❌ Invalid build number. Must be a positive integer.`, colors.red);
+            rl.close();
+            process.exit(1);
+          }
+          newBuildNumber = buildNum;
+        } else {
+          newBuildNumber = current.buildNumber + 1;
+        }
+        bumpType = "custom";
         break;
       case "q":
       case "quit":

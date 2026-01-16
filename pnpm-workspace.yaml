@@ -1,4 +1,1 @@
 nodeLinker: hoisted
-
-patchedDependencies:
-  react-native-android-widget@0.19.0: patches/react-native-android-widget@0.19.0.patch

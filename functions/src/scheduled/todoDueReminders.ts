@@ -5,6 +5,7 @@ import {
   sendPushToUser,
   createInAppNotification,
 } from "../notifications/sendPush";
+import { expoAccessToken } from "../index";
 
 const db = admin.firestore();
 
@@ -12,7 +13,7 @@ const db = admin.firestore();
  * Scheduled function: Send reminders for todos due soon and overdue (runs every 15 minutes)
  */
 export const todoDueReminders = onSchedule(
-  "every 15 minutes",
+  { schedule: "every 15 minutes", secrets: [expoAccessToken] },
   async (event) => {
     logger.info("⏰ Checking for todos due soon and overdue...");
 
@@ -27,7 +28,7 @@ export const todoDueReminders = onSchedule(
         .where(
           "dueDate",
           "<=",
-          admin.firestore.Timestamp.fromDate(oneHourFromNow)
+          admin.firestore.Timestamp.fromDate(oneHourFromNow),
         )
         .where("isCompleted", "==", false)
         .where("reminderSent", "==", false)
@@ -42,7 +43,7 @@ export const todoDueReminders = onSchedule(
         .get();
 
       logger.info(
-        `📋 Found ${dueSoonSnapshot.size} todos due soon, ${overdueSnapshot.size} overdue`
+        `📋 Found ${dueSoonSnapshot.size} todos due soon, ${overdueSnapshot.size} overdue`,
       );
 
       // Process due soon reminders
@@ -65,7 +66,7 @@ export const todoDueReminders = onSchedule(
         // Calculate time until due
         const dueDate = todoData.dueDate.toDate();
         const minutesUntilDue = Math.round(
-          (dueDate.getTime() - now.getTime()) / 60000
+          (dueDate.getTime() - now.getTime()) / 60000,
         );
 
         // Send to both users in the pair
@@ -83,7 +84,7 @@ export const todoDueReminders = onSchedule(
                     pairId,
                   },
                 },
-                "todoReminders"
+                "todoReminders",
               ),
               createInAppNotification(uid, pairId, {
                 type: "todo_due_soon",
@@ -92,7 +93,7 @@ export const todoDueReminders = onSchedule(
                 data: { todoId: todoDoc.id },
               }),
             ]);
-          })
+          }),
         );
 
         // Mark as reminded
@@ -120,7 +121,7 @@ export const todoDueReminders = onSchedule(
         // Calculate how long overdue
         const dueDate = todoData.dueDate.toDate();
         const minutesOverdue = Math.round(
-          (now.getTime() - dueDate.getTime()) / 60000
+          (now.getTime() - dueDate.getTime()) / 60000,
         );
 
         let overdueText = "";
@@ -147,7 +148,7 @@ export const todoDueReminders = onSchedule(
                     pairId,
                   },
                 },
-                "todoReminders"
+                "todoReminders",
               ),
               createInAppNotification(uid, pairId, {
                 type: "todo_overdue",
@@ -156,7 +157,7 @@ export const todoDueReminders = onSchedule(
                 data: { todoId: todoDoc.id },
               }),
             ]);
-          })
+          }),
         );
 
         // Mark overdue notification as sent
@@ -169,5 +170,5 @@ export const todoDueReminders = onSchedule(
     } catch (error) {
       logger.error("❌ Error in todoDueReminders:", error);
     }
-  }
+  },
 );

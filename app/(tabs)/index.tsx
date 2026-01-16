@@ -30,7 +30,7 @@ import {
   NudgeButton,
   NotificationBell,
   NotificationPanel,
-  MoodWidget,
+  MoodCard,
 } from "@/components";
 import { triggerLightHaptic, triggerSelectionHaptic } from "@/state/haptics";
 import { useNotificationPreferences } from "@/store/notificationPreference";
@@ -123,7 +123,7 @@ export default function HomeScreen() {
     const stickersThisWeek = notifications.filter(
       (n) =>
         n.type === "sticker_sent" &&
-        new Date(n.createdAt).getTime() >= weekAgo.getTime()
+        new Date(n.createdAt).getTime() >= weekAgo.getTime(),
     ).length;
 
     return { updatesToday, stickersThisWeek };
@@ -230,15 +230,15 @@ export default function HomeScreen() {
                   fontSize={14}
                   lineHeight={20}
                 >
-                  {todayStats.updatesToday > 0
-                    ? `${todayStats.updatesToday} update${
-                        todayStats.updatesToday > 1 ? "s" : ""
-                      } today • ${unreadCount} unread`
-                    : unreadCount > 0
-                    ? `${unreadCount} unread update${
-                        unreadCount > 1 ? "s" : ""
-                      } waiting`
-                    : "No new updates yet – send something sweet today."}
+                  {todayStats.updatesToday > 0 ?
+                    `${todayStats.updatesToday} update${
+                      todayStats.updatesToday > 1 ? "s" : ""
+                    } today • ${unreadCount} unread`
+                  : unreadCount > 0 ?
+                    `${unreadCount} unread update${
+                      unreadCount > 1 ? "s" : ""
+                    } waiting`
+                  : "No new updates yet – send something sweet today."}
                 </Text>
               </YStack>
 
@@ -255,25 +255,24 @@ export default function HomeScreen() {
                   alignItems="center"
                   justifyContent="center"
                 >
-                  {partner?.avatarUrl ? (
+                  {partner?.avatarUrl ?
                     <Image
                       source={{ uri: partner.avatarUrl }}
                       width="100%"
                       height="100%"
                       objectFit="cover"
                     />
-                  ) : (
-                    <Text
+                  : <Text
                       fontFamily="$heading"
                       color="$primary"
                       fontSize={26}
                       fontWeight="700"
                     >
-                      {partner?.displayName
-                        ? partner.displayName.charAt(0).toUpperCase()
-                        : "?"}
+                      {partner?.displayName ?
+                        partner.displayName.charAt(0).toUpperCase()
+                      : "?"}
                     </Text>
-                  )}
+                  }
                 </Stack>
                 <Text
                   fontFamily="$body"
@@ -287,13 +286,21 @@ export default function HomeScreen() {
             </XStack>
           </Stack>
 
-          {/* Mood Widget */}
-          <MoodWidget
-            myMood={todayMood}
-            partnerMood={partnerMood}
-            partnerName={partner?.displayName}
-            onPress={() => router.push("/(tabs)/mood")}
-          />
+          {/* Mood Summary */}
+          {(todayMood || partnerMood) && (
+            <XStack gap="$3" paddingVertical="$2">
+              {todayMood && (
+                <Stack flex={1}>
+                  <MoodCard mood={todayMood} compact />
+                </Stack>
+              )}
+              {partnerMood && (
+                <Stack flex={1}>
+                  <MoodCard mood={partnerMood} compact />
+                </Stack>
+              )}
+            </XStack>
+          )}
 
           {/* Today at a glance */}
           <YStack gap="$2">
@@ -354,7 +361,7 @@ export default function HomeScreen() {
                 )}
               </XStack>
 
-              {isLoading ? (
+              {isLoading ?
                 <YStack gap="$2.5">
                   {[1, 2, 3].map((i) => (
                     <Stack
@@ -372,7 +379,7 @@ export default function HomeScreen() {
                     </Stack>
                   ))}
                 </YStack>
-              ) : latestNotifications.length > 0 ? (
+              : latestNotifications.length > 0 ?
                 <YStack gap="$2.5">
                   {latestNotifications.map((notif, index) => {
                     const createdAt = new Date(notif.createdAt);
@@ -489,15 +496,15 @@ export default function HomeScreen() {
                             overflow="hidden"
                             margin="$1"
                             style={
-                              useCustomStyle
-                                ? {
-                                    shadowColor: colors.accent,
-                                    shadowOffset: { width: 0, height: 2 },
-                                    shadowOpacity: 0.15,
-                                    shadowRadius: 6,
-                                    elevation: 3,
-                                  }
-                                : undefined
+                              useCustomStyle ?
+                                {
+                                  shadowColor: colors.accent,
+                                  shadowOffset: { width: 0, height: 2 },
+                                  shadowOpacity: 0.15,
+                                  shadowRadius: 6,
+                                  elevation: 3,
+                                }
+                              : undefined
                             }
                           >
                             {renderBackground()}
@@ -508,9 +515,9 @@ export default function HomeScreen() {
                                 height={30}
                                 borderRadius={10}
                                 backgroundColor={
-                                  useCustomStyle
-                                    ? `${colors.icon}25`
-                                    : "$primarySoft"
+                                  useCustomStyle ?
+                                    `${colors.icon}25`
+                                  : "$primarySoft"
                                 }
                                 alignItems="center"
                                 justifyContent="center"
@@ -518,11 +525,10 @@ export default function HomeScreen() {
                                 <Icon
                                   size={16}
                                   color={
-                                    useCustomStyle
-                                      ? colors.icon
-                                      : notif.read
-                                      ? "#A28A82"
-                                      : "$primary"
+                                    useCustomStyle ? colors.icon
+                                    : notif.read ?
+                                      "#A28A82"
+                                    : "$primary"
                                   }
                                 />
                               </Stack>
@@ -613,8 +619,7 @@ export default function HomeScreen() {
                     </XStack>
                   </Button>
                 </YStack>
-              ) : (
-                <Stack
+              : <Stack
                   backgroundColor="$bgCard"
                   borderRadius="$7"
                   padding="$4"
@@ -653,7 +658,7 @@ export default function HomeScreen() {
                     </Text>
                   </YStack>
                 </Stack>
-              )}
+              }
             </YStack>
           </Stack>
 
