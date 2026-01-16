@@ -6,6 +6,8 @@
  * Android: Uses SharedPreferences
  */
 
+import { Platform } from "react-native";
+import { requestWidgetUpdate } from "react-native-android-widget";
 import { getCurrentUserId } from "@/services/auth/auth.service";
 import { useProfileStore } from "@/store/profile";
 import {
@@ -139,10 +141,64 @@ export const WidgetService = {
 
   /**
    * Trigger widget refresh on iOS/Android
+   * For Android, widgets are updated via the widget task handler which reads from AsyncStorage
+   * The data should be saved to storage before calling this
    */
   async reloadWidgets(): Promise<void> {
     try {
-      await ExtensionStorage.reloadWidget();
+      if (Platform.OS === "android") {
+        // Import widget components dynamically to avoid circular deps
+        const { 
+          PartnerStatusWidget,
+          MoodWidget,
+          QuickNudgeWidget,
+          QuickActionsWidget,
+          FullDashboardWidget,
+          CoupleOverviewWidget,
+        } = await import("@/widgets/SyngoWidgets");
+        
+        // Load current data from storage
+        const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
+        const { WIDGET_DATA_KEY, createEmptyWidgetData } = await import("@/types/widget-data.types");
+        
+        let data = createEmptyWidgetData();
+        try {
+          const jsonString = await AsyncStorage.getItem(`widget:${WIDGET_DATA_KEY}`);
+          if (jsonString) {
+            data = JSON.parse(jsonString);
+          }
+        } catch {
+          // Use empty data on error
+        }
+        
+        // Request update for each widget type with proper render function
+        const widgetConfigs = [
+          { name: "SyngoPartnerStatus", Component: PartnerStatusWidget },
+          { name: "SyngoMood", Component: MoodWidget },
+          { name: "SyngoQuickNudge", Component: QuickNudgeWidget },
+          { name: "SyngoQuickActions", Component: QuickActionsWidget },
+          { name: "SyngoDashboard", Component: FullDashboardWidget },
+          { name: "SyngoCoupleOverview", Component: CoupleOverviewWidget },
+        ];
+        
+        await Promise.all(
+          widgetConfigs.map(({ name, Component }) =>
+            requestWidgetUpdate({
+              widgetName: name,
+              // Use React.createElement since this is a .ts file (not .tsx)
+              renderWidget: () => require("react").createElement(Component, { data }),
+              widgetNotFound: () => {
+                // Widget not on home screen, ignore
+              },
+            }).catch(() => {
+              // Ignore individual widget update errors
+            })
+          )
+        );
+      } else {
+        // iOS uses ExtensionStorage to reload widget timelines
+        await ExtensionStorage.reloadWidget();
+      }
     } catch (error) {
       console.error("❌ [WidgetService] Failed to reload widgets:", error);
     }

@@ -114,27 +114,21 @@ function Gate() {
     // Get all nudge notifications
     const allNudges = notifications.filter((n) => n.type === "nudge");
 
-    // Find nudges we should show animation for:
-    // 1. Unread nudges we haven't shown animation for yet
-    // 2. OR recent nudges (within 5 minutes) we haven't shown animation for yet (handles app restart case)
-    const FIVE_MINUTES = 5 * 60 * 1000;
-    const now = Date.now();
-
+    // Find unread nudges we haven't shown animation for yet
+    // Note: We removed the "recent nudge" fallback as it caused animations
+    // to replay on app restart for nudges that were already read
     const eligibleNudge = allNudges.find((n) => {
       // Skip if we already showed animation for this nudge in this session
       if (shownNudgeIds.current.has(n.id)) return false;
 
-      // Show if unread
-      if (!n.read) return true;
-
-      // Also show if recent (within 5 minutes) - handles app restart case
-      const isRecent = n.createdAt && now - n.createdAt < FIVE_MINUTES;
-      return isRecent;
+      // Only show animation for unread nudges
+      return !n.read;
     });
 
     if (!eligibleNudge) return;
 
     // Prevent rapid re-triggers (debounce by 500ms)
+    const now = Date.now();
     if (now - lastProcessedRef.current < 500) return;
     lastProcessedRef.current = now;
 
@@ -148,12 +142,10 @@ function Gate() {
     setNudgeSender(senderName);
     setShowNudgeAnimation(true);
 
-    // Mark as read if not already (in case it was a recent but read nudge)
-    if (!eligibleNudge.read) {
-      setTimeout(() => {
-        markAsRead.mutate(eligibleNudge.id);
-      }, 3500);
-    }
+    // Mark as read after animation
+    setTimeout(() => {
+      markAsRead.mutate(eligibleNudge.id);
+    }, 3500);
   }, [notifications]);
 
   // Mark as mounted

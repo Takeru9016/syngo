@@ -1,13 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { NudgeService } from "@/services/nudge/nudge.service";
 import { useProfileStore } from "@/store/profile";
 import { triggerSuccessHaptic } from "@/state/haptics";
 
+interface UseNudgeOptions {
+  /** Callback fired when nudge is sent successfully - use for showing toasts */
+  onSendSuccess?: (partnerName: string) => void;
+}
+
 /**
  * Hook for sending nudges with rate limiting and cooldown tracking
  */
-export function useNudge() {
+export function useNudge(options?: UseNudgeOptions) {
   const profile = useProfileStore((s) => s.profile);
   const partnerProfile = useProfileStore((s) => s.partnerProfile);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
@@ -49,6 +54,10 @@ export function useNudge() {
     onSuccess: () => {
       triggerSuccessHaptic();
       refetchCanSend();
+      
+      // Call the success callback with partner name for toast
+      const partnerName = partnerProfile?.displayName || "your partner";
+      options?.onSendSuccess?.(partnerName);
     },
     onError: (error: Error) => {
       console.error("Failed to send nudge:", error);
@@ -72,5 +81,6 @@ export function useNudge() {
     cooldownRemaining,
     cooldownFormatted: formatCooldown(cooldownRemaining),
     hasPartner: !!partnerProfile,
+    partnerName: partnerProfile?.displayName || "your partner",
   };
 }

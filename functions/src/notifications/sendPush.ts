@@ -123,13 +123,26 @@ export async function sendPushToUser(
     }));
 
     // Send via Expo Push API
+    // Note: EXPO_ACCESS_TOKEN is required for production push notifications
+    // Set it via: firebase functions:secrets:set EXPO_ACCESS_TOKEN
+    const expoAccessToken = process.env.EXPO_ACCESS_TOKEN;
+    
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "Accept-Encoding": "gzip, deflate",
+      "Content-Type": "application/json",
+    };
+    
+    // Add authorization header if access token is available
+    if (expoAccessToken) {
+      headers["Authorization"] = `Bearer ${expoAccessToken}`;
+    } else {
+      logger.warn("⚠️ EXPO_ACCESS_TOKEN not set - push notifications may fail in production");
+    }
+    
     const response = await fetch(EXPO_PUSH_URL, {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(messages),
     });
 

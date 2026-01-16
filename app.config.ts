@@ -6,7 +6,7 @@ const EAS_PROJECT_ID = "0f6d9962-45d9-4648-bc14-54362c3f999e";
 const config: ExpoConfig = {
   name: "Syngo",
   slug: "notify",
-  version: "1.0.5",
+  version: "1.1.1",
   orientation: "portrait",
   scheme: "syngo",
   userInterfaceStyle: "automatic",
@@ -26,7 +26,7 @@ const config: ExpoConfig = {
 
   ios: {
     bundleIdentifier: "com.sahiljadhav.syngo",
-    buildNumber: "4",
+    buildNumber: "6",
     supportsTablet: false, // Portrait-only app
     appleTeamId: "3RNFFHNH54", // Required for @bacons/apple-targets widgets
 
@@ -80,7 +80,7 @@ const config: ExpoConfig = {
 
   android: {
     package: "com.sahiljadhav.syngo",
-    versionCode: 4,
+    versionCode: 6,
 
     // Play Store metadata
     playStoreUrl:
@@ -276,8 +276,8 @@ const config: ExpoConfig = {
     cloudinaryUploadPreset: process.env.EXPO_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
 
     // App metadata (accessible via Constants.expoConfig.extra)
-    appVersion: "1.0.5",
-    appBuildNumber: "4",
+    appVersion: "1.1.1",
+    appBuildNumber: "6",
     supportEmail: "timetocode22@gmail.com",
     privacyPolicyUrl: "https://syngo.vercel.app/privacy",
     termsOfServiceUrl: "https://syngo.vercel.app/eula",
