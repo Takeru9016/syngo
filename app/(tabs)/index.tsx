@@ -30,7 +30,7 @@ import {
   NudgeButton,
   NotificationBell,
   NotificationPanel,
-  MoodCard,
+  MoodWidget,
 } from "@/components";
 import { triggerLightHaptic, triggerSelectionHaptic } from "@/state/haptics";
 import { useNotificationPreferences } from "@/store/notificationPreference";
@@ -286,21 +286,13 @@ export default function HomeScreen() {
             </XStack>
           </Stack>
 
-          {/* Mood Summary */}
-          {(todayMood || partnerMood) && (
-            <XStack gap="$3" paddingVertical="$2">
-              {todayMood && (
-                <Stack flex={1}>
-                  <MoodCard mood={todayMood} compact />
-                </Stack>
-              )}
-              {partnerMood && (
-                <Stack flex={1}>
-                  <MoodCard mood={partnerMood} compact />
-                </Stack>
-              )}
-            </XStack>
-          )}
+          {/* Mood Widget */}
+          <MoodWidget
+            myMood={todayMood}
+            partnerMood={partnerMood}
+            partnerName={partner?.displayName}
+            onPress={() => router.push("/(tabs)/mood")}
+          />
 
           {/* Today at a glance */}
           <YStack gap="$2">

@@ -188,6 +188,22 @@ function Gate() {
     };
   }, [initialized, user, isPaired]);
 
+  // Register device for push notifications when user is authenticated
+  useEffect(() => {
+    if (!initialized || !user) return;
+
+    // Register device push token with Firestore
+    registerDevicePushToken()
+      .then((token) => {
+        if (token) {
+          console.log("📱 Push token registered successfully");
+        }
+      })
+      .catch((error) => {
+        console.warn("⚠️ Failed to register push token:", error);
+      });
+  }, [initialized, user]);
+
   // Router guard
   useEffect(() => {
     if (!mounted || !initialized || !pairingChecked) return;
