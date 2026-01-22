@@ -52,7 +52,7 @@ interface ExpoPushTicket {
 export async function sendPushToUser(
   uid: string,
   payload: PushPayload,
-  notificationType?: string
+  notificationType?: string,
 ): Promise<void> {
   try {
     // Check notification preferences
@@ -60,7 +60,7 @@ export async function sendPushToUser(
       const allowed = await checkNotificationPreferences(uid, notificationType);
       if (!allowed) {
         logger.info(
-          `⏭️ Notification blocked by user preferences: ${uid} - ${notificationType}`
+          `⏭️ Notification blocked by user preferences: ${uid} - ${notificationType}`,
         );
         return;
       }
@@ -70,7 +70,9 @@ export async function sendPushToUser(
     const devicesSnapshot = await db.collection(`users/${uid}/devices`).get();
 
     if (devicesSnapshot.empty) {
-      logger.info(`⚠️ No devices found for user: ${uid}`);
+      logger.warn(
+        `⚠️ No devices found for user: ${uid} - Check if registerDevicePushToken() was called`,
+      );
       return;
     }
 
@@ -83,9 +85,15 @@ export async function sendPushToUser(
     });
 
     if (tokens.length === 0) {
-      logger.info(`⚠️ No valid tokens for user: ${uid}`);
+      logger.warn(
+        `⚠️ No valid tokens for user: ${uid} - Devices exist but no pushToken field`,
+      );
       return;
     }
+
+    logger.info(
+      `📱 Found ${tokens.length} device(s) for user ${uid}: ${tokens.map((t) => t.token.substring(0, 30) + "...").join(", ")}`,
+    );
 
     // Determine Android channel based on notification type
     let channelId = "default";
@@ -126,20 +134,25 @@ export async function sendPushToUser(
     // Note: EXPO_ACCESS_TOKEN is required for production push notifications
     // Set it via: firebase functions:secrets:set EXPO_ACCESS_TOKEN
     const expoAccessToken = process.env.EXPO_ACCESS_TOKEN;
-    
+
     const headers: Record<string, string> = {
       Accept: "application/json",
       "Accept-Encoding": "gzip, deflate",
       "Content-Type": "application/json",
     };
-    
+
     // Add authorization header if access token is available
     if (expoAccessToken) {
       headers["Authorization"] = `Bearer ${expoAccessToken}`;
+      logger.info(
+        `🔑 Using EXPO_ACCESS_TOKEN (length: ${expoAccessToken.length})`,
+      );
     } else {
-      logger.warn("⚠️ EXPO_ACCESS_TOKEN not set - push notifications may fail in production");
+      logger.error(
+        "❌ EXPO_ACCESS_TOKEN not set - push notifications will fail!",
+      );
     }
-    
+
     const response = await fetch(EXPO_PUSH_URL, {
       method: "POST",
       headers,
@@ -147,12 +160,15 @@ export async function sendPushToUser(
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      logger.error(`❌ Expo push API error: ${response.status} - ${errorText}`);
       throw new Error(
-        `Expo push failed: ${response.status} ${response.statusText}`
+        `Expo push failed: ${response.status} ${response.statusText}`,
       );
     }
 
     const result = await response.json();
+    logger.info(`📨 Expo API response for ${uid}: ${JSON.stringify(result)}`);
     const tickets: ExpoPushTicket[] = result.data || [];
 
     let successCount = 0;
@@ -176,14 +192,14 @@ export async function sendPushToUser(
           logger.warn(`🗑️ Token expired for device: ${tokens[idx].docId}`);
         } else {
           logger.warn(
-            `⚠️ Push failed for device ${tokens[idx].docId}: ${ticket.message}`
+            `⚠️ Push failed for device ${tokens[idx].docId}: ${ticket.message}`,
           );
         }
       }
     });
 
     logger.info(
-      `✅ Push sent to ${uid}: ${successCount}/${tokens.length} delivered`
+      `✅ Push sent to ${uid}: ${successCount}/${tokens.length} delivered`,
     );
 
     // Clean up invalid tokens
@@ -211,7 +227,7 @@ export async function createInAppNotification(
     title: string;
     body: string;
     data?: Record<string, any>;
-  }
+  },
 ): Promise<void> {
   try {
     await db.collection("notifications").add({
@@ -236,7 +252,7 @@ export async function createInAppNotification(
  */
 export async function getPartnerUid(
   currentUid: string,
-  pairId: string
+  pairId: string,
 ): Promise<string | null> {
   try {
     const pairDoc = await db.doc(`pairs/${pairId}`).get();

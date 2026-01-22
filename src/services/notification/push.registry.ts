@@ -19,28 +19,53 @@ export type DeviceRecord = {
 
 export async function registerDevicePushToken(): Promise<string | null> {
   try {
+    console.log("🔔 [PushRegistry] Starting push token registration...");
+
     const perm = await Notifications.getPermissionsAsync();
+    console.log("🔔 [PushRegistry] Current permission status:", perm.status);
+
     if (!perm.granted) {
+      console.log("🔔 [PushRegistry] Permission not granted, requesting...");
       const req = await Notifications.requestPermissionsAsync();
-      if (!req.granted) return null;
+      console.log("🔔 [PushRegistry] Permission request result:", req.status);
+      if (!req.granted) {
+        console.warn("⚠️ [PushRegistry] Permission denied by user");
+        return null;
+      }
     }
 
-    // Expo push token for dev/testing
+    console.log("🔔 [PushRegistry] Getting Expo push token...");
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+    console.log("🔔 [PushRegistry] Project ID:", projectId);
+
     const expoPushToken = (
       await Notifications.getExpoPushTokenAsync({
-        projectId: Constants.expoConfig?.extra?.eas?.projectId,
+        projectId,
       })
     ).data;
-    if (!expoPushToken) return null;
+    console.log("🔔 [PushRegistry] Got push token:", expoPushToken);
+
+    if (!expoPushToken) {
+      console.warn("⚠️ [PushRegistry] No push token received");
+      return null;
+    }
 
     const uid = getCurrentUserId();
-    if (!uid) return expoPushToken;
+    console.log("🔔 [PushRegistry] Current user ID:", uid);
+
+    if (!uid) {
+      console.warn(
+        "⚠️ [PushRegistry] No user ID - returning token without saving",
+      );
+      return expoPushToken;
+    }
 
     const deviceId =
       Device.osBuildId ||
       Device.osInternalBuildId ||
       Device.deviceName ||
       `${Platform.OS}-${Date.now()}`;
+    console.log("🔔 [PushRegistry] Device ID:", deviceId);
 
     const record: DeviceRecord = {
       deviceId,
@@ -52,14 +77,20 @@ export async function registerDevicePushToken(): Promise<string | null> {
       updatedAt: serverTimestamp(),
     };
 
+    console.log(
+      "🔔 [PushRegistry] Saving to Firestore: users/" +
+        uid +
+        "/devices/" +
+        deviceId,
+    );
     await setDoc(doc(db, "users", uid, "devices", deviceId), record, {
       merge: true,
     });
-    console.log("📱 Device registered for push:", record);
+    console.log("✅ [PushRegistry] Device registered for push:", record);
 
     return expoPushToken;
   } catch (e) {
-    console.warn("⚠️ Failed to register push token", e);
+    console.error("❌ [PushRegistry] Failed to register push token:", e);
     return null;
   }
 }
