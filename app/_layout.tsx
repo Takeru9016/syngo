@@ -192,8 +192,9 @@ function Gate() {
   useEffect(() => {
     if (!initialized || !user) return;
 
-    // Register device push token with Firestore
-    registerDevicePushToken()
+    // Register device push token with Firestore, passing uid directly
+    // to avoid race condition with auth.currentUser
+    registerDevicePushToken(user.uid)
       .then((token) => {
         if (token) {
           console.log("📱 Push token registered successfully");

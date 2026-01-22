@@ -17,7 +17,9 @@ export type DeviceRecord = {
   updatedAt: any;
 };
 
-export async function registerDevicePushToken(): Promise<string | null> {
+export async function registerDevicePushToken(
+  providedUid?: string,
+): Promise<string | null> {
   try {
     console.log("🔔 [PushRegistry] Starting push token registration...");
 
@@ -50,8 +52,9 @@ export async function registerDevicePushToken(): Promise<string | null> {
       return null;
     }
 
-    const uid = getCurrentUserId();
-    console.log("🔔 [PushRegistry] Current user ID:", uid);
+    // Use provided UID first, then fall back to getCurrentUserId()
+    const uid = providedUid || getCurrentUserId();
+    console.log("🔔 [PushRegistry] User ID (provided:", !!providedUid, "):", uid);
 
     if (!uid) {
       console.warn(
