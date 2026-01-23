@@ -137,6 +137,10 @@ const config: ExpoConfig = {
   plugins: [
     "expo-router",
     "expo-font",
+    // Custom plugins for Firebase configuration
+    "./plugins/withFirebaseConfig.js",
+    "./plugins/withGoogleServices.js",
+    "./plugins/withStatusBarConfig.js",
     [
       "expo-splash-screen",
       {
@@ -218,7 +222,9 @@ const config: ExpoConfig = {
     url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
   },
 
-  runtimeVersion: "1.3.0", // Must be hardcoded string in bare workflow (matches version above)
+  runtimeVersion: {
+    policy: "appVersion", // or "sdkVersion" or "nativeVersion"
+  },
 };
 
 export default config;

@@ -38,8 +38,10 @@ yarn-error.*
 
 eas.json
 
-# generated native folders
-# /android - TRACKED because we have custom Google Services configuration
-# /ios - TRACKED because we have custom Google Services configuration
+# generated native folders - using CNG workflow
+# Config plugins (plugins/withFirebaseConfig.js & plugins/withGoogleServices.js)
+# automatically configure Firebase during prebuild
+/android
+/ios
 
 .env.local
