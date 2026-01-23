@@ -9,14 +9,7 @@ import {
   KeyboardAvoidingView,
   Dimensions,
 } from "react-native";
-import {
-  YStack,
-  XStack,
-  Text,
-  Button,
-  Stack,
-  Spinner
-} from "tamagui";
+import { YStack, XStack, Text, Button, Stack, Spinner } from "tamagui";
 import {
   Bell,
   CheckCheck,
@@ -134,7 +127,7 @@ export function NotificationPanel({ visible, onClose }: Props) {
             clearAll.mutate();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -291,11 +284,11 @@ export function NotificationPanel({ visible, onClose }: Props) {
               </XStack>
 
               {/* Content */}
-              {isLoading ? (
+              {isLoading ?
                 <YStack flex={1} alignItems="center" justifyContent="center">
                   <Spinner size="large" color="$primary" />
                 </YStack>
-              ) : filteredNotifications.length === 0 ? (
+              : filteredNotifications.length === 0 ?
                 <Stack
                   flex={1}
                   alignItems="center"
@@ -321,9 +314,9 @@ export function NotificationPanel({ visible, onClose }: Props) {
                       fontFamily="$heading"
                       textAlign="center"
                     >
-                      {notifications.length === 0
-                        ? "You're all caught up"
-                        : "No unread notifications"}
+                      {notifications.length === 0 ?
+                        "You're all caught up"
+                      : "No unread notifications"}
                     </Text>
                     <Text
                       color="$muted"
@@ -335,8 +328,7 @@ export function NotificationPanel({ visible, onClose }: Props) {
                     </Text>
                   </YStack>
                 </Stack>
-              ) : (
-                <FlatList
+              : <FlatList
                   data={filteredNotifications}
                   keyExtractor={(item) => item.id}
                   ItemSeparatorComponent={() => <Stack height={10} />}
@@ -350,7 +342,7 @@ export function NotificationPanel({ visible, onClose }: Props) {
                   showsVerticalScrollIndicator={false}
                   renderItem={renderItem}
                 />
-              )}
+              }
             </YStack>
           </Stack>
         </Stack>
@@ -409,6 +401,8 @@ function getCategory(type: AppNotificationType): NotificationCategory {
       return "todos";
     case "favorite_added":
       return "favorites";
+    case "mood_updated":
+      return "mood";
     default:
       return "system";
   }
@@ -434,7 +428,7 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
           onPress: () => onDelete(notif.id),
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
@@ -517,15 +511,15 @@ function NotificationCard({ notif, onPress, onDelete }: NotificationCardProps) {
         padding="$3"
         overflow="hidden"
         style={
-          useCustomStyle
-            ? {
-                shadowColor: colors.accent,
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.15,
-                shadowRadius: 8,
-                elevation: 4,
-              }
-            : undefined
+          useCustomStyle ?
+            {
+              shadowColor: colors.accent,
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.15,
+              shadowRadius: 8,
+              elevation: 4,
+            }
+          : undefined
         }
       >
         {renderBackground()}

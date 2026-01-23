@@ -37,6 +37,9 @@ interface ExpoPushMessage {
   priority?: "default" | "normal" | "high";
   badge?: number;
   _contentAvailable?: boolean; // For iOS background processing
+  richContent?: {
+    image?: string; // Image URL for rich notifications
+  };
 }
 
 interface ExpoPushTicket {
@@ -117,7 +120,7 @@ export async function sendPushToUser(
       richData.richContent = JSON.stringify(payload.richContent);
     }
 
-    // Build Expo push messages
+    // Build Expo push messages with richContent for native image display
     const messages: ExpoPushMessage[] = tokens.map(({ token }) => ({
       to: token,
       title: payload.title,
@@ -128,6 +131,8 @@ export async function sendPushToUser(
       channelId,
       priority: "high",
       _contentAvailable: !!payload.imageUrl, // Enable background processing for images
+      // Use richContent.image for native notification image display
+      ...(payload.imageUrl && { richContent: { image: payload.imageUrl } }),
     }));
 
     // Send via Expo Push API

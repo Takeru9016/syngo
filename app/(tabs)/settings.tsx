@@ -718,47 +718,6 @@ export default function SettingsScreen() {
                   onToggle={(v) => handleToggle("vibration", v)}
                   trackColorActive={switchAccentColor}
                 />
-
-                {/* Customize Appearance Button */}
-                <Button
-                  backgroundColor="$bgSoft"
-                  borderRadius="$8"
-                  height={56}
-                  paddingHorizontal="$4"
-                  onPress={() => {
-                    triggerLightHaptic();
-                    router.push("/notification-customization" as any);
-                  }}
-                  pressStyle={{ opacity: 0.9, scale: 0.98 }}
-                >
-                  <XStack
-                    flex={1}
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <XStack gap="$3" alignItems="center">
-                      <Stack
-                        width={32}
-                        height={32}
-                        borderRadius="$5"
-                        backgroundColor="$bg"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                        <Paintbrush size={16} color={switchAccentColor} />
-                      </Stack>
-                      <YStack>
-                        <Text color="$color" fontSize={15} fontWeight="600">
-                          Customize Appearance
-                        </Text>
-                        <Text color="$muted" fontSize={12}>
-                          Colors, themes & styles
-                        </Text>
-                      </YStack>
-                    </XStack>
-                    <ChevronRight size={18} color="$muted" />
-                  </XStack>
-                </Button>
               </>
             )}
           </YStack>

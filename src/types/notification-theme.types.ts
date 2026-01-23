@@ -12,6 +12,7 @@ export type NotificationCategory =
   | "stickers"
   | "todos"
   | "favorites"
+  | "mood"
   | "system";
 
 // Color configuration for a notification category
@@ -97,6 +98,13 @@ export const DEFAULT_CATEGORY_COLORS: Record<
     accent: "#FCD34D",
     icon: "#FFFFFF",
   },
+  mood: {
+    background: "#EC4899",
+    backgroundSecondary: "#DB2777",
+    text: "#FFFFFF",
+    accent: "#F9A8D4",
+    icon: "#FFFFFF",
+  },
   system: {
     background: "#6366F1",
     backgroundSecondary: "#4F46E5",
@@ -149,6 +157,13 @@ export const NOTIFICATION_THEME_PRESETS: NotificationThemePreset[] = [
         accent: "#FFD180",
         icon: "#FFFFFF",
       },
+      mood: {
+        background: "#F472B6",
+        backgroundSecondary: "#EC4899",
+        text: "#FFFFFF",
+        accent: "#FBCFE8",
+        icon: "#FFFFFF",
+      },
       system: {
         background: "#3D5AFE",
         backgroundSecondary: "#536DFE",
@@ -192,6 +207,13 @@ export const NOTIFICATION_THEME_PRESETS: NotificationThemePreset[] = [
         text: "#92400E",
         accent: "#FBBF24",
         icon: "#D97706",
+      },
+      mood: {
+        background: "#FCE7F3",
+        backgroundSecondary: "#FBCFE8",
+        text: "#9D174D",
+        accent: "#F472B6",
+        icon: "#DB2777",
       },
       system: {
         background: "#E0E7FF",
@@ -237,6 +259,13 @@ export const NOTIFICATION_THEME_PRESETS: NotificationThemePreset[] = [
         accent: "#FBBF24",
         icon: "#FBBF24",
       },
+      mood: {
+        background: "#1F1F2E",
+        backgroundSecondary: "#2D2D44",
+        text: "#F472B6",
+        accent: "#F472B6",
+        icon: "#F472B6",
+      },
       system: {
         background: "#1F1F2E",
         backgroundSecondary: "#2D2D44",
@@ -281,6 +310,13 @@ export const NOTIFICATION_THEME_PRESETS: NotificationThemePreset[] = [
         accent: "#FFAA5B",
         icon: "#F59E0B",
       },
+      mood: {
+        background: "#FFDEE2",
+        backgroundSecondary: "#FFE4E8",
+        text: "#6B4C52",
+        accent: "#FF8FA3",
+        icon: "#E35D6A",
+      },
       system: {
         background: "#D3E4FD",
         backgroundSecondary: "#DCE9FD",
@@ -294,12 +330,55 @@ export const NOTIFICATION_THEME_PRESETS: NotificationThemePreset[] = [
   },
 ];
 
-// Default customization settings
+// Default customization settings - using vibrant preset with gradient
 export const DEFAULT_NOTIFICATION_CUSTOMIZATION: NotificationCustomization = {
-  activePreset: "classic",
-  colors: DEFAULT_CATEGORY_COLORS,
-  visualStyle: "solid",
-  vibrationPattern: "default",
+  activePreset: "vibrant",
+  colors: {
+    nudges: {
+      background: "#FF3366",
+      backgroundSecondary: "#FF0066",
+      text: "#FFFFFF",
+      accent: "#FFAABB",
+      icon: "#FFFFFF",
+    },
+    stickers: {
+      background: "#7C3AED",
+      backgroundSecondary: "#9333EA",
+      text: "#FFFFFF",
+      accent: "#C4B5FD",
+      icon: "#FFFFFF",
+    },
+    todos: {
+      background: "#00C853",
+      backgroundSecondary: "#00E676",
+      text: "#FFFFFF",
+      accent: "#B9F6CA",
+      icon: "#FFFFFF",
+    },
+    favorites: {
+      background: "#FF6D00",
+      backgroundSecondary: "#FF9100",
+      text: "#FFFFFF",
+      accent: "#FFD180",
+      icon: "#FFFFFF",
+    },
+    mood: {
+      background: "#F472B6",
+      backgroundSecondary: "#EC4899",
+      text: "#FFFFFF",
+      accent: "#FBCFE8",
+      icon: "#FFFFFF",
+    },
+    system: {
+      background: "#3D5AFE",
+      backgroundSecondary: "#536DFE",
+      text: "#FFFFFF",
+      accent: "#8C9EFF",
+      icon: "#FFFFFF",
+    },
+  },
+  visualStyle: "gradient",
+  vibrationPattern: "strong",
   borderRadius: 16,
   shadowIntensity: 0.3,
 };

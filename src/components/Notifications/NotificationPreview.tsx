@@ -2,7 +2,14 @@ import { useRef, useEffect } from "react";
 import { Animated, Easing } from "react-native";
 import { Stack, Text, XStack, YStack } from "tamagui";
 import { LinearGradient } from "expo-linear-gradient";
-import { Heart, Sticker, CheckSquare, Star, Bell } from "@tamagui/lucide-icons";
+import {
+  Heart,
+  Sticker,
+  CheckSquare,
+  Star,
+  Bell,
+  Smile,
+} from "@tamagui/lucide-icons";
 
 import {
   NotificationCategory,
@@ -26,6 +33,7 @@ const CATEGORY_ICONS = {
   stickers: Sticker,
   todos: CheckSquare,
   favorites: Star,
+  mood: Smile,
   system: Bell,
 };
 
@@ -42,6 +50,10 @@ const DEFAULT_CONTENT: Record<
   favorites: {
     title: "New Favorite",
     body: "Added 'Pizza Place' to favorites",
+  },
+  mood: {
+    title: "Mood Update",
+    body: "Your partner is feeling great today!",
   },
   system: { title: "Syngo", body: "You're now connected" },
 };

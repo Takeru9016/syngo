@@ -14,6 +14,11 @@ import {
   NOTIFICATION_THEME_PRESETS,
 } from "@/types/notification-theme.types";
 
+// Helper to remove undefined values from objects before sending to Firestore
+function sanitizeForFirestore<T extends Record<string, any>>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 export interface NotificationPreferences {
   enabled: boolean;
   todoReminders: boolean;
@@ -46,28 +51,28 @@ interface NotificationPreferencesStore {
   preferences: NotificationPreferences;
   customization: NotificationCustomization;
   updatePreferences: (
-    updates: Partial<NotificationPreferences>
+    updates: Partial<NotificationPreferences>,
   ) => Promise<void>;
   resetPreferences: () => Promise<void>;
   // Customization methods
   updateCustomization: (
-    updates: Partial<NotificationCustomization>
+    updates: Partial<NotificationCustomization>,
   ) => Promise<void>;
   updateCategoryColors: (
     category: NotificationCategory,
-    colors: Partial<NotificationColorScheme>
+    colors: Partial<NotificationColorScheme>,
   ) => Promise<void>;
   updateCategoryStyle: (
     category: NotificationCategory,
-    style: NotificationVisualStyle
+    style: NotificationVisualStyle,
   ) => Promise<void>;
   applyPreset: (presetId: string) => Promise<void>;
   resetCustomization: () => Promise<void>;
   getColorsForCategory: (
-    category: NotificationCategory
+    category: NotificationCategory,
   ) => NotificationColorScheme;
   getStyleForCategory: (
-    category: NotificationCategory
+    category: NotificationCategory,
   ) => NotificationVisualStyle;
 }
 
@@ -89,12 +94,12 @@ export const useNotificationPreferences =
               await setDoc(
                 doc(db, "users", uid),
                 { notificationPreferences: newPreferences },
-                { merge: true }
+                { merge: true },
               );
             } catch (error) {
               console.error(
                 "❌ Failed to sync notification preferences:",
-                error
+                error,
               );
             }
           }
@@ -109,12 +114,12 @@ export const useNotificationPreferences =
               await setDoc(
                 doc(db, "users", uid),
                 { notificationPreferences: DEFAULT_PREFERENCES },
-                { merge: true }
+                { merge: true },
               );
             } catch (error) {
               console.error(
                 "❌ Failed to reset notification preferences:",
-                error
+                error,
               );
             }
           }
@@ -133,13 +138,16 @@ export const useNotificationPreferences =
             try {
               await setDoc(
                 doc(db, "users", uid),
-                { notificationCustomization: newCustomization },
-                { merge: true }
+                {
+                  notificationCustomization:
+                    sanitizeForFirestore(newCustomization),
+                },
+                { merge: true },
               );
             } catch (error) {
               console.error(
                 "❌ Failed to sync notification customization:",
-                error
+                error,
               );
             }
           }
@@ -163,8 +171,11 @@ export const useNotificationPreferences =
             try {
               await setDoc(
                 doc(db, "users", uid),
-                { notificationCustomization: newCustomization },
-                { merge: true }
+                {
+                  notificationCustomization:
+                    sanitizeForFirestore(newCustomization),
+                },
+                { merge: true },
               );
             } catch (error) {
               console.error("❌ Failed to sync category colors:", error);
@@ -174,7 +185,7 @@ export const useNotificationPreferences =
 
         applyPreset: async (presetId) => {
           const preset = NOTIFICATION_THEME_PRESETS.find(
-            (p) => p.id === presetId
+            (p) => p.id === presetId,
           );
           if (!preset) return;
 
@@ -182,6 +193,7 @@ export const useNotificationPreferences =
             activePreset: presetId,
             colors: preset.colors,
             visualStyle: preset.visualStyle,
+            categoryStyles: {}, // Clear per-category overrides (empty object, not undefined for Firestore)
             vibrationPattern: preset.vibrationPattern,
             borderRadius: get().customization.borderRadius,
             shadowIntensity: get().customization.shadowIntensity,
@@ -193,8 +205,11 @@ export const useNotificationPreferences =
             try {
               await setDoc(
                 doc(db, "users", uid),
-                { notificationCustomization: newCustomization },
-                { merge: true }
+                {
+                  notificationCustomization:
+                    sanitizeForFirestore(newCustomization),
+                },
+                { merge: true },
               );
             } catch (error) {
               console.error("❌ Failed to apply preset:", error);
@@ -213,7 +228,7 @@ export const useNotificationPreferences =
                 {
                   notificationCustomization: DEFAULT_NOTIFICATION_CUSTOMIZATION,
                 },
-                { merge: true }
+                { merge: true },
               );
             } catch (error) {
               console.error("❌ Failed to reset customization:", error);
@@ -222,7 +237,9 @@ export const useNotificationPreferences =
         },
 
         getColorsForCategory: (category) => {
-          return get().customization.colors[category];
+          const colors = get().customization.colors[category];
+          // Fallback to default if category colors are missing (e.g., newly added categories)
+          return colors || DEFAULT_NOTIFICATION_CUSTOMIZATION.colors[category];
         },
 
         getStyleForCategory: (category) => {
@@ -252,8 +269,11 @@ export const useNotificationPreferences =
             try {
               await setDoc(
                 doc(db, "users", uid),
-                { notificationCustomization: newCustomization },
-                { merge: true }
+                {
+                  notificationCustomization:
+                    sanitizeForFirestore(newCustomization),
+                },
+                { merge: true },
               );
             } catch (error) {
               console.error("❌ Failed to sync category style:", error);
@@ -264,6 +284,6 @@ export const useNotificationPreferences =
       {
         name: "notification-preferences",
         storage: createJSONStorage(() => AsyncStorage),
-      }
-    )
+      },
+    ),
   );

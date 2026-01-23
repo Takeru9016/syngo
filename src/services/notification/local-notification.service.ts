@@ -90,8 +90,11 @@ export const NotificationService = {
 
     // Get vibration pattern from customization
     const { customization } = useNotificationPreferences.getState();
-    const { VIBRATION_PATTERNS } = await import("@/types/notification-theme.types");
-    const vibrationPattern = VIBRATION_PATTERNS[customization.vibrationPattern] || [0, 200, 150, 200];
+    const { VIBRATION_PATTERNS } =
+      await import("@/types/notification-theme.types");
+    const vibrationPattern = VIBRATION_PATTERNS[
+      customization.vibrationPattern
+    ] || [0, 200, 150, 200];
 
     // Get accent colors for LED from customization
     const nudgeColor = customization.colors.nudges.accent;
@@ -104,55 +107,55 @@ export const NotificationService = {
       lightColor?: string;
       vibrationPattern?: number[];
     }[] = [
-        {
-          id: "default",
-          name: "General",
-          importance: Notifications.AndroidImportance.DEFAULT,
-          sound: "notification.mp3",
-          lightColor: customization.colors.system.accent,
-          vibrationPattern,
-        },
-        {
-          id: "reminders",
-          name: "Reminders",
-          importance: Notifications.AndroidImportance.HIGH,
-          sound: "notification.mp3",
-          lightColor: customization.colors.todos.accent,
-          vibrationPattern,
-        },
-        {
-          id: "stickers",
-          name: "Stickers",
-          importance: Notifications.AndroidImportance.DEFAULT,
-          sound: "notification.mp3",
-          lightColor: customization.colors.stickers.accent,
-          vibrationPattern,
-        },
-        {
-          id: "favorites",
-          name: "Favorites",
-          importance: Notifications.AndroidImportance.LOW,
-          sound: "notification.mp3",
-          lightColor: customization.colors.favorites.accent,
-          vibrationPattern,
-        },
-        {
-          id: "nudges",
-          name: "Nudges",
-          importance: Notifications.AndroidImportance.HIGH,
-          sound: "notification.mp3",
-          lightColor: nudgeColor,
-          vibrationPattern,
-        },
-        {
-          id: "system",
-          name: "System",
-          importance: Notifications.AndroidImportance.DEFAULT,
-          sound: "notification.mp3",
-          lightColor: customization.colors.system.accent,
-          vibrationPattern,
-        },
-      ];
+      {
+        id: "default",
+        name: "General",
+        importance: Notifications.AndroidImportance.DEFAULT,
+        sound: "notification.wav",
+        lightColor: customization.colors.system.accent,
+        vibrationPattern,
+      },
+      {
+        id: "reminders",
+        name: "Reminders",
+        importance: Notifications.AndroidImportance.HIGH,
+        sound: "notification.wav",
+        lightColor: customization.colors.todos.accent,
+        vibrationPattern,
+      },
+      {
+        id: "stickers",
+        name: "Stickers",
+        importance: Notifications.AndroidImportance.DEFAULT,
+        sound: "notification.wav",
+        lightColor: customization.colors.stickers.accent,
+        vibrationPattern,
+      },
+      {
+        id: "favorites",
+        name: "Favorites",
+        importance: Notifications.AndroidImportance.LOW,
+        sound: "notification.wav",
+        lightColor: customization.colors.favorites.accent,
+        vibrationPattern,
+      },
+      {
+        id: "nudges",
+        name: "Nudges",
+        importance: Notifications.AndroidImportance.HIGH,
+        sound: "notification.wav",
+        lightColor: nudgeColor,
+        vibrationPattern,
+      },
+      {
+        id: "system",
+        name: "System",
+        importance: Notifications.AndroidImportance.DEFAULT,
+        sound: "notification.wav",
+        lightColor: customization.colors.system.accent,
+        vibrationPattern,
+      },
+    ];
 
     for (const ch of channels) {
       await Notifications.setNotificationChannelAsync(ch.id, {
@@ -172,9 +175,9 @@ export const NotificationService = {
     if (!granted) throw new Error("Notification permissions not granted");
 
     const androidChannelId =
-      Platform.OS === "android"
-        ? opts.androidChannelId || categoryToChannel(opts.category)
-        : undefined;
+      Platform.OS === "android" ?
+        opts.androidChannelId || categoryToChannel(opts.category)
+      : undefined;
 
     let trigger: Notifications.NotificationTriggerInput;
 
@@ -191,7 +194,7 @@ export const NotificationService = {
       case "interval": {
         if (opts.repeats && opts.seconds < 60) {
           throw new Error(
-            "Repeating interval notifications require at least 60 seconds"
+            "Repeating interval notifications require at least 60 seconds",
           );
         }
         trigger = {
@@ -231,7 +234,7 @@ export const NotificationService = {
         title: opts.title,
         body: opts.body,
         data: opts.data,
-        sound: Platform.OS === "ios" ? opts.iosSound ?? true : undefined,
+        sound: Platform.OS === "ios" ? (opts.iosSound ?? true) : undefined,
         priority: Notifications.AndroidNotificationPriority.HIGH,
       },
       trigger,
@@ -254,7 +257,7 @@ export const NotificationService = {
             dailyMinute: opts.mode === "daily" ? opts.minute : null,
             createdAt: serverTimestamp(),
           },
-          { merge: true }
+          { merge: true },
         );
       }
     } catch (err) {
@@ -273,7 +276,7 @@ export const NotificationService = {
         await setDoc(
           doc(db, "users", uid, "scheduledNotifications", id),
           { cancelledAt: serverTimestamp() },
-          { merge: true }
+          { merge: true },
         );
       }
     } catch {

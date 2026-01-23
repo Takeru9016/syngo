@@ -6,7 +6,7 @@ const EAS_PROJECT_ID = "0f6d9962-45d9-4648-bc14-54362c3f999e";
 const config: ExpoConfig = {
   name: "Syngo",
   slug: "notify",
-  version: "1.2.4",
+  version: "1.3.0",
   orientation: "portrait",
   scheme: "syngo",
   userInterfaceStyle: "automatic",
@@ -164,7 +164,7 @@ const config: ExpoConfig = {
         icon: "./assets/images/notification-icon.png", // 96×96 transparent PNG with white icon
         color: "#6366F1", // My primary indigo color
         mode: "production",
-        sounds: ["./assets/sounds/notification.mp3"], // Custom notification sound
+        sounds: ["./assets/sounds/notification.wav"], // Custom notification sound
       },
     ],
 
@@ -203,7 +203,7 @@ const config: ExpoConfig = {
     cloudinaryUploadPreset: process.env.EXPO_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
 
     // App metadata (accessible via Constants.expoConfig.extra)
-    appVersion: "1.2.4",
+    appVersion: "1.3.0",
     appBuildNumber: "1",
     supportEmail: "timetocode22@gmail.com",
     privacyPolicyUrl: "https://syngo.vercel.app/privacy",
@@ -218,7 +218,7 @@ const config: ExpoConfig = {
     url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
   },
 
-  runtimeVersion: "1.2.4", // Must be hardcoded string in bare workflow (matches version above)
+  runtimeVersion: "1.3.0", // Must be hardcoded string in bare workflow (matches version above)
 };
 
 export default config;

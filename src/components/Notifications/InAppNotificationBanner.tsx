@@ -45,7 +45,7 @@ function getCategory(type: AppNotificationType): NotificationCategory {
     case "favorite_added":
       return "favorites";
     case "mood_updated":
-      return "system"; // Use system styling for mood updates
+      return "mood";
     default:
       return "system";
   }
@@ -269,7 +269,7 @@ export function InAppNotificationBanner({
 
         <XStack padding="$4" gap="$3" alignItems="center">
           {/* Icon or Image container */}
-          {imageUrl ? (
+          {imageUrl ?
             <Stack
               width={48}
               height={48}
@@ -284,8 +284,7 @@ export function InAppNotificationBanner({
                 objectFit="cover"
               />
             </Stack>
-          ) : (
-            <Stack
+          : <Stack
               width={44}
               height={44}
               borderRadius={12}
@@ -295,7 +294,7 @@ export function InAppNotificationBanner({
             >
               <Icon size={22} color={colors.icon} />
             </Stack>
-          )}
+          }
 
           {/* Content */}
           <YStack flex={1} gap="$0.5">
@@ -375,7 +374,7 @@ export function useInAppNotification() {
   const context = useContext(InAppNotificationContext);
   if (!context) {
     throw new Error(
-      "useInAppNotification must be used within InAppNotificationProvider"
+      "useInAppNotification must be used within InAppNotificationProvider",
     );
   }
   return context;
