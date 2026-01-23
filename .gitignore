@@ -39,7 +39,7 @@ yarn-error.*
 eas.json
 
 # generated native folders
-/ios
-/android
+# /android - TRACKED because we have custom Google Services configuration
+# /ios - TRACKED because we have custom Google Services configuration
 
 .env.local

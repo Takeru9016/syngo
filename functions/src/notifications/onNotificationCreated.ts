@@ -49,11 +49,15 @@ export const onNotificationCreated = onDocumentCreated(
       else if (type === "pair_request" || type === "pair_success")
         preferenceKey = "pairEvents";
 
+      // Include imageUrl for sticker notifications
+      const imageUrl = type === "sticker_sent" ? data.data?.imageUrl : undefined;
+
       await sendPushToUser(
         recipientUid,
         {
           title: data.title,
           body: data.body,
+          imageUrl,
           data: {
             ...data.data,
             notificationId,

@@ -75,7 +75,7 @@ export default function MomentsScreen() {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [formModalVisible, setFormModalVisible] = useState(false);
   const [selectedFavorite, setSelectedFavorite] = useState<Favorite | null>(
-    null
+    null,
   );
   const [editingFavorite, setEditingFavorite] = useState<Favorite | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<
@@ -119,7 +119,7 @@ export default function MomentsScreen() {
   };
 
   const handleSaveFavorite = (
-    data: Omit<Favorite, "id" | "createdAt" | "createdBy">
+    data: Omit<Favorite, "id" | "createdAt" | "createdBy">,
   ) => {
     triggerSuccessHaptic();
     if (editingFavorite) {
@@ -139,11 +139,17 @@ export default function MomentsScreen() {
   const handleSendSticker = async (sticker: Sticker) => {
     triggerSuccessHaptic();
     try {
+      // Use remoteUrl for predefined stickers (full Cloudinary URL)
+      // Use imageUrl for custom stickers (already a URL string)
+      const imageUrl =
+        sticker.remoteUrl ||
+        (typeof sticker.imageUrl === "string" ? sticker.imageUrl : undefined);
+
       await AppNotificationService.sendToPartner({
         type: "sticker_sent",
         title: "Sticker from your partner",
         body: sticker.name,
-        data: { stickerId: sticker.id, imageUrl: sticker.imageUrl },
+        data: { stickerId: sticker.id, ...(imageUrl && { imageUrl }) },
       });
       success("Sticker Sent!", `${sticker.name} sent to your partner`);
     } catch (err) {
@@ -174,7 +180,7 @@ export default function MomentsScreen() {
 
   const handleSaveEditSticker = (
     id: string,
-    updates: { name?: string; description?: string; imageUrl?: string }
+    updates: { name?: string; description?: string; imageUrl?: string },
   ) => {
     triggerSuccessHaptic();
     updateSticker.mutate({ id, ...updates });
@@ -208,11 +214,9 @@ export default function MomentsScreen() {
   ];
 
   const isLoading =
-    activeTab === "favorites"
-      ? favoritesLoading
-      : activeTab === "stickers"
-      ? stickersLoading
-      : predefinedLoading;
+    activeTab === "favorites" ? favoritesLoading
+    : activeTab === "stickers" ? stickersLoading
+    : predefinedLoading;
 
   const handleAddPress = () => {
     triggerLightHaptic();
@@ -257,11 +261,9 @@ export default function MomentsScreen() {
               onPress={handleAddPress}
               pressStyle={{ opacity: 0.9, scale: 0.98 }}
             >
-              {activeTab === "favorites" ? (
+              {activeTab === "favorites" ?
                 <BookmarkPlus size={22} color="white" />
-              ) : (
-                <ImagePlus size={22} color="white" />
-              )}
+              : <ImagePlus size={22} color="white" />}
             </Button>
           )}
         </XStack>
@@ -278,17 +280,17 @@ export default function MomentsScreen() {
           >
             <Sparkles size={16} color="$primary" />
             <Text color="$colorMuted" fontSize={12}>
-              {activeTab === "favorites"
-                ? `${favorites.length} saved${
-                    recentFavoritesCount > 0
-                      ? ` • ${recentFavoritesCount} this week`
-                      : ""
-                  }`
-                : activeTab === "stickers"
-                ? `${stickers.length} custom sticker${
-                    stickers.length === 1 ? "" : "s"
-                  }`
-                : `${predefinedStickers.length} pre-defined`}
+              {activeTab === "favorites" ?
+                `${favorites.length} saved${
+                  recentFavoritesCount > 0 ?
+                    ` • ${recentFavoritesCount} this week`
+                  : ""
+                }`
+              : activeTab === "stickers" ?
+                `${stickers.length} custom sticker${
+                  stickers.length === 1 ? "" : "s"
+                }`
+              : `${predefinedStickers.length} pre-defined`}
             </Text>
           </XStack>
         </XStack>
@@ -410,16 +412,15 @@ export default function MomentsScreen() {
             </XStack>
           )}
 
-          {favoritesLoading ? (
+          {favoritesLoading ?
             <YStack flex={1} alignItems="center" justifyContent="center">
               <Spinner size="large" color="$primary" />
             </YStack>
-          ) : favorites.length === 0 ? (
+          : favorites.length === 0 ?
             <EmptyFavoritesState onAdd={() => setFormModalVisible(true)} />
-          ) : filteredFavorites.length === 0 ? (
+          : filteredFavorites.length === 0 ?
             <EmptyFilterState />
-          ) : (
-            <FlatList
+          : <FlatList
               key={`favorites-${numColumns}`}
               data={filteredFavorites}
               keyExtractor={(item) => item.id}
@@ -443,19 +444,18 @@ export default function MomentsScreen() {
                 </Stack>
               )}
             />
-          )}
+          }
         </Tabs.Content>
 
         {/* Custom Stickers Tab */}
         <Tabs.Content value="stickers" flex={1}>
-          {stickersLoading ? (
+          {stickersLoading ?
             <YStack flex={1} alignItems="center" justifyContent="center">
               <Spinner size="large" color="$primary" />
             </YStack>
-          ) : stickers.length === 0 ? (
+          : stickers.length === 0 ?
             <EmptyStickersState onAdd={() => setStickerModalVisible(true)} />
-          ) : (
-            <FlatList
+          : <FlatList
               key={`stickers-${numColumns}`}
               data={sortedStickers}
               keyExtractor={(item) => item.id}
@@ -484,19 +484,18 @@ export default function MomentsScreen() {
                 </Stack>
               )}
             />
-          )}
+          }
         </Tabs.Content>
 
         {/* Pre-defined Stickers Tab */}
         <Tabs.Content value="predefined" flex={1}>
-          {predefinedLoading ? (
+          {predefinedLoading ?
             <YStack flex={1} alignItems="center" justifyContent="center">
               <Spinner size="large" color="$primary" />
             </YStack>
-          ) : predefinedStickers.length === 0 ? (
+          : predefinedStickers.length === 0 ?
             <EmptyPredefinedState />
-          ) : (
-            <FlatList
+          : <FlatList
               key={`predefined-${numColumns}`}
               data={predefinedStickers}
               keyExtractor={(item) => item.id}
@@ -516,7 +515,7 @@ export default function MomentsScreen() {
                 </Stack>
               )}
             />
-          )}
+          }
         </Tabs.Content>
       </Tabs>
 

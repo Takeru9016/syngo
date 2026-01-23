@@ -6,140 +6,160 @@
       "name": "Hearts",
       "category": "love",
       "tags": ["love", "romance", "heart"],
-      "filename": "hearts.png"
+      "filename": "hearts.png",
+      "remoteUrl": "notify/stickers/hearts.png"
     },
     {
       "id": "predefined_kiss",
       "name": "Kisses",
       "category": "love",
       "tags": ["kiss", "love", "romance"],
-      "filename": "kisses.png"
+      "filename": "kisses.png",
+      "remoteUrl": "notify/stickers/kisses.png"
     },
     {
       "id": "predefined_hug",
       "name": "Hugs",
       "category": "affection",
       "tags": ["hug", "comfort", "support"],
-      "filename": "hugs.png"
+      "filename": "hugs.png",
+      "remoteUrl": "notify/stickers/hugs.png"
     },
     {
       "id": "predefined_thinking",
       "name": "Thinking of You",
       "category": "thinking",
       "tags": ["thinking", "miss", "remember"],
-      "filename": "thinking-of-you.png"
+      "filename": "thinking-of-you.png",
+      "remoteUrl": "notify/stickers/thinking-of-you.png"
     },
     {
       "id": "predefined_good_morning",
       "name": "Good Morning",
       "category": "greetings",
       "tags": ["morning", "greeting", "hello"],
-      "filename": "good-morning.png"
+      "filename": "good-morning.png",
+      "remoteUrl": "notify/stickers/good-morning.png"
     },
     {
       "id": "predefined_good_night",
       "name": "Good Night",
       "category": "greetings",
       "tags": ["night", "sleep", "goodbye"],
-      "filename": "good-night.png"
+      "filename": "good-night.png",
+      "remoteUrl": "notify/stickers/good-night.png"
     },
     {
       "id": "predefined_miss_you",
       "name": "Missing You",
       "category": "thinking",
       "tags": ["miss", "longing", "love"],
-      "filename": "missing-you.png"
+      "filename": "missing-you.png",
+      "remoteUrl": "notify/stickers/missing-you.png"
     },
     {
       "id": "predefined_love_you",
       "name": "Love You",
       "category": "love",
       "tags": ["love", "affection", "romance"],
-      "filename": "love-you.png"
+      "filename": "love-you.png",
+      "remoteUrl": "notify/stickers/love-you.png"
     },
     {
       "id": "predefined_happy",
       "name": "Happy",
       "category": "emotions",
       "tags": ["happy", "joy", "smile"],
-      "filename": "happy.png"
+      "filename": "happy.png",
+      "remoteUrl": "notify/stickers/happy.png"
     },
     {
       "id": "predefined_excited",
       "name": "Excited",
       "category": "emotions",
       "tags": ["excited", "enthusiasm", "energy"],
-      "filename": "excited.png"
+      "filename": "excited.png",
+      "remoteUrl": "notify/stickers/excited.png"
     },
     {
       "id": "predefined_laughing",
       "name": "Laughing",
       "category": "emotions",
       "tags": ["laugh", "funny", "joy"],
-      "filename": "laughing.png"
+      "filename": "laughing.png",
+      "remoteUrl": "notify/stickers/laughing.png"
     },
     {
       "id": "predefined_sad",
       "name": "Sad",
       "category": "emotions",
       "tags": ["sad", "down", "blue"],
-      "filename": "sad.png"
+      "filename": "sad.png",
+      "remoteUrl": "notify/stickers/sad.png"
     },
     {
       "id": "predefined_congrats",
       "name": "Congratulations",
       "category": "celebrations",
       "tags": ["congrats", "celebration", "achievement"],
-      "filename": "congratulations.png"
+      "filename": "congratulations.png",
+      "remoteUrl": "notify/stickers/congratulations.png"
     },
     {
       "id": "predefined_birthday",
       "name": "Happy Birthday",
       "category": "celebrations",
       "tags": ["birthday", "celebration", "party"],
-      "filename": "happy-birthday.png"
+      "filename": "happy-birthday.png",
+      "remoteUrl": "notify/stickers/happy-birthday.png"
     },
     {
       "id": "predefined_thank_you",
       "name": "Thank You",
       "category": "gratitude",
       "tags": ["thanks", "grateful", "appreciation"],
-      "filename": "thank-you.png"
+      "filename": "thank-you.png",
+      "remoteUrl": "notify/stickers/thank-you.png"
     },
     {
       "id": "predefined_sorry",
       "name": "Sorry",
       "category": "apology",
       "tags": ["sorry", "apology", "regret"],
-      "filename": "sorry.png"
+      "filename": "sorry.png",
+      "remoteUrl": "notify/stickers/sorry.png"
     },
     {
       "id": "predefined_support",
       "name": "I'm Here For You",
       "category": "support",
       "tags": ["support", "care", "comfort"],
-      "filename": "here-for-you.png"
+      "filename": "here-for-you.png",
+      "remoteUrl": "notify/stickers/here-for-you.png"
     },
     {
       "id": "predefined_proud",
       "name": "Proud of You",
       "category": "encouragement",
       "tags": ["proud", "encouragement", "support"],
-      "filename": "proud.png"
+      "filename": "proud.png",
+      "remoteUrl": "notify/stickers/proud.png"
     },
     {
       "id": "predefined_cute",
       "name": "You're Cute",
       "category": "compliments",
       "tags": ["cute", "compliment", "sweet"],
-      "filename": "cutie.png"
+      "filename": "cutie.png",
+      "remoteUrl": "notify/stickers/cutie.png"
     },
     {
       "id": "predefined_amazing",
       "name": "You're Amazing",
       "category": "compliments",
       "tags": ["amazing", "compliment", "awesome"],
-      "filename": "amazing.png"
+      "filename": "amazing.png",
+      "remoteUrl": "notify/stickers/amazing.png"
     }
   ],
   "categories": [

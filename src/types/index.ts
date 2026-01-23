@@ -65,7 +65,8 @@ export type Sticker = {
   id: string;
   name: string;
   description?: string; // Optional description for the sticker
-  imageUrl: string;
+  imageUrl: string | number; // string for custom stickers, number for require() in predefined
+  remoteUrl?: string; // Full Cloudinary URL for push notifications (predefined stickers)
   createdBy: string;
   createdAt: number;
   isPredefined?: boolean; // Flag for pre-defined stickers
@@ -169,6 +170,7 @@ export type PredefinedStickerManifest = {
     category: string;
     tags: string[];
     filename: string;
+    remoteUrl?: string; // Cloudinary path for push notifications
   }[];
   categories: PredefinedStickerCategory[];
 };

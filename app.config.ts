@@ -6,7 +6,7 @@ const EAS_PROJECT_ID = "0f6d9962-45d9-4648-bc14-54362c3f999e";
 const config: ExpoConfig = {
   name: "Syngo",
   slug: "notify",
-  version: "1.2.3",
+  version: "1.2.4",
   orientation: "portrait",
   scheme: "syngo",
   userInterfaceStyle: "automatic",
@@ -136,6 +136,7 @@ const config: ExpoConfig = {
 
   plugins: [
     "expo-router",
+    "expo-font",
     [
       "expo-splash-screen",
       {
@@ -202,7 +203,7 @@ const config: ExpoConfig = {
     cloudinaryUploadPreset: process.env.EXPO_PUBLIC_CLOUDINARY_UNSIGNED_PRESET,
 
     // App metadata (accessible via Constants.expoConfig.extra)
-    appVersion: "1.2.3",
+    appVersion: "1.2.4",
     appBuildNumber: "1",
     supportEmail: "timetocode22@gmail.com",
     privacyPolicyUrl: "https://syngo.vercel.app/privacy",
@@ -217,9 +218,7 @@ const config: ExpoConfig = {
     url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
   },
 
-  runtimeVersion: {
-    policy: "appVersion", // or "sdkVersion" or "nativeVersion"
-  },
+  runtimeVersion: "1.2.4", // Must be hardcoded string in bare workflow (matches version above)
 };
 
 export default config;

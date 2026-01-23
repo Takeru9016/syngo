@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "184045337822",
+    "project_id": "notify-40a33",
+    "storage_bucket": "notify-40a33.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184045337822:android:d11db50563d2a479b6d64f",
+        "android_client_info": {
+          "package_name": "com.sahiljadhav.syngo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDE9ZU-ZDEVYATRpvWS_g6kKM0kkriAQcI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
