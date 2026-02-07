@@ -8,6 +8,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font"; // ← Single import
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as Sentry from "@sentry/react-native";
+import { useURL } from "expo-linking";
 
 import config from "../tamagui.config";
 import { usePairingStore } from "@/store/pairing";
@@ -34,6 +35,7 @@ import { useForegroundNotification } from "@/hooks/useForegroundNotification";
 import { useAppNotifications, useMarkAsRead } from "@/hooks/useAppNotification";
 import { useNotificationStore } from "@/store/notification";
 import { useAppUpdates } from "@/hooks/useAppUpdates";
+import { useWidgetUpdates } from "@/hooks/useWidgetUpdates";
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
@@ -62,7 +64,7 @@ const qc = new QueryClient();
 function Gate() {
   const router = useRouter();
   const segments = useSegments();
-  const { isPaired, setPairId } = usePairingStore();
+  const { isPaired, setPairId, initializePair } = usePairingStore();
   const { profile, setProfile, setPartnerProfile } = useProfileStore(); // ADD profile here
   const { initialized, user } = useAuthStore();
 
@@ -85,6 +87,9 @@ function Gate() {
 
   // Enable in-app notification banner for foreground notifications
   useForegroundNotification();
+
+  // Home screen widget updates
+  useWidgetUpdates();
 
   // App update system (OTA + Store)
   const {
@@ -155,6 +160,7 @@ function Gate() {
       // Update pairing store with pairId from profile
       if (profile?.pairId) {
         setPairId(profile.pairId);
+        initializePair(); // Fetch pair data including createdAt for days together
 
         // Mark pairing as checked once we have profile data
         if (!pairingChecked) {
@@ -259,6 +265,69 @@ function Gate() {
     profile?.showOnboardingAfterUnpair,
     segments,
   ]);
+
+  // Deep link handler for widget URLs
+  const url = useURL();
+  const processedUrls = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!url || !initialized || !user || !isPaired) return;
+
+    // Prevent processing the same URL multiple times
+    if (processedUrls.current.has(url)) return;
+    processedUrls.current.add(url);
+
+    console.log("🔗 Deep link received:", url);
+
+    // Parse the URL to extract the path
+    // Widget URLs format: syngo://path or syngo://
+    const urlObj = new URL(url);
+    let path = urlObj.pathname || "/";
+
+    // Handle double-slash case (syngo://nudge) where 'nudge' is parsed as hostname
+    if (path === "/" && urlObj.hostname) {
+      path = `/${urlObj.hostname}`;
+    }
+
+    console.log("🔗 Parsed path:", path);
+
+    // Map widget paths to app routes
+    // syngo:// -> /(tabs) (home)
+    // syngo://mood -> /(tabs)/mood
+    // syngo://todos -> /(tabs)/todos
+    // syngo://moments -> /(tabs)/moments
+    // syngo://notification -> /(tabs)/notification
+    // syngo://settings -> /(tabs)/settings
+
+    // Wait a bit for the app to finish initializing before navigating
+    setTimeout(() => {
+      if (path === "/" || path === "") {
+        // Root path - navigate to home
+        router.push("/(tabs)");
+      } else if (path === "/nudge") {
+        // Trigger nudge via global store and navigate to home
+        console.log("🔗 Triggering nudge from widget deep link");
+        const { triggerNudge } =
+          require("@/store/widgetAction").useWidgetActionStore.getState();
+        triggerNudge();
+        router.push("/(tabs)");
+      } else if (path === "/mood") {
+        router.push("/(tabs)/mood");
+      } else if (path === "/todos") {
+        router.push("/(tabs)/todos");
+      } else if (path === "/moments") {
+        router.push("/(tabs)/moments");
+      } else if (path === "/notification") {
+        router.push("/(tabs)/notification");
+      } else if (path === "/settings") {
+        router.push("/(tabs)/settings");
+      } else {
+        // Unknown path - navigate to home as fallback
+        console.warn("⚠️ Unknown deep link path:", path);
+        router.push("/(tabs)");
+      }
+    }, 100);
+  }, [url, initialized, user, isPaired, router]);
 
   // Show loading screen until auth and pairing status are checked
   if (!initialized || !pairingChecked) {

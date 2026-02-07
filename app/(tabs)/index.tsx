@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { RefreshControl } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import {
   YStack,
   XStack,
@@ -35,6 +35,7 @@ import {
 import { triggerLightHaptic, triggerSelectionHaptic } from "@/state/haptics";
 import { useNotificationPreferences } from "@/store/notificationPreference";
 import { NotificationCategory } from "@/types/notification-theme.types";
+import { useDaysTogether } from "@/hooks/useDaysTogether";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -86,6 +87,102 @@ const getCategory = (type: AppNotificationType): NotificationCategory => {
       return "system";
   }
 };
+
+// Days Together Card with romantic styling
+function DaysTogetherCard() {
+  const { days, label, formattedDate } = useDaysTogether();
+  const partner = useProfileStore((s) => s.partnerProfile);
+
+  if (!partner) return null;
+
+  return (
+    <Stack
+      backgroundColor="$bgCard"
+      borderRadius="$6"
+      borderWidth={1}
+      borderColor="$borderColor"
+      overflow="hidden"
+    >
+      <LinearGradient
+        colors={["rgba(244, 114, 182, 0.15)", "rgba(249, 168, 212, 0.08)"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ padding: 16 }}
+      >
+        <XStack alignItems="center" justifyContent="space-between">
+          <YStack gap="$1.5" flex={1}>
+            <XStack alignItems="center" gap="$1.5">
+              <Heart size={16} color="#ec4899" fill="#ec4899" />
+              <Text
+                fontFamily="$body"
+                color="$colorMuted"
+                fontSize={12}
+                fontWeight="600"
+                textTransform="uppercase"
+                letterSpacing={0.5}
+              >
+                {"  "}Days Together
+              </Text>
+            </XStack>
+
+            <Text
+              fontFamily="$heading"
+              color="$color"
+              fontSize={32}
+              fontWeight="800"
+              lineHeight={38}
+            >
+              {days.toLocaleString()}
+            </Text>
+
+            <Text
+              fontFamily="$body"
+              color="$colorMuted"
+              fontSize={13}
+              lineHeight={18}
+            >
+              {label}
+            </Text>
+
+            {formattedDate && (
+              <Text
+                fontFamily="$body"
+                color="$colorMuted"
+                fontSize={11}
+                opacity={0.7}
+                marginTop="$1"
+              >
+                Since {formattedDate}
+              </Text>
+            )}
+          </YStack>
+
+          {/* Decorative heart stack */}
+          <Stack
+            position="relative"
+            width={60}
+            height={60}
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Heart
+              size={48}
+              color="#ec4899"
+              fill="rgba(236, 72, 153, 0.3)"
+              style={{ position: "absolute" }}
+            />
+            <Heart
+              size={28}
+              color="#ec4899"
+              fill="rgba(236, 72, 153, 0.6)"
+              style={{ position: "absolute" }}
+            />
+          </Stack>
+        </XStack>
+      </LinearGradient>
+    </Stack>
+  );
+}
 
 export default function HomeScreen() {
   const profile = useProfileStore((s) => s.profile);
@@ -293,6 +390,9 @@ export default function HomeScreen() {
             partnerName={partner?.displayName}
             onPress={() => router.push("/(tabs)/mood")}
           />
+
+          {/* Days Together Card */}
+          <DaysTogetherCard />
 
           {/* Today at a glance */}
           <YStack gap="$2">
@@ -652,107 +752,6 @@ export default function HomeScreen() {
                 </Stack>
               }
             </YStack>
-          </Stack>
-
-          {/* Connection card (replacing Quick Actions) */}
-          <Stack
-            marginTop="$4"
-            marginBottom="$4"
-            backgroundColor="$bgCard"
-            borderRadius="$8"
-            padding="$4"
-            borderWidth={1}
-            borderColor="$borderColor"
-            gap="$3"
-          >
-            <XStack alignItems="center" gap="$3">
-              <Stack
-                width={32}
-                height={32}
-                borderRadius={16}
-                backgroundColor="$primarySoft"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Flame size={18} color="$primary" />
-              </Stack>
-              <YStack flex={1}>
-                <Text
-                  fontFamily="$heading"
-                  color="$color"
-                  fontSize={18}
-                  fontWeight="700"
-                >
-                  Keep the connection going
-                </Text>
-                {/* For next version to be implemented */}
-                {/* <Text
-                  fontFamily="$body"
-                  color="$colorMuted"
-                  fontSize={13}
-                  lineHeight={18}
-                >
-                  {connectionStreakDays}-day streak of staying in touch. Do one
-                  tiny thing today.
-                </Text> */}
-              </YStack>
-            </XStack>
-
-            <Button
-              marginTop="$2"
-              borderRadius="$7"
-              backgroundColor="$primary"
-              height={48}
-              onPress={() => {
-                triggerSelectionHaptic();
-                router.push("/(tabs)/todos");
-              }}
-              pressStyle={{ opacity: 0.9, scale: 0.98 }}
-            >
-              <XStack alignItems="center" justifyContent="center" gap="$2">
-                <CheckSquare size={18} color="#ffffff" />
-                <Text
-                  fontFamily="$body"
-                  color="white"
-                  fontSize={15}
-                  fontWeight="700"
-                >
-                  Do something nice now
-                </Text>
-              </XStack>
-            </Button>
-
-            <XStack marginTop="$1" gap="$4" alignSelf="center">
-              <XStack
-                alignItems="center"
-                gap="$1"
-                padding="$2"
-                onPress={() => {
-                  triggerSelectionHaptic();
-                  router.push("/(tabs)/moments");
-                }}
-              >
-                <Smile size={16} color="$primary" />
-                <Text fontFamily="$body" color="$primary" fontSize={13}>
-                  Send a sticker
-                </Text>
-              </XStack>
-
-              <XStack
-                alignItems="center"
-                gap="$1"
-                padding="$2"
-                onPress={() => {
-                  triggerSelectionHaptic();
-                  router.push("/(tabs)/moments");
-                }}
-              >
-                <Star size={16} color="$primary" />
-                <Text fontFamily="$body" color="$primary" fontSize={13}>
-                  Save a favorite
-                </Text>
-              </XStack>
-            </XStack>
           </Stack>
         </YStack>
       </ScrollView>

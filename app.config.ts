@@ -181,6 +181,9 @@ const config: ExpoConfig = {
         authToken: process.env.SENTRY_AUTH_TOKEN,
       },
     ],
+
+    // iOS Widget Extension
+    "@bacons/apple-targets",
   ],
 
   experiments: {

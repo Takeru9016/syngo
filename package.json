@@ -22,6 +22,7 @@
     "release": "npm run version:bump && npm run build:prod:skip-bump"
   },
   "dependencies": {
+    "@bacons/apple-targets": "^4.0.0",
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "^8.4.4",

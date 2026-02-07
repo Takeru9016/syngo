@@ -8,6 +8,7 @@ export type PairingState = {
   isPaired: boolean;
   pairId: string | null;
   partnerUid: string | null;
+  pairCreatedAt: number | null; // NEW: Timestamp when pair was created
   code: string | null;
   expiresAt: number | null;
   isLoading: boolean;
@@ -17,17 +18,19 @@ export type PairingState = {
   generateCode: () => Promise<void>;
   redeemCode: (code: string) => Promise<void>;
   checkExistingCode: () => Promise<boolean>;
+  initializePair: () => Promise<void>; // NEW: Fetch pair data including createdAt
   unpair: () => Promise<void>;
-  setPairId: (pairId: string | null) => void; // New action
+  setPairId: (pairId: string | null) => void;
   reset: () => void;
   clearError: () => void;
 };
 
-export const usePairingStore = create<PairingState>((set) => ({
+export const usePairingStore = create<PairingState>((set, get) => ({
   // Initial state
   isPaired: false,
   pairId: null,
   partnerUid: null,
+  pairCreatedAt: null,
   code: null,
   expiresAt: null,
   isLoading: false,
@@ -131,6 +134,27 @@ export const usePairingStore = create<PairingState>((set) => ({
     }
   },
 
+  // Initialize pair data (fetch createdAt timestamp)
+  initializePair: async () => {
+    const { pairId } = get();
+    if (!pairId) return;
+
+    try {
+      const pairData = await pairingService.getCurrentPair();
+      if (pairData) {
+        const { getAuth } = await import("firebase/auth");
+        const currentUid = getAuth().currentUser?.uid;
+        set({
+          pairCreatedAt: pairData.createdAt,
+          partnerUid:
+            pairData.users?.find((u) => u.uid !== currentUid)?.uid || null,
+        });
+      }
+    } catch (error: any) {
+      console.error("❌ Error initializing pair:", error.message);
+    }
+  },
+
   // Unpair from current partner
   unpair: async () => {
     try {
@@ -170,6 +194,7 @@ export const usePairingStore = create<PairingState>((set) => ({
       isPaired: false,
       pairId: null,
       partnerUid: null,
+      pairCreatedAt: null,
       code: null,
       expiresAt: null,
       isLoading: false,

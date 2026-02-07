@@ -7,6 +7,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNudge } from "@/hooks/useNudge";
 import { useToast } from "@/hooks/useToast";
 import { triggerLightHaptic, triggerSuccessHaptic } from "@/state/haptics";
+import { useWidgetActionStore } from "@/store/widgetAction";
 
 export function NudgeButton() {
   const {
@@ -30,7 +31,7 @@ export function NudgeButton() {
       rotate: new Animated.Value(0),
       opacity: new Animated.Value(0),
       scale: new Animated.Value(1),
-    }))
+    })),
   ).current;
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export function NudgeButton() {
             easing: Easing.inOut(Easing.ease),
             useNativeDriver: true,
           }),
-        ])
+        ]),
       );
 
       // Glow animation
@@ -68,7 +69,7 @@ export function NudgeButton() {
             easing: Easing.inOut(Easing.ease),
             useNativeDriver: true,
           }),
-        ])
+        ]),
       );
 
       // Rotation animation
@@ -78,7 +79,7 @@ export function NudgeButton() {
           duration: 20000,
           easing: Easing.linear,
           useNativeDriver: true,
-        })
+        }),
       );
 
       // Particle orbit animations
@@ -124,7 +125,7 @@ export function NudgeButton() {
                 }),
               ]),
             ]),
-          ])
+          ]),
         );
       });
 
@@ -158,7 +159,7 @@ export function NudgeButton() {
       Alert.alert(
         "No Partner",
         "You need to pair with someone before sending nudges!",
-        [{ text: "Got it", style: "default" }]
+        [{ text: "Got it", style: "default" }],
       );
       return;
     }
@@ -177,6 +178,34 @@ export function NudgeButton() {
       success("Nudge Sent!", "Your partner will feel the love");
     }, 300);
   };
+
+  // Auto-trigger nudge if requested (from widget deep link via store)
+  const { pendingNudge, clearNudge } = useWidgetActionStore();
+  const autoTriggeredRef = useRef(false);
+  useEffect(() => {
+    // Only auto-trigger once, when all conditions are met
+    if (
+      pendingNudge &&
+      canSendNudge &&
+      hasPartner &&
+      !autoTriggeredRef.current
+    ) {
+      autoTriggeredRef.current = true;
+      console.log("🔗 Auto-triggering nudge from widget (via store)");
+      clearNudge(); // Clear the pending flag immediately
+
+      // Small delay to ensure UI is ready
+      setTimeout(() => {
+        triggerLightHaptic();
+        sendNudge(undefined);
+
+        setTimeout(() => {
+          triggerSuccessHaptic();
+          success("Nudge Sent!", "Your partner will feel the love");
+        }, 300);
+      }, 100);
+    }
+  }, [pendingNudge, canSendNudge, hasPartner, sendNudge, success, clearNudge]);
 
   // Show error if any
   useEffect(() => {
@@ -323,9 +352,9 @@ export function NudgeButton() {
           {/* Gradient background */}
           <LinearGradient
             colors={
-              canSendNudge
-                ? ["#FF6987", "#FF4D6D", "#C9184A"]
-                : ["#9E9E9E", "#757575", "#616161"]
+              canSendNudge ?
+                ["#FF6987", "#FF4D6D", "#C9184A"]
+              : ["#9E9E9E", "#757575", "#616161"]
             }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -339,7 +368,7 @@ export function NudgeButton() {
           />
 
           {/* Content */}
-          {isLoading ? (
+          {isLoading ?
             <Animated.View
               style={{
                 transform: [{ rotate: rotation }],
@@ -347,10 +376,9 @@ export function NudgeButton() {
             >
               <Heart size={32} color="white" fill="white" opacity={0.8} />
             </Animated.View>
-          ) : canSendNudge ? (
+          : canSendNudge ?
             <Heart size={32} color="white" fill="white" />
-          ) : (
-            <YStack alignItems="center" justifyContent="center" gap="$1">
+          : <YStack alignItems="center" justifyContent="center" gap="$1">
               <Heart size={22} color="white" fill="white" opacity={0.7} />
               <Text
                 fontFamily="$body"
@@ -362,7 +390,7 @@ export function NudgeButton() {
                 {cooldownFormatted}
               </Text>
             </YStack>
-          )}
+          }
         </Stack>
       </Animated.View>
 
