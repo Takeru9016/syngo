@@ -28,9 +28,8 @@ struct PartnerMoodAccessoryView: View {
             
             if entry.data.hasPair {
                 VStack(spacing: 2) {
-                    Text(entry.data.partner.moodEmoji ?? "😊")
-                        .font(.system(size: 22))
-                    Text("💕")
+                    MoodEmojiView(emoji: entry.data.partner.moodEmoji, mood: entry.data.partner.mood, size: 22)
+                    Image(systemName: "heart.fill")
                         .font(.system(size: 8))
                 }
             } else {
@@ -64,15 +63,14 @@ struct PartnerStatusAccessoryView: View {
     var body: some View {
         if entry.data.hasPair {
             HStack(spacing: 8) {
-                Text(entry.data.partner.moodEmoji ?? "😊")
-                    .font(.system(size: 20))
+                MoodEmojiView(emoji: entry.data.partner.moodEmoji, mood: entry.data.partner.mood, size: 20)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 4) {
                         Text(entry.data.partner.name)
                             .font(.system(size: 14, weight: .semibold))
                             .lineLimit(1)
-                        Text("💕")
+                        Image(systemName: "heart.fill")
                             .font(.system(size: 10))
                     }
                     
@@ -132,7 +130,7 @@ struct DaysTogetherAccessoryView: View {
         if entry.data.hasPair {
             if let days = entry.data.stats.daysTogether {
                 Label {
-                    Text("💕 \(days) days with \(entry.data.partner.name)")
+                    Text("\(days) days with \(entry.data.partner.name)")
                 } icon: {
                     Image(systemName: "heart.fill")
                 }

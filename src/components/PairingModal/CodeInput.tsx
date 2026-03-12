@@ -13,7 +13,7 @@ type Props = {
 };
 
 export const CodeInput = forwardRef<TextInput, Props>(function CodeInput(
-  { length = 8, group = 4, value = "", onChange, autoFocus, disabled, error },
+  { length = 6, group = 3, value = "", onChange, autoFocus, disabled, error },
   _ref,
 ) {
   const theme = useTheme();
@@ -77,14 +77,14 @@ export const CodeInput = forwardRef<TextInput, Props>(function CodeInput(
   }, [autoFocus]);
 
   return (
-    <XStack alignItems="center" gap="$2" flexWrap="wrap">
+    <XStack alignItems="center" gap="$2" width="100%">
       {blocks.map((_, i) => {
         const showHyphenAfter = group > 0 && i === group - 1;
         return (
           <React.Fragment key={i}>
             <Stack
-              width={48}
-              height={56}
+              flex={1}
+              height={52}
               borderRadius="$4"
               backgroundColor="$bgSoft"
               borderWidth={2}
@@ -106,12 +106,12 @@ export const CodeInput = forwardRef<TextInput, Props>(function CodeInput(
                 editable={!disabled}
                 selectTextOnFocus
                 style={{
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: "900",
                   color: theme.color.val,
                   padding: 0,
                   margin: 0,
-                  width: 44,
+                  width: "100%",
                   textAlign: "center",
                 }}
               />
@@ -122,7 +122,6 @@ export const CodeInput = forwardRef<TextInput, Props>(function CodeInput(
                 color="$colorMuted"
                 fontSize={22}
                 fontWeight="700"
-                marginHorizontal="$1"
               >
                 -
               </Text>

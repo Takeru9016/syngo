@@ -1,5 +1,6 @@
 import React, { Component, ReactNode } from "react";
 import { YStack, Text, Button } from "tamagui";
+import { AlertTriangle } from "@tamagui/lucide-icons";
 import * as Sentry from "@sentry/react-native";
 
 interface Props {
@@ -48,7 +49,7 @@ export class ErrorBoundary extends Component<Props, State> {
           gap="$4"
           backgroundColor="$bg"
         >
-          <Text fontSize={48}>⚠️</Text>
+          <AlertTriangle size={48} color="$colorMuted" />
           <Text fontSize="$6" fontWeight="bold" color="$color">
             Something went wrong
           </Text>

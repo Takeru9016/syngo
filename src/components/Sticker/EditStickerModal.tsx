@@ -44,8 +44,8 @@ export function EditStickerModal({ visible, sticker, onClose, onSave }: Props) {
     if (sticker) {
       setName(sticker.name || "");
       setDescription(sticker.description || "");
-      setImageUrl(sticker.imageUrl || null);
-      setLocalPreview(sticker.imageUrl || null);
+      setImageUrl(typeof sticker.imageUrl === "string" ? sticker.imageUrl : null);
+      setLocalPreview(typeof sticker.imageUrl === "string" ? sticker.imageUrl : null);
       setHasImageChanged(false);
     }
   }, [sticker]);
@@ -116,7 +116,7 @@ export function EditStickerModal({ visible, sticker, onClose, onSave }: Props) {
       console.error("Upload failed:", err);
       toastError("Upload Failed", "Could not upload image. Please try again.");
       // Restore original image
-      setLocalPreview(sticker?.imageUrl || null);
+      setLocalPreview(typeof sticker?.imageUrl === "string" ? sticker.imageUrl : null);
     } finally {
       setUploading(false);
     }

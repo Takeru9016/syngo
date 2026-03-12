@@ -52,13 +52,12 @@ const DREAM_CATEGORIES: {
   value: DreamCategory;
   label: string;
   icon: typeof Plane;
-  emoji: string;
 }[] = [
-  { value: "travel", label: "Travel", icon: Plane, emoji: "✈️" },
-  { value: "food", label: "Food", icon: UtensilsCrossed, emoji: "🍕" },
-  { value: "adventure", label: "Adventure", icon: Mountain, emoji: "🎢" },
-  { value: "together", label: "Together", icon: Heart, emoji: "💕" },
-  { value: "other", label: "Other", icon: Sparkles, emoji: "✨" },
+  { value: "travel", label: "Travel", icon: Plane },
+  { value: "food", label: "Food", icon: UtensilsCrossed },
+  { value: "adventure", label: "Adventure", icon: Mountain },
+  { value: "together", label: "Together", icon: Heart },
+  { value: "other", label: "Other", icon: Sparkles },
 ];
 
 type Props = {

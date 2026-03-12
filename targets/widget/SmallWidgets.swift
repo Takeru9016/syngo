@@ -63,8 +63,7 @@ struct PartnerStatusWidgetView: View {
                     
                     // Mood with heart accent
                     HStack(spacing: 4) {
-                        Text(entry.data.partner.moodEmoji ?? "😊")
-                            .font(.system(size: 22))
+                        MoodEmojiView(emoji: entry.data.partner.moodEmoji, mood: entry.data.partner.mood, size: 22)
                         Image(systemName: "heart.fill")
                             .font(.system(size: 8))
                             .foregroundColor(.romanticPink)
@@ -78,9 +77,14 @@ struct PartnerStatusWidgetView: View {
                     
                     // Days together if available
                     if let days = entry.data.stats.daysTogether {
-                        Text("💕 \(days) days")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(.softRose)
+                        HStack(spacing: 3) {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 8))
+                                .foregroundColor(.softRose)
+                            Text("\(days) days")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(.softRose)
+                        }
                     }
                 }
                 .padding()
@@ -152,8 +156,7 @@ struct MoodWidgetView: View {
                                 Circle()
                                     .fill(Color.warmCoral.opacity(0.2))
                                     .frame(width: 44, height: 44)
-                                Text(entry.data.user.moodEmoji ?? "😊")
-                                    .font(.system(size: 26))
+                                MoodEmojiView(emoji: entry.data.user.moodEmoji, mood: entry.data.user.mood, size: 26)
                             }
                             Text("You")
                                 .font(.system(size: 10, weight: .medium))
@@ -165,8 +168,9 @@ struct MoodWidgetView: View {
                             Image(systemName: "heart.fill")
                                 .font(.system(size: 14))
                                 .foregroundColor(.romanticPink)
-                            Text("💕")
+                            Image(systemName: "heart.fill")
                                 .font(.system(size: 10))
+                                .foregroundColor(.softRose)
                         }
                         
                         // Partner
@@ -175,8 +179,7 @@ struct MoodWidgetView: View {
                                 Circle()
                                     .fill(Color.mauve.opacity(0.2))
                                     .frame(width: 44, height: 44)
-                                Text(entry.data.partner.moodEmoji ?? "❓")
-                                    .font(.system(size: 26))
+                                MoodEmojiView(emoji: entry.data.partner.moodEmoji, mood: entry.data.partner.mood, size: 26)
                             }
                             Text(entry.data.partner.name)
                                 .font(.system(size: 10, weight: .medium))

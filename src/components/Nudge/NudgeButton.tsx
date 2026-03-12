@@ -399,25 +399,27 @@ export function NudgeButton() {
         <Stack
           position="absolute"
           bottom={80}
-          right={0}
+          right={-4}
           backgroundColor="rgba(0, 0, 0, 0.85)"
-          paddingHorizontal="$3.5"
-          paddingVertical="$2.5"
-          borderRadius="$5"
+          paddingHorizontal="$3"
+          paddingVertical="$2"
+          borderRadius={20}
           style={{
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
             shadowRadius: 8,
+            elevation: 8,
           }}
         >
-          <XStack alignItems="center" gap="$2" justifyContent="center">
-            <Heart size={16} color="white" fill="white" />
+          <XStack alignItems="center" gap="$1.5" justifyContent="center">
+            <Heart size={14} color="white" fill="white" />
             <Text
               fontFamily="$body"
               color="white"
-              fontSize={13}
+              fontSize={12}
               fontWeight="600"
+              numberOfLines={1}
             >
               Tap to nudge
             </Text>
@@ -425,10 +427,10 @@ export function NudgeButton() {
           {/* Arrow pointing down */}
           <Stack
             position="absolute"
-            bottom={-6}
-            right={24}
-            width={12}
-            height={12}
+            bottom={-5}
+            right={30}
+            width={10}
+            height={10}
             backgroundColor="rgba(0, 0, 0, 0.85)"
             style={{
               transform: [{ rotate: "45deg" }],

@@ -113,12 +113,12 @@ export async function prepareWidgetData(options: {
         favorite_added: "favorite",
       };
       const iconMap: Record<string, string> = {
-        nudge: "💕",
-        sticker_sent: "🎨",
-        todo_created: "✅",
-        todo_completed: "✅",
-        mood_updated: "😊",
-        favorite_added: "⭐",
+        nudge: "heart.fill",
+        sticker_sent: "paintbrush.fill",
+        todo_created: "checkmark.circle.fill",
+        todo_completed: "checkmark.circle.fill",
+        mood_updated: "face.smiling.fill",
+        favorite_added: "star.fill",
       };
 
       const activityType = typeMap[notif.type] || "nudge";
@@ -126,7 +126,7 @@ export async function prepareWidgetData(options: {
         activityType,
         notif.title,
         notif.createdAt,
-        iconMap[notif.type] || "📱",
+        iconMap[notif.type] || "app.fill",
       );
     });
 

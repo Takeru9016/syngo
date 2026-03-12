@@ -1,7 +1,8 @@
 import { YStack, XStack, Text, Stack } from "tamagui";
 import { MessageSquare } from "@tamagui/lucide-icons";
 
-import { MoodEntry, MOOD_EMOJIS, MOOD_LABELS } from "@/types";
+import { MoodEntry, MOOD_LABELS } from "@/types";
+import { MoodIcon } from "./MoodIcon";
 
 type Props = {
   mood: MoodEntry;
@@ -29,7 +30,6 @@ function formatMoodTime(timestamp: number): string {
 }
 
 export function MoodCard({ mood, onPress, showNote = true, compact }: Props) {
-  const emoji = MOOD_EMOJIS[mood.level];
   const label = MOOD_LABELS[mood.level];
   const timeStr = formatMoodTime(mood.createdAt);
 
@@ -46,7 +46,7 @@ export function MoodCard({ mood, onPress, showNote = true, compact }: Props) {
         pressStyle={onPress ? { opacity: 0.8, scale: 0.98 } : undefined}
         onPress={onPress ? () => onPress(mood) : undefined}
       >
-        <Text fontSize={28}>{emoji}</Text>
+        <MoodIcon level={mood.level} size={28} />
         <YStack flex={1} gap="$1">
           <Text
             fontFamily="$body"
@@ -86,7 +86,7 @@ export function MoodCard({ mood, onPress, showNote = true, compact }: Props) {
             alignItems="center"
             justifyContent="center"
           >
-            <Text fontSize={24}>{emoji}</Text>
+            <MoodIcon level={mood.level} size={24} />
           </Stack>
           <YStack gap="$1">
             <Text

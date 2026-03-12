@@ -69,14 +69,14 @@ export interface WidgetData {
 }
 
 /**
- * Mood level to emoji mapping
+ * Mood level to SF Symbol name mapping (for iOS widgets)
  */
 export const WIDGET_MOOD_EMOJIS: Record<MoodLevel, string> = {
-  1: "😢",
-  2: "😔",
-  3: "😐",
-  4: "😊",
-  5: "😄",
+  1: "cloud.rain.fill",
+  2: "cloud.fill",
+  3: "face.smiling",
+  4: "face.smiling.fill",
+  5: "sun.max.fill",
 };
 
 /**

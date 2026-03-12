@@ -26,6 +26,11 @@ interface ScreenContainerProps {
    * Extra height to add to the keyboard offset (default 60).
    */
   keyboardOffset?: number;
+  /**
+   * Apply bottom safe area inset padding. Set to true for standalone screens
+   * (not inside a tab navigator). Defaults to false since tab bar handles it.
+   */
+  safeAreaBottom?: boolean;
 }
 
 export function ScreenContainer({
@@ -36,11 +41,14 @@ export function ScreenContainer({
   keyboardAware = true,
   contentPaddingHorizontal,
   keyboardOffset = 60,
+  safeAreaBottom = false,
 }: ScreenContainerProps) {
   const insets = useSafeAreaInsets();
 
   const contentPaddingX =
     contentPaddingHorizontal !== undefined ? contentPaddingHorizontal : 16; // ~$4
+
+  const bottomPadding = safeAreaBottom ? Math.max(insets.bottom, 16) : 16;
 
   // Header (shared)
   const Header = (
@@ -78,7 +86,7 @@ export function ScreenContainer({
             flex={1}
             width="100%"
             paddingHorizontal={contentPaddingX}
-            paddingBottom="$6"
+            paddingBottom={bottomPadding}
           >
             {children}
           </YStack>
@@ -102,7 +110,10 @@ export function ScreenContainer({
             style={styles.flex}
             contentContainerStyle={[
               styles.scrollContent,
-              { paddingHorizontal: contentPaddingX, paddingBottom: 24 },
+              {
+                paddingHorizontal: contentPaddingX,
+                paddingBottom: safeAreaBottom ? Math.max(insets.bottom, 24) : 24,
+              },
             ]}
             keyboardShouldPersistTaps="handled"
             enableOnAndroid={keyboardAware}

@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font"; // ← Single import
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Sentry from "@sentry/react-native";
 import { useURL } from "expo-linking";
 
@@ -438,21 +439,23 @@ function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={qc}>
-        <TamaguiProvider config={config}>
-          <Theme name={activeTheme}>
-            <StatusBar
-              style={effectiveMode === "dark" ? "light" : "dark"}
-              animated
-            />
-            <ErrorBoundary>
-              <InAppNotificationProvider>
-                <Gate />
-              </InAppNotificationProvider>
-            </ErrorBoundary>
-          </Theme>
-        </TamaguiProvider>
-      </QueryClientProvider>
+      <SafeAreaProvider>
+        <QueryClientProvider client={qc}>
+          <TamaguiProvider config={config}>
+            <Theme name={activeTheme}>
+              <StatusBar
+                style={effectiveMode === "dark" ? "light" : "dark"}
+                animated
+              />
+              <ErrorBoundary>
+                <InAppNotificationProvider>
+                  <Gate />
+                </InAppNotificationProvider>
+              </ErrorBoundary>
+            </Theme>
+          </TamaguiProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

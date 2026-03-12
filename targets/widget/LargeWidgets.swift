@@ -60,8 +60,7 @@ struct DashboardWidgetView: View {
                             }
                             
                             HStack(spacing: 6) {
-                                Text(entry.data.partner.moodEmoji ?? "😊")
-                                    .font(.system(size: 14))
+                                MoodEmojiView(emoji: entry.data.partner.moodEmoji, mood: entry.data.partner.mood, size: 14)
                                 Text(moodLabel(for: entry.data.partner.mood))
                                     .font(.system(size: 12))
                                     .foregroundColor(.syngoMuted)
@@ -79,8 +78,9 @@ struct DashboardWidgetView: View {
                                 Text("days")
                                     .font(.system(size: 10))
                                     .foregroundColor(.syngoMuted)
-                                Text("💕")
+                                Image(systemName: "heart.fill")
                                     .font(.system(size: 12))
+                                    .foregroundColor(.softRose)
                             }
                         }
                     }
@@ -126,7 +126,7 @@ struct DashboardWidgetView: View {
                         if entry.data.recentActivities.isEmpty {
                             HStack {
                                 Spacer()
-                                Text("No recent activity yet 💕")
+                                Text("No recent activity yet")
                                     .font(.system(size: 12))
                                     .foregroundColor(.syngoMuted)
                                 Spacer()
@@ -135,8 +135,9 @@ struct DashboardWidgetView: View {
                         } else {
                             ForEach(entry.data.recentActivities.prefix(3), id: \.text) { activity in
                                 HStack(spacing: 8) {
-                                    Text(activity.icon)
-                                        .font(.system(size: 14))
+                                    Image(systemName: activity.icon)
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.romanticPink)
                                     Text(activity.text)
                                         .font(.system(size: 12))
                                         .foregroundColor(.white)
@@ -292,8 +293,7 @@ struct CoupleOverviewWidgetView: View {
                                     .frame(width: 72, height: 72)
                                 AvatarView(name: entry.data.user.name, size: 64)
                             }
-                            Text(entry.data.user.moodEmoji ?? "😊")
-                                .font(.system(size: 28))
+                            MoodEmojiView(emoji: entry.data.user.moodEmoji, mood: entry.data.user.mood, size: 28)
                             Text("You")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.white.opacity(0.8))
@@ -328,8 +328,7 @@ struct CoupleOverviewWidgetView: View {
                                     .frame(width: 72, height: 72)
                                 AvatarView(name: entry.data.partner.name, size: 64)
                             }
-                            Text(entry.data.partner.moodEmoji ?? "😊")
-                                .font(.system(size: 28))
+                            MoodEmojiView(emoji: entry.data.partner.moodEmoji, mood: entry.data.partner.mood, size: 28)
                             Text(entry.data.partner.name)
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.white.opacity(0.8))
@@ -349,8 +348,9 @@ struct CoupleOverviewWidgetView: View {
                     // Activity Feed
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            Text("💕")
+                            Image(systemName: "heart.fill")
                                 .font(.system(size: 12))
+                                .foregroundColor(.softRose)
                             Text("Latest Activity")
                                 .font(.system(size: 11, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.7))
@@ -366,8 +366,9 @@ struct CoupleOverviewWidgetView: View {
                         } else {
                             ForEach(entry.data.recentActivities.prefix(4), id: \.text) { activity in
                                 HStack(spacing: 8) {
-                                    Text(activity.icon)
-                                        .font(.system(size: 12))
+                                    Image(systemName: activity.icon)
+                                        .font(.system(size: 10))
+                                        .foregroundColor(.romanticPink)
                                     Text(activity.text)
                                         .font(.system(size: 11))
                                         .foregroundColor(.white)

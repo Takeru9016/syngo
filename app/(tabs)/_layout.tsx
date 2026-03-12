@@ -21,8 +21,9 @@ export default function TabsLayout() {
           backgroundColor: theme.bgCard.val,
           borderTopColor: theme.borderColor.val,
           borderTopWidth: 1,
+          height: 56 + Math.max(insets.bottom, 12), // base height + safe area
           paddingTop: 8,
-          paddingBottom: Math.max(insets.bottom, 8), // respect home indicator
+          paddingBottom: Math.max(insets.bottom, 12), // respect home indicator / gesture bar
         },
         tabBarActiveTintColor: theme.primary.val,
         tabBarInactiveTintColor: theme.colorMuted.val,

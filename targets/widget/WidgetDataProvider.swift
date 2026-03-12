@@ -114,11 +114,39 @@ struct SyngoWidgetEntry: TimelineEntry {
 
 struct MoodEmojiView: View {
     let emoji: String?
+    let mood: Int?
     let size: CGFloat
     
+    /// SF Symbol name for mood level (fallback when moodEmoji is nil)
+    private static func sfSymbol(for mood: Int?) -> String {
+        switch mood {
+        case 1: return "cloud.rain.fill"
+        case 2: return "cloud.fill"
+        case 3: return "face.smiling"
+        case 4: return "face.smiling.fill"
+        case 5: return "sun.max.fill"
+        default: return "questionmark.circle"
+        }
+    }
+    
+    /// Color for mood level
+    private static func moodColor(for mood: Int?) -> Color {
+        switch mood {
+        case 1: return Color(red: 0.49, green: 0.54, blue: 0.9) // Soft blue
+        case 2: return Color(red: 0.65, green: 0.55, blue: 0.98) // Soft purple
+        case 3: return .syngoMuted
+        case 4: return Color(red: 0.2, green: 0.83, blue: 0.6) // Green
+        case 5: return Color(red: 0.98, green: 0.75, blue: 0.15) // Gold
+        default: return .syngoMuted
+        }
+    }
+    
     var body: some View {
-        Text(emoji ?? "❓")
-            .font(.system(size: size))
+        let symbolName = emoji ?? MoodEmojiView.sfSymbol(for: mood)
+        Image(systemName: symbolName)
+            .font(.system(size: size * 0.85))
+            .foregroundColor(MoodEmojiView.moodColor(for: mood))
+            .symbolRenderingMode(.hierarchical)
     }
 }
 

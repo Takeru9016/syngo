@@ -33,7 +33,7 @@ export function useDaysTogether(): DaysTogetherResult {
     // Create a nice label based on days
     let label: string;
     if (days === 0) {
-      label = "First day together! 💕";
+      label = "First day together !";
     } else if (days === 1) {
       label = "1 day together";
     } else if (days < 7) {

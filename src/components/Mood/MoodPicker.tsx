@@ -2,7 +2,8 @@ import { useState, useCallback } from "react";
 import { Pressable } from "react-native";
 import { XStack, Text, Stack } from "tamagui";
 
-import { MoodLevel, MOOD_EMOJIS, MOOD_LABELS } from "@/types";
+import { MoodLevel, MOOD_LABELS } from "@/types";
+import { MoodIcon } from "./MoodIcon";
 import { triggerSelectionHaptic, triggerSuccessHaptic } from "@/state/haptics";
 
 type Props = {
@@ -18,9 +19,9 @@ export function MoodPicker({ value, onChange, disabled, size = "md" }: Props) {
   const [pressedLevel, setPressedLevel] = useState<MoodLevel | null>(null);
 
   const sizeConfig = {
-    sm: { buttonSize: 40, fontSize: 20, gap: "$2" as const },
-    md: { buttonSize: 52, fontSize: 26, gap: "$2" as const },
-    lg: { buttonSize: 56, fontSize: 30, gap: "$2" as const },
+    sm: { buttonSize: 40, iconSize: 20, gap: "$2" as const },
+    md: { buttonSize: 52, iconSize: 26, gap: "$2" as const },
+    lg: { buttonSize: 56, iconSize: 30, gap: "$2" as const },
   }[size];
 
   const handleSelect = useCallback(
@@ -78,7 +79,7 @@ export function MoodPicker({ value, onChange, disabled, size = "md" }: Props) {
                 justifyContent="center"
                 opacity={disabled ? 0.5 : 1}
               >
-                <Text fontSize={sizeConfig.fontSize}>{MOOD_EMOJIS[level]}</Text>
+                <MoodIcon level={level} size={sizeConfig.iconSize} />
               </Stack>
             </Pressable>
           );

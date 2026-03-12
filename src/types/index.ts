@@ -178,8 +178,10 @@ export type PredefinedStickerManifest = {
 // Mood Tracking Types
 export type MoodLevel = 1 | 2 | 3 | 4 | 5;
 
+/** @deprecated Use MoodIcon component instead for UI rendering. Kept for widget data compatibility. */
 export type MoodEmoji = "😢" | "😔" | "😐" | "🙂" | "😊";
 
+/** @deprecated Use MoodIcon component instead for UI rendering. Kept for widget data compatibility. */
 export const MOOD_EMOJIS: Record<MoodLevel, MoodEmoji> = {
   1: "😢", // Very sad
   2: "😔", // Sad

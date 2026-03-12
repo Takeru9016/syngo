@@ -1,7 +1,8 @@
 import { YStack, XStack, Text, Stack, Button } from "tamagui";
-import { Heart, ChevronRight, PlusSquare } from "@tamagui/lucide-icons";
+import { Heart, ChevronRight, PlusSquare, HelpCircle } from "@tamagui/lucide-icons";
 
-import { MoodEntry, MOOD_EMOJIS, MOOD_LABELS } from "@/types";
+import { MoodEntry, MOOD_LABELS } from "@/types";
+import { MoodIcon } from "./MoodIcon";
 import { triggerSelectionHaptic } from "@/state/haptics";
 
 type Props = {
@@ -72,9 +73,9 @@ export function MoodWidget({
             alignItems="center"
             gap="$2"
           >
-            <Text fontSize={32}>
-              {myMood ? MOOD_EMOJIS[myMood.level] : <PlusSquare />}
-            </Text>
+            <Stack height={32} justifyContent="center" alignItems="center">
+              {myMood ? <MoodIcon level={myMood.level} size={32} /> : <PlusSquare size={28} color="$colorMuted" />}
+            </Stack>
             <YStack alignItems="center" gap="$0.5">
               <Text
                 fontFamily="$body"
@@ -99,9 +100,9 @@ export function MoodWidget({
             alignItems="center"
             gap="$2"
           >
-            <Text fontSize={32}>
-              {partnerMood ? MOOD_EMOJIS[partnerMood.level] : "❓"}
-            </Text>
+            <Stack height={32} justifyContent="center" alignItems="center">
+              {partnerMood ? <MoodIcon level={partnerMood.level} size={32} /> : <HelpCircle size={28} color="$colorMuted" />}
+            </Stack>
             <YStack alignItems="center" gap="$0.5">
               <Text
                 fontFamily="$body"

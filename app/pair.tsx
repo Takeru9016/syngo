@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { Share, Alert } from "react-native";
+import { Share, Alert, Platform } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { router } from "expo-router";
 import * as Clipboard from "expo-clipboard";
 import {
@@ -10,7 +11,6 @@ import {
   Button,
   Separator,
   Switch,
-  ScrollView,
   Spinner,
 } from "tamagui";
 
@@ -116,8 +116,8 @@ export default function PairScreen() {
     const cleanInput = input.replace(/[^A-Z0-9]/gi, "");
 
     // Validate input
-    if (!cleanInput || cleanInput.length !== 8) {
-      toastError("Invalid Code", "Please enter a valid 8-character code.");
+    if (!cleanInput || cleanInput.length !== 6) {
+      toastError("Invalid Code", "Please enter a valid 6-character code.");
       return;
     }
 
@@ -131,11 +131,18 @@ export default function PairScreen() {
   };
 
   // Format the displayed code with hyphen
-  const displayCode = myCode ? formatCode(unformatCode(myCode)) : "----·----";
+  const displayCode = myCode ? formatCode(unformatCode(myCode)) : "---·---";
 
   return (
-    <ScreenContainer keyboardOffset={100} scroll={false}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} backgroundColor="$bg">
+    <ScreenContainer keyboardOffset={100} scroll={false} safeAreaBottom>
+      <KeyboardAwareScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid
+        extraScrollHeight={Platform.OS === "ios" ? 120 : 80}
+        extraHeight={120}
+        style={{ backgroundColor: "transparent" }}
+      >
         <YStack flex={1} padding="$5" paddingTop="$2" gap="$4">
           {/* Header */}
           <YStack marginTop="$4" marginBottom="$2">
@@ -366,8 +373,8 @@ export default function PairScreen() {
 
             <YStack alignItems="center">
               <CodeInput
-                length={8}
-                group={4}
+                length={6}
+                group={3}
                 value={input}
                 onChange={handleInputChange}
                 error={error}
@@ -399,7 +406,7 @@ export default function PairScreen() {
               height={48}
               onPress={handleRedeem}
               disabled={
-                isLoading || input.replace(/[^A-Z0-9]/gi, "").length < 8
+                isLoading || input.replace(/[^A-Z0-9]/gi, "").length < 6
               }
               pressStyle={{ opacity: 0.8, scale: 0.98 }}
             >
@@ -418,7 +425,7 @@ export default function PairScreen() {
             </Button>
           </Stack>
         </YStack>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

@@ -66,7 +66,7 @@ export async function generatePairCode(): Promise<PairCodeResult> {
   let attempts = 0;
 
   while (attempts < MAX_CODE_GENERATION_ATTEMPTS) {
-    code = generateRandomCode(8);
+    code = generateRandomCode(6);
     const codeDoc = await getDoc(doc(db, "pairCodes", code));
 
     if (!codeDoc.exists()) {

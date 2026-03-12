@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { Button, Paragraph, Text, YStack, Theme, Image } from "tamagui";
 import { useColorScheme } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useThemeStore } from "@/state/theme";
 import { useAuthStore } from "@/store/auth";
@@ -9,6 +10,7 @@ import { updateUserProfile } from "@/services/profile/profile.service";
 export default function OnboardingScreen() {
   const router = useRouter();
   const systemScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
   const { mode, colorScheme } = useThemeStore();
 
   const effectiveMode =
@@ -48,7 +50,7 @@ export default function OnboardingScreen() {
           flex={1}
           width="100%"
           padding="$5"
-          paddingTop="$10"
+          paddingTop={insets.top + 16}
           justifyContent="space-between"
         >
           {/* Top brand */}
@@ -98,7 +100,7 @@ export default function OnboardingScreen() {
           </YStack>
 
           {/* Bottom copy + CTA */}
-          <YStack gap="$4" marginBottom="$4">
+          <YStack gap="$4" marginBottom={Math.max(insets.bottom, 16)}>
             <YStack gap="$2">
               <Text
                 fontFamily="$heading"

@@ -1,9 +1,9 @@
 /**
  * Generate a random alphanumeric code
- * @param length - Length of the code (default: 8)
- * @returns Random code (e.g., "AB12CD34")
+ * @param length - Length of the code (default: 6)
+ * @returns Random code (e.g., "AB1-2CD")
  */
-export function generateRandomCode(length: number = 8): string {
+export function generateRandomCode(length: number = 6): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Removed ambiguous chars (0, O, I, 1)
   let code = "";
 
@@ -16,14 +16,14 @@ export function generateRandomCode(length: number = 8): string {
 }
 
 /**
- * Format code with hyphen for display (e.g., "AB12-CD34")
+ * Format code with hyphen for display (e.g., "AB1-2CD")
  * @param code - Raw code string
  * @returns Formatted code
  */
 export function formatCode(code: string): string {
-  // AB12CD34 -> AB12-CD34
-  if (code.length === 8) {
-    return `${code.slice(0, 4)}-${code.slice(4)}`;
+  // AB12CD -> AB1-2CD
+  if (code.length === 6) {
+    return `${code.slice(0, 3)}-${code.slice(3)}`;
   }
   return code;
 }
@@ -46,5 +46,5 @@ export function unformatCode(code: string): string {
  */
 export function isValidCodeFormat(code: string): boolean {
   const rawCode = unformatCode(code);
-  return /^[A-Z0-9]{8}$/.test(rawCode);
+  return /^[A-Z0-9]{6}$/.test(rawCode);
 }

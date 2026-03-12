@@ -48,9 +48,14 @@ struct QuickActionsWidgetView: View {
                             .foregroundColor(.white.opacity(0.9))
                         Spacer()
                         if let days = entry.data.stats.daysTogether {
-                            Text("💕 \(days) days")
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.softRose)
+                            HStack(spacing: 3) {
+                                Image(systemName: "heart.fill")
+                                    .font(.system(size: 8))
+                                    .foregroundColor(.softRose)
+                                Text("\(days) days")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(.softRose)
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -199,8 +204,7 @@ struct CoupleCardWidgetView: View {
                                     .frame(width: 54, height: 54)
                                 AvatarView(name: entry.data.user.name, size: 48)
                             }
-                            Text(entry.data.user.moodEmoji ?? "😊")
-                                .font(.system(size: 18))
+                            MoodEmojiView(emoji: entry.data.user.moodEmoji, mood: entry.data.user.mood, size: 18)
                         }
                         
                         // Floating heart
@@ -217,8 +221,7 @@ struct CoupleCardWidgetView: View {
                                     .frame(width: 54, height: 54)
                                 AvatarView(name: entry.data.partner.name, size: 48)
                             }
-                            Text(entry.data.partner.moodEmoji ?? "😊")
-                                .font(.system(size: 18))
+                            MoodEmojiView(emoji: entry.data.partner.moodEmoji, mood: entry.data.partner.mood, size: 18)
                         }
                         .offset(x: -16)
                     }
@@ -228,8 +231,9 @@ struct CoupleCardWidgetView: View {
                         // Days together
                         if let days = entry.data.stats.daysTogether {
                             HStack(spacing: 4) {
-                                Text("💕")
-                                    .font(.system(size: 12))
+                                Image(systemName: "heart.fill")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.white)
                                 Text("\(days) days together")
                                     .font(.system(size: 13, weight: .semibold))
                                     .foregroundColor(.white)
