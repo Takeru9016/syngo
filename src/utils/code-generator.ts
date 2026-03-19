@@ -5,14 +5,44 @@
  */
 export function generateRandomCode(length: number = 6): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Removed ambiguous chars (0, O, I, 1)
-  let code = "";
+  const blacklist = [
+    "69",
+    "420",
+    "SEX",
+    "FUC",
+    "SHI",
+    "BIC",
+    "DIK",
+    "ASS",
+    "CUM",
+    "TIT",
+    "VAG",
+    "KYS",
+    "NIG",
+    "FAG",
+    "GAY",
+    "JEW",
+    "KKK",
+  ];
 
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * chars.length);
-    code += chars[randomIndex];
+  let attempts = 0;
+  while (attempts < 50) {
+    let code = "";
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * chars.length);
+      code += chars[randomIndex];
+    }
+
+    // Check if code contains any blacklisted substring
+    const isClean = !blacklist.some((badWord) => code.includes(badWord));
+    if (isClean) {
+      return code;
+    }
+    attempts++;
   }
 
-  return code;
+  // Fallback if somehow we hit the attempt limit (extremely unlikely)
+  return "ABCDEF".substring(0, length);
 }
 
 /**
