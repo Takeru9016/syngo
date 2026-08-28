@@ -19,7 +19,8 @@
     "submit:ios": "eas submit --profile production --platform ios",
     "submit:android": "eas submit --profile production --platform android",
     "update": "eas update --branch production --message \"OTA update\"",
-    "release": "npm run version:bump && npm run build:prod:skip-bump"
+    "release": "npm run version:bump && npm run build:prod:skip-bump",
+    "test": "jest"
   },
   "dependencies": {
     "@bacons/apple-targets": "^4.0.0",
@@ -71,11 +72,15 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@testing-library/react-native": "^14.0.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.10.1",
     "@types/react": "~19.1.17",
     "baseline-browser-mapping": "^2.9.17",
     "eslint": "^9.39.1",
     "eslint-config-expo": "~10.0.0",
+    "jest": "^30.5.0",
+    "jest-expo": "^57.0.5",
     "metro-minify-terser": "^0.83.3",
     "typescript": "~5.9.3"
   },
