@@ -1,1 +1,7 @@
+allowBuilds:
+  '@firebase/util': true
+  '@parcel/watcher': true
+  '@sentry/cli': true
+  protobufjs: true
+  unrs-resolver: true
 nodeLinker: hoisted

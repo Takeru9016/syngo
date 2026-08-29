@@ -2,7 +2,7 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "types": ["react", "react-native", "node", "tamagui"],
+    "types": ["react", "react-native", "node", "tamagui", "jest"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
