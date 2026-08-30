@@ -28,4 +28,4 @@ jobs:
         run: pnpm run typecheck
 
       - name: Test
-        run: pnpm test -- --ci
+        run: pnpm test --ci
