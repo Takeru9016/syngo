@@ -2,7 +2,7 @@
   "name": "syngo",
   "main": "expo-router/entry",
   "version": "1.4.2",
-  "packageManager": "pnpm@11",
+  "packageManager": "pnpm@11.22.0",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
