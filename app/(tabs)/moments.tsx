@@ -741,7 +741,7 @@ function EmptyPredefinedState() {
           No pre-defined stickers available
         </Text>
         <Text color="$muted" fontSize={14} textAlign="center" maxWidth={280}>
-          Pre-defined stickers will appear here once they're added to the app.
+          Pre-defined stickers will appear here once they&apos;re added to the app.
         </Text>
       </YStack>
     </Stack>
