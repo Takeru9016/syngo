@@ -118,7 +118,7 @@ export default function MoodScreen() {
               Mood
             </Text>
             <Text fontFamily="$body" color="$colorMuted" fontSize={13}>
-              Track and share how you're feeling
+              Track and share how you&apos;re feeling
             </Text>
           </YStack>
 
@@ -202,7 +202,7 @@ export default function MoodScreen() {
             fontSize={13}
             marginBottom="$2"
           >
-            Partner's mood
+            Partner&apos;s mood
           </Text>
           <MoodCard mood={partnerMood} onPress={handleOpenModal} />
         </YStack>
@@ -249,7 +249,7 @@ export default function MoodScreen() {
               textAlign="center"
               maxWidth={280}
             >
-              Start tracking your mood to share how you're feeling with your
+              Start tracking your mood to share how you&apos;re feeling with your
               partner.
             </Text>
           </YStack>
