@@ -32,4 +32,16 @@ export const tokens = {
     lg: 20,
     pill: 999,
   },
+  typography: {
+    fontFamily: {
+      emotional: "PlayfairDisplay-SemiBold",
+      ui: "Inter-Regular",
+    },
+    size: {
+      sm: 13,
+      md: 15,
+      lg: 18,
+      xl: 24,
+    },
+  },
 } as const;

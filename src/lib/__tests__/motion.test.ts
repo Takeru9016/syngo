@@ -2,8 +2,10 @@ import { springs, hapticForInteraction } from "../motion";
 import * as Haptics from "expo-haptics";
 
 jest.mock("expo-haptics", () => ({
-  impactAsync: jest.fn(),
+  impactAsync: jest.fn(() => Promise.resolve()),
+  notificationAsync: jest.fn(() => Promise.resolve()),
   ImpactFeedbackStyle: { Light: "light", Medium: "medium" },
+  NotificationFeedbackType: { Success: "success", Error: "error" },
 }));
 
 describe("springs", () => {
@@ -24,8 +26,13 @@ describe("hapticForInteraction", () => {
     expect(Haptics.impactAsync).toHaveBeenCalledWith("light");
   });
 
-  it("fires a medium impact for 'success'", () => {
+  it("fires a success notification for 'success'", () => {
     hapticForInteraction("success");
-    expect(Haptics.impactAsync).toHaveBeenCalledWith("medium");
+    expect(Haptics.notificationAsync).toHaveBeenCalledWith("success");
+  });
+
+  it("fires an error notification for 'error'", () => {
+    hapticForInteraction("error");
+    expect(Haptics.notificationAsync).toHaveBeenCalledWith("error");
   });
 });

@@ -27,13 +27,17 @@ export type InteractionKind = "press" | "success" | "error";
 export function hapticForInteraction(kind: InteractionKind): void {
   switch (kind) {
     case "press":
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
       return;
     case "success":
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+        () => {},
+      );
       return;
     case "error":
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(
+        () => {},
+      );
       return;
   }
 }

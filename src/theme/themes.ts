@@ -15,6 +15,7 @@ export const lightTheme = {
   },
   space: tokens.space,
   radius: tokens.radius,
+  typography: tokens.typography,
 };
 
 export const darkTheme = {
@@ -32,6 +33,7 @@ export const darkTheme = {
   },
   space: tokens.space,
   radius: tokens.radius,
+  typography: tokens.typography,
 };
 
 export type AppTheme = typeof lightTheme;
