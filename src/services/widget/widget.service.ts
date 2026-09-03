@@ -9,7 +9,7 @@ import { formatDistanceToNow, differenceInDays } from "date-fns";
 
 import { auth } from "@/config/firebase";
 import { useProfileStore } from "@/store/profile";
-import { usePairingStore } from "@/store/pairing";
+import { usePairingStore } from "@/features/pairing";
 import type {
   WidgetData,
   WidgetUserData,

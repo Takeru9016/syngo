@@ -1,4 +1,4 @@
-import { usePairingStore } from "@/store/pairing";
+import { usePairingStore } from "@/features/pairing";
 import { differenceInDays, format } from "date-fns";
 import { useMemo } from "react";
 

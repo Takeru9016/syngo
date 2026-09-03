@@ -12,7 +12,7 @@ import * as Sentry from "@sentry/react-native";
 import { useURL } from "expo-linking";
 
 import config from "../tamagui.config";
-import { usePairingStore } from "@/store/pairing";
+import { usePairingStore } from "@/features/pairing";
 import { useProfileStore } from "@/store/profile";
 import { useThemeStore } from "@/state/theme";
 import { useAuthStore } from "@/store/auth";

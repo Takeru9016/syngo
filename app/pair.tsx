@@ -15,7 +15,7 @@ import {
 } from "tamagui";
 
 import { CodeInput, Countdown, ScreenContainer } from "@/components";
-import { usePairingStore } from "@/store/pairing";
+import { usePairingStore } from "@/features/pairing";
 import { formatCode, unformatCode } from "@/utils/code-generator";
 import { subscribeToProfile } from "@/services/profile/profile.service";
 import { triggerSelectionHaptic } from "@/state/haptics";
