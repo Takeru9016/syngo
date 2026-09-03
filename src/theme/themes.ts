@@ -17,6 +17,7 @@ function buildTheme(scheme: ColorScheme, mode: StructuralMode) {
       textMuted: structural.textMuted,
       primary: accentOverlay.primary,
       primarySoft: accentOverlay.primarySoft,
+      onPrimary: tokens.color.onPrimary,
       accent: tokens.color.accent,
       success: tokens.color.success,
       warning: tokens.color.warning,

@@ -167,7 +167,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   ctaLabel: {
     fontFamily: theme.typography.fontFamily.ui,
-    color: theme.colors.background,
+    color: theme.colors.onPrimary,
     fontWeight: "600",
     fontSize: 17,
   },

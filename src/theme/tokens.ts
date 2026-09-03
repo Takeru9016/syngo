@@ -35,6 +35,12 @@ export const tokens = {
       sunset: { primary: "#E8B892", primarySoft: "#F2D8C3" },
       sky: { primary: "#9BC0D2", primarySoft: "#C8DCE6" },
     },
+    // Text/icon color rendered on top of `accents[*].primary`. The 8 pastel
+    // primaries are identical in light and dark mode, so this is a fixed deep
+    // ink in both — the mode's own `text` color would drop to ~1.5:1 against
+    // them in dark mode. This value clears 4.5:1 on all 8 primaries
+    // (mocha is the tightest at 5.4:1).
+    onPrimary: "#201716",
     accent: "#6B7A4F", // secondary accent (olive) — scheme-independent, unchanged from Phase 0
     success: "#4BAF79",
     warning: "#F1B04D",
