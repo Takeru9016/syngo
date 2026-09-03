@@ -13,7 +13,7 @@ import { updateWidgets } from "@/services/widget/widget.service";
 import { useTodayMood, usePartnerMood } from "@/hooks/useMood";
 import { useTodos } from "@/hooks/useTodo";
 import { useAppNotifications } from "@/hooks/useAppNotification";
-import { usePairingStore } from "@/store/pairing";
+import { usePairingStore } from "@/features/pairing";
 import type { Todo, AppNotification } from "@/types";
 
 /**

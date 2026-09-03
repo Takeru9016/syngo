@@ -37,7 +37,7 @@ import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
 
 import { useProfileStore } from "@/store/profile";
-import { usePairingStore } from "@/store/pairing";
+import { usePairingStore } from "@/features/pairing";
 import {
   useNotificationPreferences,
   NotificationPreferences,

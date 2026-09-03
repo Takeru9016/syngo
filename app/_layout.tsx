@@ -1,3 +1,8 @@
+// Side-effect import: runs StyleSheet.configure() (16 themes + breakpoints)
+// once, at app entry, before any module that calls StyleSheet.create() with a
+// theme callback is evaluated. Must stay the first import in this file.
+import "@/theme";
+
 import { useEffect, useRef, useState } from "react";
 import { useColorScheme } from "react-native";
 import { Slot, useRouter, useSegments } from "expo-router";
@@ -12,7 +17,7 @@ import * as Sentry from "@sentry/react-native";
 import { useURL } from "expo-linking";
 
 import config from "../tamagui.config";
-import { usePairingStore } from "@/store/pairing";
+import { usePairingStore } from "@/features/pairing";
 import { useProfileStore } from "@/store/profile";
 import { useThemeStore } from "@/state/theme";
 import { useAuthStore } from "@/store/auth";

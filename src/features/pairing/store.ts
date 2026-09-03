@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import * as pairingService from "@/services/pairing/pairing.service";
+import * as pairingService from "./service";
 import { formatCode } from "@/utils/code-generator";
 
 export type PairingState = {
