@@ -45,3 +45,4 @@ eas.json
 /ios
 
 .env.local
+.superpowers
