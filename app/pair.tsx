@@ -1,27 +1,58 @@
-import { useState, useEffect, useMemo } from "react";
-import { Share, Alert, Platform } from "react-native";
+import { useState, useEffect, useMemo, type ReactNode } from "react";
+import { ActivityIndicator, Platform, Pressable, Share, Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Clipboard from "expo-clipboard";
-import {
-  YStack,
-  XStack,
-  Stack,
-  Text,
-  Button,
-  Separator,
-  Switch,
-  Spinner,
-} from "tamagui";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import { StyleSheet } from "react-native-unistyles";
 
-import { CodeInput, Countdown, ScreenContainer } from "@/components";
-import { usePairingStore } from "@/features/pairing";
+import { useThemeSync } from "@/theme/useThemeSync";
+import { CodeInput, Countdown, usePairingStore } from "@/features/pairing";
 import { formatCode, unformatCode } from "@/utils/code-generator";
 import { subscribeToProfile } from "@/services/profile/profile.service";
 import { triggerSelectionHaptic } from "@/state/haptics";
 import { useToast } from "@/hooks/useToast";
+import { springs } from "@/lib/motion";
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+function PressScaleButton({
+  children,
+  style,
+  disabled,
+  onPress,
+}: {
+  children: ReactNode;
+  style: object;
+  disabled?: boolean;
+  onPress: () => void;
+}) {
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <AnimatedPressable
+      style={[style, animatedStyle, disabled && styles.disabled]}
+      disabled={disabled}
+      onPressIn={() => {
+        scale.value = withSpring(0.97, springs.pressIn);
+      }}
+      onPressOut={() => {
+        scale.value = withSpring(1, springs.pressOut);
+      }}
+      onPress={onPress}
+    >
+      {children}
+    </AnimatedPressable>
+  );
+}
 
 export default function PairScreen() {
+  useThemeSync();
+  const insets = useSafeAreaInsets();
   const {
     isPaired,
     pairId,
@@ -38,24 +69,14 @@ export default function PairScreen() {
   const { success, error: toastError } = useToast();
 
   const [input, setInput] = useState<string>("");
-  const [secure, setSecure] = useState<boolean>(true);
 
-  // Listen for profile changes (pairing updates)
   useEffect(() => {
     const unsubscribe = subscribeToProfile((profile) => {
-      if (profile?.pairId) {
-        setPairId(profile.pairId);
-      } else {
-        setPairId(null);
-      }
+      setPairId(profile?.pairId ?? null);
     });
-
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, [setPairId]);
 
-  // Check for existing code on mount
   useEffect(() => {
     if (!myCode || !expiresAt) {
       checkExistingCode().then((hasCode) => {
@@ -67,14 +88,12 @@ export default function PairScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Redirect if paired
   useEffect(() => {
     if (isPaired && pairId) {
       router.replace("/(tabs)");
     }
   }, [isPaired, pairId]);
 
-  // Clear error when input changes
   const handleInputChange = (newValue: string) => {
     setInput(newValue);
     if (error) {
@@ -102,8 +121,8 @@ export default function PairScreen() {
       await Share.share({
         message: `Join me on Syngo! Use this code to pair: ${myCode}`,
       });
-    } catch (error) {
-      console.error("Error sharing code:", error);
+    } catch (err) {
+      console.error("Error sharing code:", err);
     }
   };
 
@@ -112,320 +131,302 @@ export default function PairScreen() {
   }, [expiresAt]);
 
   const handleRedeem = async () => {
-    // Clean the input (remove non-alphanumeric)
     const cleanInput = input.replace(/[^A-Z0-9]/gi, "");
 
-    // Validate input
     if (!cleanInput || cleanInput.length !== 6) {
       toastError("Invalid Code", "Please enter a valid 6-character code.");
       return;
     }
 
-    // Format code (uppercase and clean)
     const formattedCode = unformatCode(input);
-
     triggerSelectionHaptic();
-
-    // Redeem code
     await redeemCode(formattedCode);
   };
 
-  // Format the displayed code with hyphen
   const displayCode = myCode ? formatCode(unformatCode(myCode)) : "---·---";
 
   return (
-    <ScreenContainer keyboardOffset={100} scroll={false} safeAreaBottom>
+    <View style={[styles.screen, { paddingBottom: insets.bottom }]}>
       <KeyboardAwareScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         enableOnAndroid
         extraScrollHeight={Platform.OS === "ios" ? 120 : 80}
         extraHeight={120}
-        style={{ backgroundColor: "transparent" }}
+        style={styles.scroll}
       >
-        <YStack flex={1} padding="$5" paddingTop="$2" gap="$4">
-          {/* Header */}
-          <YStack marginTop="$4" marginBottom="$2">
-            <Text
-              fontFamily="$heading"
-              color="$color"
-              fontSize={30}
-              fontWeight="800"
-              lineHeight={36}
-            >
-              Pair with your partner
-            </Text>
-          </YStack>
-          {/* Subtitle */}
-          <Text
-            fontFamily="$body"
-            color="$colorMuted"
-            fontSize={15}
-            lineHeight={22}
-            marginBottom="$2"
-          >
-            Pair and start sending cute reminders, stickers, and notes.
-          </Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Pair with your partner</Text>
+        </View>
+        <Text style={styles.subtitle}>
+          Pair and start sending cute reminders, stickers, and notes.
+        </Text>
 
-          {/* Share Code Card */}
-          <Stack
-            backgroundColor="$primarySoft"
-            borderRadius="$7"
-            padding="$5"
-            gap="$4"
-            borderWidth={1}
-            borderColor="$borderColor"
-          >
-            {/* Title */}
-            <Text
-              fontFamily="$heading"
-              color="$color"
-              fontSize={20}
-              fontWeight="700"
-              lineHeight={26}
-            >
-              I want to invite my partner
-            </Text>
+        <View style={styles.shareCard}>
+          <Text style={styles.cardTitle}>I want to invite my partner</Text>
 
-            {/* Code Display */}
-            <XStack
-              alignItems="center"
-              justifyContent="center"
-              paddingVertical="$3"
-            >
-              {isLoading && !myCode ? (
-                <Spinner size="large" color="$primary" />
-              ) : (
-                <Text
-                  fontFamily="$body"
-                  color="$color"
-                  fontSize={38}
-                  fontWeight="900"
-                  letterSpacing={4}
-                >
-                  {displayCode}
-                </Text>
-              )}
-            </XStack>
+          <View style={styles.codeRow}>
+            {isLoading && !myCode ? (
+              <ActivityIndicator size="large" color={styles.primaryColor.color} />
+            ) : (
+              <Text style={styles.codeDisplay}>{displayCode}</Text>
+            )}
+          </View>
 
-            {/* Copy + Share Buttons */}
-            <XStack gap="$3">
-              <Button
-                flex={1}
-                backgroundColor="$primary"
-                borderRadius="$6"
-                height={48}
-                onPress={handleCopy}
-                disabled={isLoading || codeExpired || !myCode}
-                pressStyle={{ opacity: 0.8, scale: 0.98 }}
-              >
-                {isLoading ? (
-                  <Spinner color="white" />
-                ) : (
-                  <Text
-                    fontFamily="$body"
-                    color="white"
-                    fontWeight="700"
-                    fontSize={16}
-                  >
-                    Copy
-                  </Text>
-                )}
-              </Button>
-              <Button
-                flex={1}
-                backgroundColor="transparent"
-                borderWidth={2}
-                borderColor="$primary"
-                borderRadius="$6"
-                height={48}
-                onPress={handleShare}
-                disabled={isLoading || codeExpired || !myCode}
-                pressStyle={{ opacity: 0.7, scale: 0.98 }}
-              >
-                <Text
-                  fontFamily="$body"
-                  color="$primary"
-                  fontWeight="700"
-                  fontSize={16}
-                >
-                  Share
-                </Text>
-              </Button>
-            </XStack>
-
-            {/* Secure Connection Row */}
-            <XStack
-              backgroundColor="$bgCard"
-              borderRadius="$5"
-              padding="$3"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Text
-                fontFamily="$body"
-                color="$color"
-                fontSize={15}
-                fontWeight="600"
-              >
-                Secure Connection
-              </Text>
-              <Switch
-                size="$3"
-                checked={secure}
-                onCheckedChange={(v) => {
-                  triggerSelectionHaptic();
-                  setSecure(!!v);
-                }}
-                backgroundColor={secure ? "$primary" : "$borderColor"}
-              >
-                <Switch.Thumb backgroundColor="white" />
-              </Switch>
-            </XStack>
-
-            {/* Countdown Row */}
-            <XStack
-              backgroundColor="$bgSoft"
-              borderRadius="$5"
-              paddingHorizontal="$3"
-              paddingVertical="$2"
-              alignItems="center"
-              justifyContent="space-between"
-              gap="$3"
-            >
-              <Countdown expiresAt={expiresAt} />
-
-              <Button
-                size="$3"
-                borderRadius="$6"
-                backgroundColor="transparent"
-                borderWidth={1}
-                borderColor="$primary"
-                height={44}
-                paddingHorizontal="$3"
-                onPress={handleGenerate}
-                disabled={isLoading}
-                pressStyle={{ opacity: 0.7, scale: 0.97 }}
-              >
-                {isLoading ? (
-                  <Spinner size="small" color="$primary" />
-                ) : (
-                  <Text
-                    fontFamily="$body"
-                    color="$primary"
-                    fontWeight="700"
-                    fontSize={14}
-                  >
-                    Regenerate
-                  </Text>
-                )}
-              </Button>
-            </XStack>
-          </Stack>
-
-          {/* Divider "or" */}
-          <XStack
-            alignItems="center"
-            justifyContent="center"
-            marginVertical="$3"
-          >
-            <Separator flex={1} borderColor="$borderColor" />
-            <Stack
-              width={40}
-              height={40}
-              borderRadius={20}
-              backgroundColor="$bg"
-              borderWidth={1}
-              borderColor="$borderColor"
-              alignItems="center"
-              justifyContent="center"
-              marginHorizontal="$3"
-            >
-              <Text fontFamily="$body" color="$colorMuted" fontSize={14}>
-                or
-              </Text>
-            </Stack>
-            <Separator flex={1} borderColor="$borderColor" />
-          </XStack>
-
-          {/* Enter Code Card */}
-          <Stack
-            backgroundColor="$bgCard"
-            borderRadius="$7"
-            padding="$5"
-            gap="$4"
-            marginBottom="$4"
-            borderWidth={1}
-            borderColor="$borderColor"
-          >
-            <Text
-              fontFamily="$heading"
-              color="$color"
-              fontSize={20}
-              fontWeight="700"
-              lineHeight={26}
-            >
-              I have a code
-            </Text>
-            <Text fontFamily="$body" color="$colorMuted" fontSize={15}>
-              Enter your partner&apos;s code
-            </Text>
-
-            <YStack alignItems="center">
-              <CodeInput
-                length={6}
-                group={3}
-                value={input}
-                onChange={handleInputChange}
-                error={error}
-              />
-            </YStack>
-
-            {error ? (
-              <Stack
-                backgroundColor="$bgSoft"
-                borderRadius="$4"
-                padding="$3"
-                borderWidth={1}
-                borderColor="$error"
-              >
-                <Text
-                  fontFamily="$body"
-                  color="$error"
-                  fontSize={14}
-                  fontWeight="600"
-                >
-                  {error}
-                </Text>
-              </Stack>
-            ) : null}
-
-            <Button
-              backgroundColor="$primary"
-              borderRadius="$6"
-              height={48}
-              onPress={handleRedeem}
-              disabled={
-                isLoading || input.replace(/[^A-Z0-9]/gi, "").length < 6
-              }
-              pressStyle={{ opacity: 0.8, scale: 0.98 }}
+          <View style={styles.buttonRow}>
+            <PressScaleButton
+              style={styles.primaryButton}
+              disabled={isLoading || codeExpired || !myCode}
+              onPress={handleCopy}
             >
               {isLoading ? (
-                <Spinner color="white" />
+                <ActivityIndicator color={styles.onPrimaryColor.color} />
               ) : (
-                <Text
-                  fontFamily="$body"
-                  color="white"
-                  fontWeight="700"
-                  fontSize={16}
-                >
-                  Pair now
-                </Text>
+                <Text style={styles.primaryButtonLabel}>Copy</Text>
               )}
-            </Button>
-          </Stack>
-        </YStack>
+            </PressScaleButton>
+            <PressScaleButton
+              style={styles.outlineButton}
+              disabled={isLoading || codeExpired || !myCode}
+              onPress={handleShare}
+            >
+              <Text style={styles.outlineButtonLabel}>Share</Text>
+            </PressScaleButton>
+          </View>
+
+          <View style={styles.countdownRow}>
+            <Countdown expiresAt={expiresAt} />
+            <PressScaleButton
+              style={styles.regenerateButton}
+              disabled={isLoading}
+              onPress={handleGenerate}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color={styles.primaryColor.color} />
+              ) : (
+                <Text style={styles.regenerateLabel}>Regenerate</Text>
+              )}
+            </PressScaleButton>
+          </View>
+        </View>
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <View style={styles.dividerBadge}>
+            <Text style={styles.dividerLabel}>or</Text>
+          </View>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <View style={styles.redeemCard}>
+          <Text style={styles.cardTitle}>I have a code</Text>
+          <Text style={styles.subtitle}>Enter your partner&apos;s code</Text>
+
+          <View style={styles.codeInputWrap}>
+            <CodeInput length={6} group={3} value={input} onChange={handleInputChange} error={error} />
+          </View>
+
+          {error ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+
+          <PressScaleButton
+            style={styles.primaryButton}
+            disabled={isLoading || input.replace(/[^A-Z0-9]/gi, "").length < 6}
+            onPress={handleRedeem}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={styles.onPrimaryColor.color} />
+            ) : (
+              <Text style={styles.primaryButtonLabel}>Pair now</Text>
+            )}
+          </PressScaleButton>
+        </View>
       </KeyboardAwareScrollView>
-    </ScreenContainer>
+    </View>
   );
 }
+
+const styles = StyleSheet.create((theme) => ({
+  screen: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  scroll: {
+    backgroundColor: "transparent",
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: theme.space.xl,
+    paddingTop: theme.space.sm,
+    gap: theme.space.lg,
+  },
+  header: {
+    marginTop: theme.space.lg,
+    marginBottom: theme.space.sm,
+  },
+  title: {
+    fontFamily: theme.typography.fontFamily.emotional,
+    color: theme.colors.text,
+    fontSize: 30,
+    fontWeight: "800",
+    lineHeight: 36,
+  },
+  subtitle: {
+    fontFamily: theme.typography.fontFamily.ui,
+    color: theme.colors.textMuted,
+    fontSize: theme.typography.size.md,
+    lineHeight: 22,
+    marginBottom: theme.space.sm,
+  },
+  shareCard: {
+    backgroundColor: theme.colors.primarySoft,
+    borderRadius: theme.radius.lg,
+    padding: theme.space.xl,
+    gap: theme.space.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  cardTitle: {
+    fontFamily: theme.typography.fontFamily.emotional,
+    color: theme.colors.text,
+    fontSize: 20,
+    fontWeight: "700",
+    lineHeight: 26,
+  },
+  codeRow: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: theme.space.md,
+  },
+  codeDisplay: {
+    fontFamily: theme.typography.fontFamily.ui,
+    color: theme.colors.text,
+    fontSize: 38,
+    fontWeight: "900",
+    letterSpacing: 4,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: theme.space.md,
+  },
+  primaryColor: {
+    color: theme.colors.primary,
+  },
+  onPrimaryColor: {
+    color: theme.colors.background,
+  },
+  primaryButton: {
+    flex: 1,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primaryButtonLabel: {
+    fontFamily: theme.typography.fontFamily.ui,
+    color: theme.colors.background,
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  outlineButton: {
+    flex: 1,
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  outlineButtonLabel: {
+    fontFamily: theme.typography.fontFamily.ui,
+    color: theme.colors.primary,
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  countdownRow: {
+    backgroundColor: theme.colors.surfaceSoft,
+    borderRadius: theme.radius.md,
+    paddingHorizontal: theme.space.md,
+    paddingVertical: theme.space.sm,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: theme.space.md,
+  },
+  regenerateButton: {
+    borderRadius: theme.radius.md,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    height: 44,
+    paddingHorizontal: theme.space.md,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  regenerateLabel: {
+    fontFamily: theme.typography.fontFamily.ui,
+    color: theme.colors.primary,
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: theme.space.md,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: theme.colors.border,
+  },
+  dividerBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.colors.background,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: theme.space.md,
+  },
+  dividerLabel: {
+    fontFamily: theme.typography.fontFamily.ui,
+    color: theme.colors.textMuted,
+    fontSize: 14,
+  },
+  redeemCard: {
+    backgroundColor: theme.colors.surfaceSoft,
+    borderRadius: theme.radius.lg,
+    padding: theme.space.xl,
+    gap: theme.space.lg,
+    marginBottom: theme.space.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  codeInputWrap: {
+    alignItems: "center",
+  },
+  errorBox: {
+    backgroundColor: theme.colors.surfaceSoft,
+    borderRadius: theme.radius.sm,
+    padding: theme.space.md,
+    borderWidth: 1,
+    borderColor: theme.colors.error,
+  },
+  errorText: {
+    fontFamily: theme.typography.fontFamily.ui,
+    color: theme.colors.error,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+}));
