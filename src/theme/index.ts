@@ -1,21 +1,22 @@
 import { StyleSheet } from "react-native-unistyles";
 import { breakpoints } from "./breakpoints";
-import { lightTheme, darkTheme } from "./themes";
+import { themes } from "./themes";
 
-// react-native-unistyles v3.3.0 registers themes/breakpoints via
-// StyleSheet.configure — the installed package has no UnistylesRegistry
-// export (that's a v2 API). See task-4-report.md for verification.
+// v3.3.0 has no adaptive-themes-only path that also supports 16
+// user-selectable named themes — Phase 1 switches themes manually via
+// UnistylesRuntime.setTheme (see useThemeSync.ts), so `adaptiveThemes`
+// is dropped. `initialTheme` matches useThemeStore's own defaults
+// (colorScheme: "coral", mode: "system" resolving to "light" pre-hydration)
+// so there's no flash of an unstyled/wrong theme before useThemeSync's
+// first effect runs.
 StyleSheet.configure({
   settings: {
-    adaptiveThemes: true,
+    initialTheme: "coral_light",
   },
-  themes: {
-    light: lightTheme,
-    dark: darkTheme,
-  },
+  themes,
   breakpoints,
 });
 
 export { tokens } from "./tokens";
-export { lightTheme, darkTheme } from "./themes";
-export type { AppTheme } from "./themes";
+export { themes } from "./themes";
+export type { AppTheme, ColorScheme, StructuralMode } from "./themes";
