@@ -92,7 +92,6 @@ export const CodeInput = forwardRef<TextInput, Props>(function CodeInput(
                 editable={!disabled}
                 selectTextOnFocus
                 style={styles.input}
-                testID={`code-input-${i}`}
               />
             </View>
             {showHyphenAfter && i < length - 1 ? (

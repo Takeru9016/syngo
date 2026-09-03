@@ -11,22 +11,22 @@ function Controlled({ error }: { error?: string | null }) {
 describe("CodeInput", () => {
   it("renders 6 digit slots", async () => {
     await render(<Controlled />);
-    expect(screen.getAllByTestId(/code-input-/)).toHaveLength(6);
+    expect(screen.getAllByDisplayValue("")).toHaveLength(6);
   });
 
   it("fills a digit and calls onChange with the full padded value", async () => {
     const onChange = jest.fn();
     await render(<CodeInput length={6} group={3} value="" onChange={onChange} />);
-    const firstInput = screen.getByTestId("code-input-0");
-    fireEvent.changeText(firstInput, "a");
+    const inputs = screen.getAllByDisplayValue("");
+    fireEvent.changeText(inputs[0], "a");
     expect(onChange).toHaveBeenCalledWith("A");
   });
 
   it("clears the current digit on backspace when it has a value", async () => {
     const onChange = jest.fn();
     await render(<CodeInput length={6} group={3} value="AB1" onChange={onChange} />);
-    const secondInput = screen.getByTestId("code-input-1");
-    fireEvent(secondInput, "keyPress", { nativeEvent: { key: "Backspace" } });
+    const filled = screen.getByDisplayValue("B");
+    fireEvent(filled, "keyPress", { nativeEvent: { key: "Backspace" } });
     expect(onChange).toHaveBeenCalledWith("A1");
   });
 });
