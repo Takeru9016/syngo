@@ -126,9 +126,21 @@ export default function PairScreen() {
     }
   };
 
-  const codeExpired = useMemo(() => {
-    return !!expiresAt && Date.now() > expiresAt;
+  // Ticks while a code is outstanding so `codeExpired` flips the moment the
+  // code dies — Countdown's own interval is internal and doesn't re-render
+  // this screen.
+  const [now, setNow] = useState<number>(() => Date.now());
+
+  useEffect(() => {
+    if (!expiresAt) return;
+    setNow(Date.now());
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
   }, [expiresAt]);
+
+  const codeExpired = useMemo(() => {
+    return !!expiresAt && now > expiresAt;
+  }, [expiresAt, now]);
 
   const handleRedeem = async () => {
     const cleanInput = input.replace(/[^A-Z0-9]/gi, "");
@@ -316,7 +328,7 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.primary,
   },
   onPrimaryColor: {
-    color: theme.colors.background,
+    color: theme.colors.onPrimary,
   },
   primaryButton: {
     flex: 1,
@@ -328,7 +340,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   primaryButtonLabel: {
     fontFamily: theme.typography.fontFamily.ui,
-    color: theme.colors.background,
+    color: theme.colors.onPrimary,
     fontWeight: "700",
     fontSize: 16,
   },
